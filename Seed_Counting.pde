@@ -1,14 +1,17 @@
 #include <Stepper_ac05.h>
 #include <avr/pgmspace.h>
 
-#define version_prog "TEST V1.4"
+#define version_prog "TEST V2.0"
 
 /********************************************
 **  Name: Seed Counter 
-**  Version: V1.3
-**  Last Updated: 13/05/2011
+**  Version: V2.0
 *********************************************
 **  REVISIONS
+**  V2.0 - 27/06/2011
+**  * Changed hardware, new motors new functionality, complete reset
+**  * Testing New motors
+**
 **  V1.4 - 31/05/2011
 **  * Implement 2 holes pick-up seed
 **  * Improved INIT seuquence of the counter
@@ -22,7 +25,7 @@
 **  * Implemented PROGMEM to store data of the matrix into flash memroy (cancelled)
 **  * Added serial debugging
 *********************************************
-*/
+
 
 // ***********************
 // ** DEFINE ARRAY DIMENSION FOR BLISTERS
@@ -36,23 +39,46 @@ PROGMEM  prog_uint16_t y_axis_set[]  = { 1,1,38,465,57,567};
 // pgm_read_word_near(charSet + N)
 // cycle of blister N = N + (N - 1)
 // step position of blister N = N + N
+*/
 
+// ***********************
+// ** DEFINES PIN MAP
+// ***********************
+#define button1 23
+#define button2 25
+#define button3 27
+#define stepA 8
+#define stepB 10
+//#define stepC 
+//#define stepD
+#define dirA 9
+#define dirB 11
+//#define dirC 
+//#define dirD
+#define sensA 12
+#define sensB 13
+//#define sensD 7
 
 // ***********************
 // ** CONFIG MOTOR PINS
 // ***********************
+/* OLD CONFIG
 // Setting up motor 1, step pin = 9, direction pin = 8 , sensor pin 6, 200 steps, 8 for wighth step(mode of the stepper driver)
 Stepper_ac Seedcounter1(9,8,6,200,8);   
 // Setting up motor 2, step pin = 11, direction pin = 10 , sensor pin 4, 200 steps, 4 for Quarter step(mode of the stepper driver)
 Stepper_ac Xaxis(11,10,4,200,4);   
 // Setting up motor 3, step pin = 13, direction pin = 12 , sensor pin 5, 200 steps, 4 for Quarter step(mode of the stepper driver)
 Stepper_ac Yaxis(13,12,5,200,4);
+*/
 
-// ***********************
-// ** DEFINES PINS EXTRA BUTTONS
-// ***********************
-#define button1 2
-#define button2 3
+// Setting up motor A, step pin, direction pin, sensor pin, 200 steps, 8 for wighth step(mode of the stepper driver)
+Stepper_ac motorA(stepA,dirA,sensA,200,8);   
+// Setting up motor A, step pin, direction pin, sensor pin, 200 steps, 8 for wighth step(mode of the stepper driver)
+// Setting up motor B, step pin = 11, direction pin = 10 , sensor pin 4, 200 steps, 4 for Quarter step(mode of the stepper driver)
+Stepper_ac motorB(stepB,dirB,sensB,200,8);   
+
+
+
 
 // ***********************
 // ** DEFINES variables

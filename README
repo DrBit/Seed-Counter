@@ -1,11 +1,14 @@
 /********************************************
 **  Name: Seed Counter 
-**  Version: V1.4
-**  Last Updated: 13/05/2011
+**  Version: V2.0
 *********************************************
 **  REVISIONS
+**  V2.0 - 27/06/2011
+**  * Changed hardware, new motors new functionality, complete reset
+**  * Testing New motors
+**
 **  V1.4 - 31/05/2011
-**  * Implement 2 holes pick-up seed (Not completetd, project on-hold)
+**  * Implement 2 holes pick-up seed
 **  * Improved INIT seuquence of the counter
 **  * Check free memory during program
 **  * removed first time drop function (instead prepare motor in INIT function)
@@ -17,5 +20,4 @@
 **  * Implemented PROGMEM to store data of the matrix into flash memroy (cancelled)
 **  * Added serial debugging
 *********************************************
-*/
 
