@@ -1,1 +1,17 @@
-First testings with the code. Version V1.1
+/********************************************
+**  Name: Seed Counter 
+**  Version: V1.3
+**  Last Updated: 13/05/2011
+*********************************************
+**  REVISIONS
+**  V1.3 - 13/05/2011
+**  * Included version 0.5 of library
+**  * Improved steps counting (library)
+**  * Code readability improved
+**  * Implemented PROGMEM to store data of the matrix into flash memroy (cancelled)
+**  * Added serial debugging
+**
+**  V1.2 - 13/05/2011
+**  * Code readability improved
+*********************************************
+*/
