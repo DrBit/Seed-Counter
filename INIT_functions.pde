@@ -60,19 +60,25 @@ void XYaxes_init () {
 }
 
 
-
 // Inits the seedcounter using the sensor as a starting point
 // The sensor should be always at the same position in all the seedcunters and the init position hardcoded based on the position of the sensor.
 void Seedcounter_init() {
   boolean seed_sensor = false; 
   int count = 0;
-  Seedcounter1.set_direction (true);   // Goes back till we find the sensor
+  
+  // First time we init we just go back one complete cycle in case we have seeds atached and we bring them into the deposit
+  Seedcounter1.set_direction (false);   // Set direction
+  for (int a=1600; a > 0; a--) {
+    Seedcounter1.do_step();
+    delayMicroseconds(motor_speed);
+  }
+    
+  Seedcounter1.set_direction (true);   // Set direction
   while (!seed_sensor) {
           // If the vacuum is not on, this would be cheking for the 0 position foreve
           // so we count ten times and if there is no sense of a seed we pause
           count++;
-          //if (count == (1600*10)) {
-          if (count == (800*10)) {   //  wat is exactly the 800? 
+          if (count == (800*10)) {  
             //do a pause
             boolean pause = true;
             Serial.println("*** error in the seed counter roll, check vacuum, check sensor");
@@ -95,21 +101,30 @@ void Seedcounter_init() {
 	    }
 	    // This delay slows down the velocity so we won't miss any step
             // Thats because we are not using acceleration in this case
-	    delayMicroseconds(600);
+	    delayMicroseconds(motor_speed);
 	}
         for (int i=0;i<10; i++) {   // Since the detection of the seed is just at the edge of the same seed we do
                                     // 10 steps further to be in the middle of the sensor
           Seedcounter1.do_step();
-          delayMicroseconds(600);
+          delayMicroseconds(motor_speed);
         }
 	Seedcounter1.set_init_position();  
+
+        Seedcounter1.set_direction (false);   // Set direction
+        for (int i=0;i<400; i++) {   // we go back at the position we should be for starting point
+          Seedcounter1.do_step();
+          delayMicroseconds(motor_speed);
+        }
+        Seedcounter1.set_direction (true);   // Set direction
 }
+
 
 void init_serial() {
   Serial.begin (9600);
   Serial.println ("*****************************");
-  Serial.println ("** Seed Counter on-line    **");
+  Serial.print ("** Seed Counter on-line  ");
+  Serial.println (version_prog);
   Serial.println ("*****************************");
-  Serial.println ("TEST V1.3");
+  
 }
 

@@ -343,6 +343,23 @@ static unsigned long sqrt_(unsigned long x)
 }
 
 
-
+////////////////////////////////////////////////////////////
+// This function comes back from the acceleration function with a proper timing to 
+// do steps on the motors
+// As we dont have any way of knowing which motor we are moving back from this function
+// we preselect the motor (0,1,2) before doing the movement
+/////////////////////////////////////////////////////////////
+void sm_driver_StepCounter(unsigned char Mdirection) {
+  if (motor_select == 0) {
+    Seedcounter1.set_direction (Mdirection);
+    Seedcounter1.do_step();
+  }else if (motor_select == 1) {
+    Xaxis.set_direction (!Mdirection);
+    Xaxis.do_step();
+  }else if (motor_select == 2) {
+    Yaxis.set_direction (!Mdirection);
+    Yaxis.do_step();
+  }
+}
 
 

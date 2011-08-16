@@ -4,14 +4,18 @@
 **  Last Updated: 13/05/2011
 *********************************************
 **  REVISIONS
+**  V1.4 - 31/05/2011
+**  * Implement 2 holes pick-up seed (Not completetd, project on-hold)
+**  * Improved INIT seuquence of the counter
+**  * Check free memory during program
+**  * removed first time drop function (instead prepare motor in INIT function)
+**
 **  V1.3 - 13/05/2011
 **  * Included version 0.5 of library
 **  * Improved steps counting (library)
 **  * Code readability improved
 **  * Implemented PROGMEM to store data of the matrix into flash memroy (cancelled)
 **  * Added serial debugging
-**
-**  V1.2 - 13/05/2011
-**  * Code readability improved
 *********************************************
 */
+
