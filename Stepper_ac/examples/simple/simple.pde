@@ -5,7 +5,7 @@ Seed Counter
 */
 
 // Inlcude for the self made library Stepper_ac
-#include <Stepper_ac05.h> 
+#include <Stepper_ac.h> 
 
 // ***********************
 // ** DEFINES PIN MAP

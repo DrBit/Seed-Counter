@@ -1,59 +1,51 @@
 // Inits the seedcounter using the sensor as a starting point
 // The sensor should be always at the same position in all the seedcunters and the init position hardcoded based on the position of the sensor.
-void Seedcounter_init() {
-  boolean seed_sensor = false; 
-  int count = 0;
-  
-  // First time we init we just go back one complete cycle in case we have seeds atached and we bring them into the deposit
-  MotorD.set_direction (false);   // Set direction
-  for (int a=1600; a > 0; a--) {
-    MotorD.do_step();
-    delayMicroseconds(motor_speed);
-  }
-    
-  MotorD.set_direction (true);   // Set direction
-  while (!seed_sensor) {
-          // If the vacuum is not on, this would be cheking for the 0 position foreve
-          // so we count ten times and if there is no sense of a seed we pause
-          count++;
-          if (count == (800*10)) {  
-            //do a pause
-            boolean pause = true;
-            Serial.println("*** error in the seed counter roll, check vacuum, check sensor");
-            Serial.println("*** Press button 2 to try again");
-            while (pause) {
-              //Chek if we press the start button
-              if (digitalRead(button2) == HIGH) {
-                Serial.println("*** trying again...");
-                pause = false;   // If we do, unpause
-                count = 0;
-              }
-            }
-          }  
-          if (!MotorD.sensor_check()) {
-	    MotorD.do_step();
-	    }
-	    if (MotorD.sensor_check()) {
-              // If the sensor is true means we found the position of the sensor
-              seed_sensor = true;
-	    }
-	    // This delay slows down the velocity so we won't miss any step
-            // Thats because we are not using acceleration in this case
-	    delayMicroseconds(motor_speed);
+boolean Seedcounter_init() {
+	boolean seed_sensor = false; 
+	int count = 0;
+
+	// First time we init we just go back one complete cycle in case we have seeds atached and we bring them into the deposit
+	MotorD.set_direction (false);   // Set direction
+	for (int a=1600; a > 0; a--) {
+		MotorD.do_step();
+		delayMicroseconds(motor_speed);
 	}
-        for (int i=0;i<10; i++) {   // Since the detection of the seed is just at the edge of the same seed we do
-                                    // 10 steps further to be in the middle of the sensor
-          MotorD.do_step();
-          delayMicroseconds(motor_speed);
-        }
+
+	MotorD.set_direction (true);   // Set direction
+	while (!seed_sensor) {
+		// If the vacuum is not on, this would be cheking for the 0 position foreve
+		// so we count ten times and if there is no sense of a seed we pause
+		count++;
+		if (count == (800*10)) {  
+			//send_error("c1");     still to implemetn an error message system
+			// Counter error, pump might be off, seeds deposits might be empty, sensor might be disconnected or broken
+			return false;  // Failed to initiate seed counter, retunr false
+		}  
+		if (!MotorD.sensor_check()) {
+			MotorD.do_step();
+		}
+		if (MotorD.sensor_check()) {
+			// If the sensor is true means we found the position of the sensor
+			seed_sensor = true;
+		}
+		// This delay slows down the velocity so we won't miss any step
+		// Thats because we are not using acceleration in this case
+		delayMicroseconds(motor_speed);
+	}
+	for (int i=0;i<10; i++) {   // Since the detection of the seed is just at the edge of the same seed we do	
+								// 10 steps further to be in the middle of the sensor
+		MotorD.do_step();
+		delayMicroseconds(motor_speed);
+	}
 	MotorD.set_init_position();  
 
-        MotorD.set_direction (false);   // Set direction
-        for (int i=0;i<400; i++) {   // we go back at the position we should be for starting point
-          MotorD.do_step();
-          delayMicroseconds(motor_speed);
-        }
-        MotorD.set_direction (true);   // Set direction
+	MotorD.set_direction (false);   // Set direction
+	for (int i=0;i<400; i++) {   // we go back at the position we should be for starting point
+		MotorD.do_step();
+		delayMicroseconds(motor_speed);
+	}
+	MotorD.set_direction (true);   // Set direction
+	return true;
 }
 
 // Function to pick up a seed

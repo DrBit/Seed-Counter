@@ -2,9 +2,11 @@
 void init_serial() {
   Serial.begin (9600);
   Serial.println ("*****************************");
-  Serial.print   ("** Seed Counter on-line  ");
-  Serial.println (version_prog);
+  Serial.println ("** Seed Counter on-line    **");
   Serial.println ("*****************************");
+  Serial.print   ("Version: ");
+  Serial.prtinln (version_prog);
+  Serial.println (" ");
 }
 
 

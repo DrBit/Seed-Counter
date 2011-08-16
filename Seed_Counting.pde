@@ -1,29 +1,42 @@
-#include <Stepper_ac05.h>
+#include <Stepper_ac.h>
 #include <avr/pgmspace.h>
 
-#define version_prog "TEST V2.0"
+#define version_prog "TEST V2.1.1"
 
 /********************************************
 **  Name: Seed Counter 
-**  Version: V2.0
+**  Created: 27/06/2011
 *********************************************
 **  REVISIONS
+**
+**  V2.1.1 - 11/08/2011
+**  * Added control of the axis limits in manual mode to avoid going to far and damaging the sensors or going off limits.
+**  * Added Manual mode for the blisters dispenser
+**  * Changed to the new library version 0.6 "Stepper_ac06.h"
+**
+**  V2.1.0 - 10/08/2011
+**  * Merging code from previous motor testings
+**  * Created new set of functions for controlling blister's motors "blisters.pde"
+**  * Implemented error checking system in XY motors init algorithm. Depured code.
+**  * Added velocity control of the motors. MS1,MS2 conencted from Arduino to the "easy driver" (functions included in library "Stepper_ac05.h")
+**  *
 **  V2.0 - 27/06/2011
-**  * Changed hardware, new motors new functionality, complete reset
+**  * Changed hardware, new motors, new functionality, complete code reset
 **  * Testing New motors
 **
 **  V1.4 - 31/05/2011
 **  * Implement 2 holes pick-up seed
-**  * Improved INIT seuquence of the counter
+**  * Improved INIT sequence of the counter
 **  * Check free memory during program
-**  * removed first time drop function (instead prepare motor in INIT function)
+**  * removed first time drop function (instead included in motor_INIT function)
 **
 **  V1.3 - 13/05/2011
 **  * Included version 0.5 of library
-**  * Improved steps counting (library)
+**  * Improved steps counting (in library "Stepper_ac05.h")
 **  * Code readability improved
-**  * Implemented PROGMEM to store data of the matrix into flash memroy (cancelled)
+**  * Implemented PROGMEM to store data of the matrix into flash memroy (on hold waiting for new HW prototype version)
 **  * Added serial debugging
+**
 *********************************************
 
 
@@ -47,37 +60,49 @@ PROGMEM  prog_uint16_t y_axis_set[]  = { 1,1,38,465,57,567};
 #define button1 23
 #define button2 25
 #define button3 27
+
 #define stepA 8
 #define stepB 10
-//#define stepC 
-//#define stepD
+#define stepC 6
+#define stepD 52
 #define dirA 9
 #define dirB 11
-//#define dirC 
-//#define dirD
+#define dirC 5
+#define dirD 53
 #define sensA 12
 #define sensB 13
-//#define sensD 7
+#define sensC "not_used"
+#define sensD 7
+
+#define ms1A 43
+#define ms2A 42
+#define ms1B 41
+#define ms2B 40
+#define ms1C 44
+#define ms2C 45
+#define ms1D 51
+#define ms2D 50
+
+// ***********************
+// ** Physical limits
+// ***********************
+
+#define Xaxis_cycles_limit 280
+#define Yaxis_cycles_limit 12
+#define blisters_steps_limit 300    
+#define blisters_steps_absoulut_limit 1000
 
 // ***********************
 // ** CONFIG MOTOR PINS
 // ***********************
-/* OLD CONFIG
-// Setting up motor 1, step pin = 9, direction pin = 8 , sensor pin 6, 200 steps, 8 for wighth step(mode of the stepper driver)
-Stepper_ac Seedcounter1(9,8,6,200,8);   
-// Setting up motor 2, step pin = 11, direction pin = 10 , sensor pin 4, 200 steps, 4 for Quarter step(mode of the stepper driver)
-Stepper_ac Xaxis(11,10,4,200,4);   
-// Setting up motor 3, step pin = 13, direction pin = 12 , sensor pin 5, 200 steps, 4 for Quarter step(mode of the stepper driver)
-Stepper_ac Yaxis(13,12,5,200,4);
-*/
-
-// Setting up motor A, step pin, direction pin, sensor pin, 200 steps, 8 for wighth step(mode of the stepper driver)
-Stepper_ac motorA(stepA,dirA,sensA,200,8);   
-// Setting up motor A, step pin, direction pin, sensor pin, 200 steps, 8 for wighth step(mode of the stepper driver)
-// Setting up motor B, step pin = 11, direction pin = 10 , sensor pin 4, 200 steps, 4 for Quarter step(mode of the stepper driver)
-Stepper_ac motorB(stepB,dirB,sensB,200,8);   
-
-
+// Setting up motor A, step pin, direction pin, sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for wighth step(mode of the stepper driver)
+Stepper_ac Xaxis(stepA,dirA,sensA,ms1A,ms2A,200,2);   
+// Setting up motor B, step pin, direction pin, sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for wighth step(mode of the stepper driver)
+Stepper_ac Yaxis(stepB,dirB,sensB,ms1B,ms2B,200,4);   
+// Setting up motor C, step pin, direction pin, NO sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for wighth step(mode of the stepper driver)
+Stepper_ac blisters(stepC,dirC,0,ms1C,ms2C,200,4);
+// Setting up motor D, step pin, direction pin, sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for wighth step(mode of the stepper driver)
+Stepper_ac counter(stepD,dirD,sensD,ms1D,ms2D,200,4);
 
 
 // ***********************
@@ -93,26 +118,65 @@ int motor_speed=580;
 
 /////////////////////////////////////////////////
 void setup() {
-  init_serial();
 
-  //Configure 2 Input Buttons
+  init_serial();
+  Serial.println("Check the seed counter for any blister maygh be left in the conveier");
+  Serial.println("When ready press button 1 to start set-up process");
+ 
+ // Press button 1 to start
+  press1_to_continue();
+  Serial.println("SETTING UP");
+  
+  //Configure 3 Input Buttons
   pinMode (button1, INPUT);
   pinMode (button2, INPUT);
+  pinMode (button3, INPUT);
   
   // Initiate the Timer1 config function in order to prepare the timing functions of motor acceleration
   speed_cntr_Init_Timer1();
   delay (10);  // Delay to be safe
-  Serial.println("SETTING UP");
+  
+  // Init XY axis
+  Serial.print("Initializing XY Axes: ");
+  if (XYaxes_init()) {       // Initiates X and Y axes
+	print_ok();
+  }else{
+	print_fail();
+  }
+  
+  // Init Counter
+  Serial.print("Initializing Seed counter roll: ");
+  if (Seedcounter_init()) {  // Initiates seed counters
+	print_ok();
+  }else{
+	print_fail();
+	
+	//////////////// REWORK this piece of code
+	//do a pause
+	boolean pause = true;
+	Serial.println("*** error in the seed counter roll, please check the vacuum engine, check the sensor cable is connected correctly");
+	Serial.println("*** Press button 2 to try again");
+	while (pause) {
+	  //Chek if we press the start button
+	  if (digitalRead(button2) == HIGH) {
+		Serial.println("*** trying again...");
+		pause = false;   // If we do, unpause
+		count = 0;
+	  }
+	}	
+	//////////////////////////////////
+  }
+  
+  //Init blister dispenser
+  Serial.println("Initializing blister dispenser: ");
+  if (blisters_init ()) {
+	print_ok();
+  }else{
+	print_fail();
+  }
+  
   // Mem_check
   mem_check ();
-  // Reset all motors and find point 0
-  Serial.println("XY Axes Initializing:");
-  XYaxes_init();       // Initiates X and Y axes
-  Serial.println("XY Axes OK");
-  Serial.println("Seed counter roll Initializing:");
-  Seedcounter_init();  // Initiates seed counters
-  Serial.println("Seed counter roll OK");
-  
 }
 
 
@@ -121,132 +185,56 @@ void setup() {
 // ************************************************************
 
 void loop() {
-  // Press button 2 to start
-  boolean start = false;
-  while (!start)
-  {
-    if (digitalRead(button2) == HIGH) {
-      start = true;
-    }
-  }  
+  Serial.println("Ready! Press button 1 to start");
+  // Press button 1 to start
+  press1_to_continue();
+  
+  // Start program
+  release_blister ();  //- motors C half turn and back
+  
+  go_to_position (80,30,10,30)  // example position (xcycles, xsteps, ycycles, ysteps)
+
+  get 
+- seedcounter motor D turn
+- motor B turn (+8 turns)
+- seedcounter motor D turn
+- motor B turn
+- seedcounter motor D turn
+- motor B turn (-8 turns)
+- seedcounter motor D turn
+- motor B turn
+- seedcounter motor D turn
+- motor B turn (+8 turns)
+- seedcounter motor D turn
+- motor B turn
+- seedcounter motor D turn
+- motor B turn (-8 turns)
+- seedcounter motor D turn
+- motor A turn
+- seedcounter motor D turn
+- motor B turn (+8 turns)
+- seedcounter motor D turn
+- motor B turn (-8 turns)
+
+- motor A turn until blister is under printer
+- print lable on blister
+- motor A turn unti blister drops
   
   
   pickup_seed_extended ();
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////// 1e blister //////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  for (int x=0;x<34; x++) {  
-      go_position1 (); //arne comment: go to  next x axle position
-      pickup_seed_extended (); 
-   } 
-  // 2nd row
-  go_position2 (); //arne comment: go to  next y axle position
-  pickup_seed_extended ();  
-  //////////////////////////
-
-  for (int x=0;x<34; x++) { 
-    go_position3 (); //arne comment: go to  next x axle position
-    pickup_seed_extended ();  
-  } 
-  
-  // 3nd row
-  go_positionRow (); //arne comment: go to  next y axle position
-  pickup_seed_extended ();  
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
-   
-  XYaxes_init();       // Initiates X and Y axes
-  delay (500);  
+ 
 }
 
 
-// Function to pick up a seed
-// Automatically detects when there is , or not a seed and drops it.
-void pickup_seed_extended () {
-  motor_select = 0;
-  boolean seed_detected = false;
-  // IMLEMENT BOTH HOLES of the vacuum hole ... see below
-  Serial.print (Seedcounter1.get_steps_cycles());
-  Serial.print (" - ");
-  Serial.println (Seedcounter1.get_steps());
-  while (!seed_detected) {
-    if ((Seedcounter1.get_steps() == 1200) || (Seedcounter1.get_steps() == 400)  || (Seedcounter1.get_steps() == -400)) {
-      delay (150);   // Wait for the interruption to reset itself   // CHEK WHY IS THIS HAPPENING --
-      speed_cntr_Move(-800,5500,19000,19000);  // We do a half turn, NOTICE that the acceleration in this case is lower
-                                                // Thats to avoid trowing seeds and to achieve a better grip on the seed
-    }
-    if ((Seedcounter1.get_steps() == 1600) || (Seedcounter1.get_steps() == 800) || (Seedcounter1.get_steps() == 0)) {   // We chek the sensor only when we are in the range of the sensor
-      if (Seedcounter1.sensor_check()){                 // We got a seed!!!
-          seed_detected = true; 
-          while (!(Seedcounter1.get_steps() == 1200) && !(Seedcounter1.get_steps() == 400))
-          {
-            //delay (100); // Wait for the seed to fall
-          }
-      }
-    }
-  
-  }
-}
-
-// ************************************************************
-// ** POSITION FUNCTIONS
-// ************************************************************
-void go_position1 () { //arne comment: go to next position on x axle 
-  motor_select = 1;
-  speed_cntr_Move(6530,19000,20000,20000);
-  delay (5550);
-}
-
-
-void go_position2 () { //arne comment: go to next position on y axle
-  motor_select = 2;
-  speed_cntr_Move(6500,15000,16000,16000);
-  delay (3550);
-}
-
-void go_positionRow () { //arne comment: go to next position on y axle
-  motor_select = 2;
-  speed_cntr_Move(8800,15000,16000,16000);
-  delay (3500);
-}
-
-void go_position3 () { //arne comment: go to next position on x axle backwards 
-  motor_select = 1;
-  speed_cntr_Move(-6530,19000,20000,20000);
-  delay (2550); 
+void release_blister () {
+	// motors to position up
+	delay (1000);
+	// motors to position hold
+	motor_select = 2;
+	speed_cntr_Move(-400,15000,16000,16000);
 }
 
 
 
 
-int get_cycle_Xpos(int pos_num) {
-  return pgm_read_word_near(x_axis_set + (2*N) - 2)
-}
-
-int get_step_Xpos(int pos_num) {
-  return pgm_read_word_near(x_axis_set + (2*N) - 1)
-}
-
-int get_cycle_Ypos(int pos_num) {
-  return pgm_read_word_near(y_axis_set + (2*N) - 2)
-}
-
-int get_step_Ypos(int pos_num) {
-  return pgm_read_word_near(y_axis_set + (2*N) - 1)
-}
-
-void go_to_position (int position_to_go) {
-  int X_cycles_to_move = Xaxis.get_steps_cycles() - get_cycle_Xpos(position_to_go);
-  int X_steps_to_move = Xaxis.get_steps() - get_step_Xpos(position_to_go);
-  int Y_cycles_to_move = Yaxis.get_steps_cycles() - get_cycle_Ypos(position_to_go);
-  int Y_steps_to_move = Yaxis.get_steps() - get_step_Ypos(position_to_go);
-  
-  
-
-}
-
-
-// cycle = 1600 steps
-//  
 

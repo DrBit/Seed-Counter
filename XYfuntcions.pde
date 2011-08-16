@@ -2,14 +2,27 @@
 // ** INIT FUNCTIONS
 // ************************************************************
 // Init the both axes at the same time to save time.
-void XYaxes_init () {
-  boolean both_sensors = false; 
-  // First of all we check if we are already hitting the sensor
-  // If we are, we go just before the sensor is hit (Otherwise we would
-  // be seeking the sensor forever)
-  while (!both_sensors) {
-    MotorA.set_direction (true);   // Goes forth till we are not hitting the sensor
-    MotorB.set_direction (true);   // Goes forth till we are not hitting the sensor
+#define max_insensor_stepsError 5000
+
+boolean XYaxes_init () {
+  
+  // IMPLEMENT THE FOLLOWING:
+  
+  // There are to scenarios in which we can find our X axis and Y axis motors:
+  // 1: We are hitting the sensor, means we are in a place we shouldn't be, so we go back in mode 1
+  // and when we are out of sensor we go forward again in mode 8 till we touch it again. Then we are at position 0
+  
+  // 2: We are not hitting the sensor, means we need to find it. We go fas to it, wen we touch it 
+  // we go back slow till we don touch it anymore
+  
+  // This way the motors will be very accurate.
+  
+  // We should move the motors at this point in mode 1 for top speed
+  boolean both_sensors = false; 	// Falg for sensor checking
+  long tem_counter=0;				// Counter for error checking
+  while (!both_sensors) {			// While we are htting the sensor we gou outside the reach of it
+    MotorA.set_direction (false);   // Goes forth till we are not hitting the sensor
+    MotorB.set_direction (false);   // Goes forth till we are not hitting the sensor
     if (MotorA.sensor_check()) {
       MotorA.do_step();
     }else{
@@ -25,16 +38,21 @@ void XYaxes_init () {
       both_sensors = true;
     }
     delayMicroseconds(800);
+	// Error checking, if we cannot reach a point where we dont hit the sensor meands that ther is a problem
+	temp_counter++;
+	if (temp_counter > max_insensor_stepsError) {   // More than 3200 steps will generate an error (3200 steps = to 2 complete turns in step mode 8)
+		//send_error("i1");     still to implemetn an error message system
+		// Sensor error,  might be obstructed or disconnected.
+		return false;
+	}
   }
   
-  both_sensors = false;           // Reset sensors variable
-  MotorA.set_direction (false);   // Goes back till we find the sensor
-  MotorB.set_direction (false);   // Goes back till we find the sensor
-  
-  // Do it till we reach the sensors
-  // *********** IMPLEMENT *****  we need to implement an error check if we never find the sensors
-  // *********** IMPLEMENT *****  means either that the sensor is not working or the motor is not working
-  while (!both_sensors) {
+  both_sensors = false;          	// Reset sensors variable
+  MotorA.set_direction (true);   	// Goes back till we find the sensor
+  MotorB.set_direction (true);   	// Goes back till we find the sensor
+    
+  // We should move the motors at this point in mode 1 for top speed
+  while (!both_sensors) {  			// While we dont hit the sensor...
     if (!MotorA.sensor_check()) {
       MotorA.do_step();
     }else{
@@ -52,55 +70,44 @@ void XYaxes_init () {
       both_sensors = true;
     }
     delayMicroseconds(390);
+	// Error checking, if we cannot reach a point where we hit the sensor means that ther is a problem
+	temp_counter++;
+	// RECHECK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	//if (temp_counter > 3200) {   // recheck the limit of revolutions
+		//send_error("i2");     still to implemetn an error message system
+		// sensor error, might be broquen, out of its place, disconected or failing
+		//return false;
+	//}
   }
   
   // we set init ponts for both sensors
   MotorA.set_init_position();
   MotorB.set_init_position();
+  // All correct , return true
+  return true;
 }
 
-void motorc_init () {
-	// WE GO AS FAR AS IT COULD GO THE MOTOR
-	MotorC.set_direction (true);   // Goes forth till we are not hitting the sensor
-	for (x=total_mc_steps; x=0; x++) {
-		MotorC.do_step();
-		delayMicroseconds(800);
-	}	
 
-}
+
+
+
+
+
+
+
 
 
 
 // ************************************************************
 // ** POSITION FUNCTIONS
 // ************************************************************
+/*  OLD EXAMPLE 
 void go_position1 () { //arne comment: go to next position on x axle 
   motor_select = 1;
   speed_cntr_Move(6530,19000,20000,20000);
   delay (5550);
 }
-
-
-void go_position2 () { //arne comment: go to next position on y axle
-  motor_select = 2;
-  speed_cntr_Move(6500,15000,16000,16000);
-  delay (3550);
-}
-
-void go_positionRow () { //arne comment: go to next position on y axle
-  motor_select = 2;
-  speed_cntr_Move(8800,15000,16000,16000);
-  delay (3500);
-}
-
-void go_position3 () { //arne comment: go to next position on x axle backwards 
-  motor_select = 1;
-  speed_cntr_Move(-6530,19000,20000,20000);
-  delay (2550); 
-}
-
-
-
+*/
 // change names to Coarse & fine
 
 int get_cycle_Xpos(int pos_num) {
@@ -125,7 +132,3 @@ void go_to_position (int position_to_go) {
   int Y_cycles_to_move = MotorB.get_steps_cycles() - get_cycle_Ypos(position_to_go);
   int Y_steps_to_move = MotorB.get_steps() - get_step_Ypos(position_to_go); 
 }
-
-
-// cycle = 1600 steps
-//  

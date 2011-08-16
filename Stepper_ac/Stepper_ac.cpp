@@ -1,9 +1,12 @@
 /********************************************
 **  Name: Seed Counter 
-**  Version: V0.5.3
+**  Version: V0.6
 **  Date Created: 13/05/2011
 *********************************************
 **  REVISIONS
+**
+**  V0.6 - 11/08/2011
+**  * Added new functions get_step_mode(),get_step_accuracy(), that return characterisitcs of each motor.
 **
 **  V0.5.3 - 10/08/2011
 **  * Updated constructor to accept motors without sensor pin (blisters)
@@ -23,7 +26,7 @@
 
 
 #include "WProgram.h"
-#include "Stepper_ac05.h"				   		   
+#include "Stepper_ac06.h"				   		   
 
 // SETUP	
 //int step_pin -- Pin where the step control is connected
@@ -75,6 +78,7 @@ void Stepper_ac::change_step_mode(int new_step_mode)
 		digitalWrite (_ms1, HIGH);
 		digitalWrite (_ms2, HIGH);
 	}
+	_step_mode = step_mode;
     //we should have an unifing system for counting, depending on the mode we conut 2 eachtime, 4 or 8. This way it doesnt
 	//matter the mode in which we are setiing up the motor and we will have only one system for counting distance
 	
@@ -91,7 +95,18 @@ void Stepper_ac::change_step_mode(int new_step_mode)
 	
     	
 	//_motor_total_steps = (motor_original_steps * step_mode);
-	
+}
+
+int Stepper_ac::get_step_mode()
+{
+	step_mode = _step_mode;
+	return step_mode;
+}
+
+int Stepper_ac::get_step_accuracy()
+{
+	step_accuracy = _step_accuracy;
+	return step_accuracy;
 }
 
 void Stepper_ac::set_init_position()

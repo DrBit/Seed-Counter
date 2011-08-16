@@ -1,23 +1,36 @@
 /********************************************
 **  Name: Seed Counter 
-**  Version: V2.0
+**  Created: 27/06/2011
 *********************************************
 **  REVISIONS
+**
+**  V2.1.1 - 11/08/2011
+**  * Added control of the axis limits in manual mode to avoid going to far and damaging the sensors or going off limits.
+**  * Added Manual mode for the blisters dispenser
+**  * Changed to the new library version 0.6 "Stepper_ac06.h"
+**
+**  V2.1.0 - 10/08/2011
+**  * Merging code from previous motor testings
+**  * Created new set of functions for controlling blister's motors "blisters.pde"
+**  * Implemented error checking system in XY motors init algorithm. Depured code.
+**  * Added velocity control of the motors. MS1,MS2 conencted from Arduino to the "easy driver" (functions included in library "Stepper_ac05.h")
+**  *
 **  V2.0 - 27/06/2011
-**  * Changed hardware, new motors new functionality, complete reset
+**  * Changed hardware, new motors, new functionality, complete code reset
 **  * Testing New motors
 **
 **  V1.4 - 31/05/2011
 **  * Implement 2 holes pick-up seed
-**  * Improved INIT seuquence of the counter
+**  * Improved INIT sequence of the counter
 **  * Check free memory during program
-**  * removed first time drop function (instead prepare motor in INIT function)
+**  * removed first time drop function (instead included in motor_INIT function)
 **
 **  V1.3 - 13/05/2011
 **  * Included version 0.5 of library
-**  * Improved steps counting (library)
+**  * Improved steps counting (in library "Stepper_ac05.h")
 **  * Code readability improved
-**  * Implemented PROGMEM to store data of the matrix into flash memroy (cancelled)
+**  * Implemented PROGMEM to store data of the matrix into flash memroy (on hold waiting for new HW prototype version)
 **  * Added serial debugging
+**
 *********************************************
 

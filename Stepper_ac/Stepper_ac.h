@@ -21,13 +21,18 @@ class Stepper_ac
 	void set_direction(bool direction);
 	void move_step();
 	void change_step_mode(int new_step_mode); 
+	int get_step_accuracy();
+	int get_step_mode();
 	void initiate();
 	bool sensor_check();
 	void wait_till_reach_position(long m_steps, long m_cycles);
-	// VARs
+	//Properties
+	int step_accuracy;
+	int step_mode;
 	long stepPosition;  // check if it can be int
 	int stepCycle;
 	unsigned char Easy_steptab[];
+
 
   private:
     // PINS
@@ -38,10 +43,11 @@ class Stepper_ac
 	int _ms2;
 	// Properties
 	unsigned long _motor_total_steps;		//! Numer of stpes of the motor (if using a different type of motor)
-	long _stepPosition;				 //! Position of stepper motor (relative to starting position as zero) 
+	long _stepPosition;				//! Position of stepper motor (relative to starting position as zero) 
 	int _stepCycle;
 	bool _direction;	
 	int _step_accuracy;     		//! Step accuracy is the number of steps we are counting each time me move. This property depends on the motor mode we selected
+	int _step_mode;
 };
 
 #endif
