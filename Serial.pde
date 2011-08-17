@@ -5,7 +5,7 @@ void init_serial() {
   Serial.println ("** Seed Counter on-line    **");
   Serial.println ("*****************************");
   Serial.print   ("Version: ");
-  Serial.prtinln (version_prog);
+  Serial.println (version_prog);
   Serial.println (" ");
 }
 

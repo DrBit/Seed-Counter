@@ -351,8 +351,8 @@ static unsigned long sqrt_(unsigned long x)
 /////////////////////////////////////////////////////////////
 void sm_driver_StepCounter(unsigned char Mdirection) {
   if (motor_select == 0) {
-    Seedcounter1.set_direction (Mdirection);
-    Seedcounter1.do_step();
+    counter.set_direction (Mdirection);
+    counter.do_step();
   }else if (motor_select == 1) {
     Xaxis.set_direction (!Mdirection);
     Xaxis.do_step();

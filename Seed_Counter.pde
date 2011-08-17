@@ -1,7 +1,7 @@
 #include <Stepper_ac.h>
 #include <avr/pgmspace.h>
 
-#define version_prog "TEST V2.1.1"
+#define version_prog "TEST V2.1.2"
 
 /********************************************
 **  Name: Seed Counter 
@@ -9,8 +9,16 @@
 *********************************************
 **  REVISIONS
 **
+**  V2.1.2 - 17/08/2011
+**  * Added "press_button_to_continue(int button_number)" and "return_pressed_button ()" in extra fucntions
+**  * Fixed bugs in XY axis init process.
+**  * Added main menu with function show sensor status
+**  * Implemented counter init procedure
+**  * Added a full error control sistem in init procedures
+**
 **  V2.1.1 - 11/08/2011
-**  * Added control of the axis limits in manual mode to avoid going to far and damaging the sensors or going off limits.
+**  * Added control of the axis limits in manual mode to avoid going to far and damaging the sensors 
+**    or going off limits.
 **  * Added Manual mode for the blisters dispenser
 **  * Changed to the new library version 0.6 "Stepper_ac06.h"
 **
@@ -18,7 +26,8 @@
 **  * Merging code from previous motor testings
 **  * Created new set of functions for controlling blister's motors "blisters.pde"
 **  * Implemented error checking system in XY motors init algorithm. Depured code.
-**  * Added velocity control of the motors. MS1,MS2 conencted from Arduino to the "easy driver" (functions included in library "Stepper_ac05.h")
+**  * Added velocity control of the motors. MS1,MS2 conencted from Arduino to the "easy driver" 
+**    (functions included in library "Stepper_ac05.h")
 **  *
 **  V2.0 - 27/06/2011
 **  * Changed hardware, new motors, new functionality, complete code reset
@@ -34,24 +43,11 @@
 **  * Included version 0.5 of library
 **  * Improved steps counting (in library "Stepper_ac05.h")
 **  * Code readability improved
-**  * Implemented PROGMEM to store data of the matrix into flash memroy (on hold waiting for new HW prototype version)
+**  * Implemented PROGMEM to store data of the matrix into flash memroy (on hold waiting for 
+**    new HW prototype version)
 **  * Added serial debugging
 **
 *********************************************
-
-
-// ***********************
-// ** DEFINE ARRAY DIMENSION FOR BLISTERS
-// ***********************
-// code description:
-// PROGMEM  prog_uchar name_of_array[]
-// prog_uchar is an unsigned char (1 byte) 0 to 255
-PROGMEM  prog_uint16_t x_axis_set[]  = { 2,14,43,800,85,153,125,181,165,717,206,67,247,150};
-PROGMEM  prog_uint16_t y_axis_set[]  = { 1,1,38,465,57,567};
-// read back a 2-byte int
-// pgm_read_word_near(charSet + N)
-// cycle of blister N = N + (N - 1)
-// step position of blister N = N + N
 */
 
 // ***********************
@@ -84,7 +80,7 @@ PROGMEM  prog_uint16_t y_axis_set[]  = { 1,1,38,465,57,567};
 #define ms2D 50
 
 // ***********************
-// ** Physical limits
+// ** Physical limits of the motors
 // ***********************
 
 #define Xaxis_cycles_limit 280
@@ -116,15 +112,22 @@ int situation=0;
 int motor_speed=580;
 
 
+// ***********************
+// ** Error FLAGS
+// ***********************
+boolean error_XY = false;
+boolean error_counter = false;
+boolean error_blister = false;
+#define ALL 0
+
+
 /////////////////////////////////////////////////
 void setup() {
 
   init_serial();
-  Serial.println("Check the seed counter for any blister maygh be left in the conveier");
-  Serial.println("When ready press button 1 to start set-up process");
- 
- // Press button 1 to start
-  press1_to_continue();
+  enter_main_menu();
+  
+  
   Serial.println("SETTING UP");
   
   //Configure 3 Input Buttons
@@ -136,47 +139,31 @@ void setup() {
   speed_cntr_Init_Timer1();
   delay (10);  // Delay to be safe
   
-  // Init XY axis
-  Serial.print("Initializing XY Axes: ");
-  if (XYaxes_init()) {       // Initiates X and Y axes
-	print_ok();
-  }else{
-	print_fail();
-  }
   
-  // Init Counter
-  Serial.print("Initializing Seed counter roll: ");
-  if (Seedcounter_init()) {  // Initiates seed counters
-	print_ok();
-  }else{
-	print_fail();
-	
-	//////////////// REWORK this piece of code
-	//do a pause
-	boolean pause = true;
-	Serial.println("*** error in the seed counter roll, please check the vacuum engine, check the sensor cable is connected correctly");
-	Serial.println("*** Press button 2 to try again");
-	while (pause) {
-	  //Chek if we press the start button
-	  if (digitalRead(button2) == HIGH) {
-		Serial.println("*** trying again...");
-		pause = false;   // If we do, unpause
-		count = 0;
-	  }
-	}	
-	//////////////////////////////////
+  int temp_err = 0;   // flag for found errors 
+  // INIT SISTEM, and CHECK for ERRORS
+  if (!init_blocks(ALL)) temp_err = 1;  
+
+  while (temp_err > 0) { // We found an error  
+      temp_err = 0;
+      Serial.println("\nErrors found, press 1 when ready to check again");
+      // Press button 1 to start
+      press_button_to_continue (1);
+      
+      if (error_XY) {
+        if (!init_blocks(1)) temp_err++;
+      }
+      if (error_counter) {
+        if (!init_blocks(2)) temp_err++;
+      }
+      if (error_blister) {
+        if (!init_blocks(3)) temp_err++;
+      }
   }
-  
-  //Init blister dispenser
-  Serial.println("Initializing blister dispenser: ");
-  if (blisters_init ()) {
-	print_ok();
-  }else{
-	print_fail();
-  }
-  
-  // Mem_check
-  mem_check ();
+  Serial.println("\nReady! Press button 1 to start");
+  // Press button 1 to start
+  press_button_to_continue (1);
+  // END of setup
 }
 
 
@@ -185,10 +172,19 @@ void setup() {
 // ************************************************************
 
 void loop() {
-  Serial.println("Ready! Press button 1 to start");
-  // Press button 1 to start
-  press1_to_continue();
+  Serial.println(" READY ************************************************* ");
+  // Init Counter
+  Serial.print("Initializing Seed counter roll: ");
+  if (Seedcounter_init()) {  // Initiates seed counters
+	print_ok();
+  }else{
+	print_fail();
+        // error = 2;
+  }
   
+  press_button_to_continue (1);
+  
+  /*
   // Start program
   release_blister ();  //- motors C half turn and back
   
@@ -222,17 +218,10 @@ void loop() {
   
   
   pickup_seed_extended ();
+  */
  
 }
 
-
-void release_blister () {
-	// motors to position up
-	delay (1000);
-	// motors to position hold
-	motor_select = 2;
-	speed_cntr_Move(-400,15000,16000,16000);
-}
 
 
 

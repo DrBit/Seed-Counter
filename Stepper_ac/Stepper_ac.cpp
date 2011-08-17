@@ -26,7 +26,7 @@
 
 
 #include "WProgram.h"
-#include "Stepper_ac06.h"				   		   
+#include "Stepper_ac.h"				   		   
 
 // SETUP	
 //int step_pin -- Pin where the step control is connected

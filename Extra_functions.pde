@@ -1,5 +1,5 @@
 // ************************************************************
-// ** EXTRA FUNCTIONS  (NOT USED)
+// ** MANUAL FUNCTIONS  (NOT USED)
 // ************************************************************
 boolean holdX = false;
 boolean holdY = false; 
@@ -7,18 +7,18 @@ boolean holdX1 = false;
 boolean holdY1 = false; 
 boolean holdX2 = false;
 boolean holdY2 = false;
-boolean motorA_enabled = true;
+boolean Xaxis_enabled = true;
 
 /***** MANUAL MODE XY AXIS  *****/
 void manual_modeXY() {
   if (digitalRead(button1) == HIGH) {
-    motorA_enabled =true;
+    Xaxis_enabled =true;
   }else{
-    motorA_enabled =false;
+    Xaxis_enabled =false;
   }
   // Botton 2 moves motor BACKWARDS
   if (digitalRead(button2) == HIGH) {
-    if (motorA_enabled) {
+    if (Xaxis_enabled) {
       if ((Xaxis.get_steps_cycles() >= 0) && (Xaxis.get_steps() > 0)) {// If the position is bigger than 0 then we can move backwards
         Xaxis.set_direction (true);   // Goes backward towards the sensor
         Xaxis.do_step();
@@ -43,7 +43,7 @@ void manual_modeXY() {
   }
   // Botton 3 moves motor FORWARD
   if (digitalRead(button3) == HIGH) {
-    if (motorA_enabled) {
+    if (Xaxis_enabled) {
       if (Xaxis.get_steps_cycles() < Xaxis_cycles_limit)  { // If the position is lesser than defined in Yaxis_cycles_limit then we can move forwards
         Xaxis.set_direction (false);   // Goes forward
         Xaxis.do_step();
@@ -168,15 +168,238 @@ void manual_modeCounter() {
   delayMicroseconds(390);
 }
 
-// Memory check
+
+
+// ************************************************************
+// ** UTILS  FUNCTIONS
+// ************************************************************
+
+
+/***** Checks free ram and prints it serial *****/
+void mem_check () {
+  //checking memory:
+  Serial.print("Memory available: [");
+  Serial.print(freeRam());
+  Serial.println(" bytes]");
+}
+
+/***** Returns free ram *****/
 int freeRam () {
   extern int __heap_start, *__brkval; 
   int v; 
   return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
 }
 
-void mem_check () {
-  //checking memory:
-  Serial.println("\n[memCheck]");
-  Serial.println(freeRam());
+
+/***** Pause and wait till a button is pressed  *****/
+void press_button_to_continue (int button_number) {
+	boolean pause = true;
+	switch (button_number) {
+		case 1:
+			while (pause) {
+				//Chek if we press the start button
+				if (digitalRead(button1) == HIGH) {
+					pause = false;   // If we do, unpause
+				}
+			}
+		break;
+		case 2:
+			while (pause) {
+				//Chek if we press the start button
+				if (digitalRead(button2) == HIGH) {
+					pause = false;   // If we do, unpause
+				}
+			}
+		break;
+		case 3:
+			while (pause) {
+				//Chek if we press the start button
+				if (digitalRead(button3) == HIGH) {
+					pause = false;   // If we do, unpause
+				}
+			}
+		break;
+		default: 
+		// if nothing else matches, do the default
+		// default is optional
+		break;
+	}
+}
+
+
+/***** Pause and return the number of any button pressed  *****/
+int return_pressed_button () {
+  boolean pause = true;
+  int pressed_button = 0;
+  while(pause) {
+    if (digitalRead(button1) == HIGH) {
+      pressed_button = 1;
+      pause = false;   // If we do, unpause
+    }
+    if (digitalRead(button2) == HIGH) {
+      pressed_button = 2;
+      pause = false;   // If we do, unpause
+    }
+    if (digitalRead(button3) == HIGH) {
+      pressed_button = 3;
+      pause = false;   // If we do, unpause
+    }
+  }
+  return pressed_button;
+}
+
+
+
+// ************************************************************
+// ** MANIN MENU FUNCTIONS
+// ************************************************************
+
+/***** Enters into main menu  *****/
+void enter_main_menu() {
+  boolean inMainMenu = true;
+  
+  while (inMainMenu) {
+    Serial.println("Main Menu:");
+    Serial.println("1 to start the seed counter");
+    Serial.println("2 to check sensors status");
+    Serial.println("3 to *****");
+    
+    switch (return_pressed_button ()) {
+		case 1:   //Button 1 - to start the seed counter
+		  Serial.println("Check the seed counter for any blister that may be left in the X axel");
+                  Serial.println("When ready press button 1 to start set-up process");
+                  delay (150);
+                  // Press button 1 to start
+                  press_button_to_continue (1);
+                  inMainMenu = false;   // Quit main menu and start
+		break;
+                case 2:   //Button 1
+                  Serial.println (" Press 3 to go back to main menu");
+                  boolean inSensorCheck = true;
+                  // While insede sensor chek we show sensors every second
+		  while (inSensorCheck) {
+		    //Chek if we press button 3
+		    print_sensor_stats();
+                    // 10 times 100 = 1000, so we wait 1 second while cheking the button each 300 ms
+                    for (int i = 0; i <= 10; i++) {
+                      delay (100);
+                      // if button 3 is pressed we go back to the menu
+                      if (digitalRead(button3) == HIGH) {
+                        inSensorCheck = false;
+                        i = 10;
+                      }
+                    }
+                  }
+		break;
+    }
+    delay (150); // wait 200ms so we unpress any pressed buttons
+  }
+}
+  
+/***** Prints the sensor status *****/
+void print_sensor_stats() {
+  // Print X
+  Serial.print ("\nX axis sensor [");
+  if (Xaxis.sensor_check()) {
+    Serial.print ("TRUE");
+  }else{
+    Serial.print ("FALSE");
+  }
+  Serial.println ("]");
+  // Print Y
+  Serial.print ("Y axis sensor [");
+  if (Yaxis.sensor_check()) {
+    Serial.print ("TRUE");
+  }else{
+    Serial.print ("FALSE");
+  }
+  Serial.println ("]");
+  // Print Counter
+  Serial.print ("Counter sensor [");
+  if (counter.sensor_check()) {
+    Serial.print ("TRUE");
+  }else{
+    Serial.print ("FALSE");
+  }
+  Serial.println ("]");
+}
+
+
+// ************************************************************
+// ** INIT  FUNCTIONS
+// ************************************************************
+
+int init_blocks(int block) {
+  //Switch mode
+  switch (block) {
+   //Init XY 
+   case 1:
+     return init_XY_menu();
+   break;
+   //Init counter
+   case 2:
+     return init_counter_menu ();
+   break;
+   //Init blisters
+   case 3:
+     return init_blisters_menu ();
+   break;  
+   //Init ALL
+   default:
+     int error = 0; 
+     if (!init_XY_menu()) error++;
+     if (!init_counter_menu ()) error++;
+     if (!init_blisters_menu ()) error++;
+     mem_check ();
+     // If we found an error we will return 0 so it did not completed
+     // We can chek which one failed trough the error sistem
+     if (error == 0) {
+       return 1; 
+     }else{
+       return 0;
+     }
+    break;
+  }
+}
+
+int init_XY_menu() {
+  // Init XY axis
+    Serial.print("Initializing XY Axes: ");
+    if (XYaxes_init()) {       // Initiates X and Y axes
+	print_ok();
+        error_XY = false;
+        return 1;
+    }else{
+	print_fail();
+        error_XY = true;
+        return 0;
+    }
+}
+
+int init_counter_menu () {
+  // Init Counter
+    Serial.print("Initializing Seed counter roll: ");
+    if (Seedcounter_init()) {  // Initiates seed counters
+	print_ok();
+        error_counter = false;
+        return 1;
+    }else{
+	print_fail();
+        error_counter = true;
+        return 0;
+    }
+}
+
+int init_blisters_menu () {
+  //Init blister dispenser
+    Serial.print("Initializing blister dispenser: ");
+    if (blisters_init ()) {
+	print_ok();
+        error_blister = false;
+        return 1;
+    }else{
+	print_fail();
+        error_blister = true;
+        return 0;
+    }
 }

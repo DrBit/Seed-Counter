@@ -4,8 +4,16 @@
 *********************************************
 **  REVISIONS
 **
+**  V2.1.2 - 17/08/2011
+**  * Added "press_button_to_continue(int button_number)" and "return_pressed_button ()" in extra fucntions
+**  * Fixed bugs in XY axis init process.
+**  * Added main menu with function show sensor status
+**  * Implemented counter init procedure
+**  * Added a full error control sistem in init procedures
+**
 **  V2.1.1 - 11/08/2011
-**  * Added control of the axis limits in manual mode to avoid going to far and damaging the sensors or going off limits.
+**  * Added control of the axis limits in manual mode to avoid going to far and damaging the sensors 
+**    or going off limits.
 **  * Added Manual mode for the blisters dispenser
 **  * Changed to the new library version 0.6 "Stepper_ac06.h"
 **
@@ -13,7 +21,8 @@
 **  * Merging code from previous motor testings
 **  * Created new set of functions for controlling blister's motors "blisters.pde"
 **  * Implemented error checking system in XY motors init algorithm. Depured code.
-**  * Added velocity control of the motors. MS1,MS2 conencted from Arduino to the "easy driver" (functions included in library "Stepper_ac05.h")
+**  * Added velocity control of the motors. MS1,MS2 conencted from Arduino to the "easy driver" 
+**    (functions included in library "Stepper_ac05.h")
 **  *
 **  V2.0 - 27/06/2011
 **  * Changed hardware, new motors, new functionality, complete code reset
@@ -29,8 +38,9 @@
 **  * Included version 0.5 of library
 **  * Improved steps counting (in library "Stepper_ac05.h")
 **  * Code readability improved
-**  * Implemented PROGMEM to store data of the matrix into flash memroy (on hold waiting for new HW prototype version)
+**  * Implemented PROGMEM to store data of the matrix into flash memroy (on hold waiting for 
+**    new HW prototype version)
 **  * Added serial debugging
 **
 *********************************************
-
+*/
