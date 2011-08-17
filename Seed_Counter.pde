@@ -127,7 +127,6 @@ void setup() {
   init_serial();
   enter_main_menu();
   
-  
   Serial.println("SETTING UP");
   
   //Configure 3 Input Buttons

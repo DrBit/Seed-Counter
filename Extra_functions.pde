@@ -193,6 +193,7 @@ int freeRam () {
 
 /***** Pause and wait till a button is pressed  *****/
 void press_button_to_continue (int button_number) {
+        Serial.flush();
 	boolean pause = true;
 	switch (button_number) {
 		case 1:
@@ -201,6 +202,11 @@ void press_button_to_continue (int button_number) {
 				if (digitalRead(button1) == HIGH) {
 					pause = false;   // If we do, unpause
 				}
+                                if (Serial.available()) {
+                                  if (Serial.read() == '1') {
+                                   pause = false;
+                                  }
+                                } 
 			}
 		break;
 		case 2:
@@ -209,6 +215,11 @@ void press_button_to_continue (int button_number) {
 				if (digitalRead(button2) == HIGH) {
 					pause = false;   // If we do, unpause
 				}
+                                if (Serial.available()) {
+                                  if (Serial.read() == '2') {
+                                   pause = false;
+                                  }
+                                } 
 			}
 		break;
 		case 3:
@@ -217,6 +228,11 @@ void press_button_to_continue (int button_number) {
 				if (digitalRead(button3) == HIGH) {
 					pause = false;   // If we do, unpause
 				}
+                                if (Serial.available()) {
+                                  if (Serial.read() == '2') {
+                                   pause = false;
+                                  }
+                                } 
 			}
 		break;
 		default: 
@@ -229,6 +245,7 @@ void press_button_to_continue (int button_number) {
 
 /***** Pause and return the number of any button pressed  *****/
 int return_pressed_button () {
+  Serial.flush();
   boolean pause = true;
   int pressed_button = 0;
   while(pause) {
@@ -244,7 +261,25 @@ int return_pressed_button () {
       pressed_button = 3;
       pause = false;   // If we do, unpause
     }
+    
+    // Serial interface
+    if (Serial.available()) {
+      char received_char = Serial.read();
+      if (received_char == '1') {
+        pressed_button = 1;
+        pause = false;
+      }
+      if (received_char == '2') {
+        pressed_button = 2;
+        pause = false;
+      }
+      if (received_char == '3') {
+        pressed_button = 3;
+        pause = false;
+      }
+    }  
   }
+  Serial.flush();
   return pressed_button;
 }
 

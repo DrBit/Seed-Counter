@@ -3,23 +3,27 @@
 // ************************************************************
 // Inits the seedcounter using the sensor as a starting point
 // The sensor should be always at the same position in all the seedcunters and the init position hardcoded based on the position of the sensor.
+#define init_turns_till_error 10
+int number_steps_cycle = (counter.get_step_mode() * 200);  //Add into library
 boolean Seedcounter_init() {
+        Serial.println (number_steps_cycle);  //Add into library
 	boolean seed_sensor = false; 
 	int count = 0;
 
 	// First time we init we just go back one complete cycle in case we have seeds atached and we bring them into the deposit
 	counter.set_direction (true);   // Set direction
-	for (int a=1600; a > 0; a--) {
+	for (count = (counter.get_step_mode() * 200); count > 0; count--) {
 		counter.do_step();
 		delayMicroseconds(motor_speed);
 	}
 
+        count =0;
 	counter.set_direction (false);   // Set direction
 	while (!seed_sensor) {
 		// If the vacuum is not on, this would be cheking for the 0 position foreve
 		// so we count ten times and if there is no sense of a seed we pause
 		count++;
-		if (count == (800*10)) {  
+		if (count == (counter.get_step_mode() * 200 * init_turns_till_error)) {  
 			//send_error("c1");     still to implemetn an error message system
 			// Counter error, pump might be off, seeds deposits might be empty, sensor might be disconnected or broken
 			return false;  // Failed to initiate seed counter, retunr false
