@@ -51,6 +51,7 @@ Stepper_ac::Stepper_ac(int step_pin, int direction_pin, int sensor_pin, int ms1,
   _ms1 = ms1;
   _ms2 = ms2;
   // Properties
+  _step_mode = step_mode;
   _motor_total_steps = (motor_original_steps * 8);  // Total number of steps we can do in one complete turn (8 is because the easy driver can divide each step into 8)
   _step_accuracy = _motor_total_steps / (motor_original_steps * step_mode);   // Accuracy we can achieve with the actual motor step mode
   stepPosition = 0;
