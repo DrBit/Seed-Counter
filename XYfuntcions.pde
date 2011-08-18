@@ -175,8 +175,8 @@ int get_step_Ypos_from_index(int index) {
 }
 
 void go_to_position (int position_index_to_go) {
-	int X_cycles_to_move = Xaxis.get_steps_cycles() - get_cycle_Xpos(position_index_to_go);
-	int X_steps_to_move = Xaxis.get_steps() - get_step_Xpos(position_index_to_go);
-	int Y_cycles_to_move = Yaxis.get_steps_cycles() - get_cycle_Ypos(position_index_to_go);
-	int Y_steps_to_move = Yaxis.get_steps() - get_step_Ypos(position_index_to_go); 
+	int X_cycles_to_move = Xaxis.get_steps_cycles() - get_cycle_Xpos_from_index(position_index_to_go);
+	int X_steps_to_move = Xaxis.get_steps() - get_step_Xpos_from_index(position_index_to_go);
+	int Y_cycles_to_move = Yaxis.get_steps_cycles() - get_cycle_Ypos_from_index(position_index_to_go);
+	int Y_steps_to_move = Yaxis.get_steps() - get_step_Ypos_from_index(position_index_to_go); 
 }
