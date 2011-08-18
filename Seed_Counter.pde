@@ -1,7 +1,7 @@
 #include <Stepper_ac.h>
 #include <avr/pgmspace.h>
 
-#define version_prog "TEST V2.1.2"
+#define version_prog "TEST V2.1.3"
 
 /********************************************
 **  Name: Seed Counter 
@@ -79,53 +79,62 @@ int motor_speed=580;
 // ***********************
 // ** Error FLAGS
 // ***********************
-boolean error_XY = false;
-boolean error_counter = false;
-boolean error_blister = false;
+boolean error_XY = true;
+boolean error_counter = true;
+boolean error_blister = true;
 #define ALL 0
 
 
 /////////////////////////////////////////////////
 void setup() {
 
-	init_serial();
-	enter_main_menu();
-	
-	Serial.println("SETTING UP");
-	
+	//*** BASIC SETUP
+
+	// INIT Serila
+	init_serial();	
 	//Configure 3 Input Buttons
 	pinMode (button1, INPUT);
 	pinMode (button2, INPUT);
 	pinMode (button3, INPUT);
 	
 	// Initiate the Timer1 config function in order to prepare the timing functions of motor acceleration
-	 speed_cntr_Init_Timer1();
+	speed_cntr_Init_Timer1();
 	delay (10);  // Delay to be safe
 
-
-	int temp_err = 0;   // flag for found errors
+	//**** ENTER MAIN MENU
+	enter_main_menu();
+	
+	//**** CONTINUE with normal process
+	Serial.println("SETTING UP");
 	// INIT SISTEM, and CHECK for ERRORS
+	int temp_err = 0;   // flag for found errors
 	if (!init_blocks(ALL)) temp_err = 1;
 
-	while (temp_err > 0) { // We found an error
+	while (temp_err > 0) { // We found an error, we chek ALL errors and try to initiate correctly
 		temp_err = 0;
-		Serial.println("\nErrors found, press 1 when ready to check again");
-		// Press button 1 to start
-		press_button_to_continue (1);
-
-		if (error_XY) {
-			if (!init_blocks(1)) temp_err++;
-		}
-		if (error_counter) {
-			if (!init_blocks(2)) temp_err++;
-		}
-		if (error_blister) {
-			if (!init_blocks(3)) temp_err++;
+		Serial.println("\nErrors found, press 1 when ready to check again, 2 to bypas the errors");
+		switch (return_pressed_button ()) {
+			//Init XY 
+			case 1:
+				if (error_XY) {
+					if (!init_blocks(2)) temp_err++;
+				}
+				if (error_counter) {
+					if (!init_blocks(3)) temp_err++;
+				}
+				if (error_blister) {
+					if (!init_blocks(1)) temp_err++;
+				}
+			break;
+			
+			case 2:
+				// do nothing so we wond detect any error and we will continue
+			break;
 		}
 	}
-	Serial.println("\nReady! Press button 1 to start");
+	// Serial.println("\nReady! Press button 1 to start");
 	// Press button 1 to start
-	press_button_to_continue (1);
+	// press_button_to_continue (1);
 	// END of setup
 }
 
@@ -135,7 +144,12 @@ void setup() {
 // ************************************************************
 
 void loop() {
-	Serial.println(" READY ************************************************* ");
+	Serial.print("Done!");
+	while (true) {}
+	
+	// test_functions();
+	
+	/*	
 	// Init Counter
 	Serial.print("Initializing Seed counter roll: ");
 	if (Seedcounter_init()) {  // Initiates seed counters
@@ -145,46 +159,11 @@ void loop() {
 		// error = 2;
 	}
 	press_button_to_continue (1);
-	
+
 	// Testing....
 	Serial.print("Testing release one blister");
 	release_blister ();
 	press_button_to_continue (1);
-	
-  /*
-  // Start program
-  release_blister ();  //- motors C half turn and back
-  
-  go_to_position (80,30,10,30)  // example position (xcycles, xsteps, ycycles, ysteps)
-
-  get 
-- seedcounter motor D turn
-- motor B turn (+8 turns)
-- seedcounter motor D turn
-- motor B turn
-- seedcounter motor D turn
-- motor B turn (-8 turns)
-- seedcounter motor D turn
-- motor B turn
-- seedcounter motor D turn
-- motor B turn (+8 turns)
-- seedcounter motor D turn
-- motor B turn
-- seedcounter motor D turn
-- motor B turn (-8 turns)
-- seedcounter motor D turn
-- motor A turn
-- seedcounter motor D turn
-- motor B turn (+8 turns)
-- seedcounter motor D turn
-- motor B turn (-8 turns)
-
-- motor A turn until blister is under printer
-- print lable on blister
-- motor A turn unti blister drops
-  
-  
-  pickup_seed_extended ();
-  */
- 
+	pickup_seed_extended ();
+	*/
 }

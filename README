@@ -4,6 +4,11 @@
 *********************************************
 **  REVISIONS
 **
+**  V2.1.3 - 17/08/2011
+**  * Added testing menu function
+**  * Changed init order of motors to first init the blisters
+**  * Added counter manual mode + print position
+**
 **  V2.1.2 - 17/08/2011
 **  * Added "press_button_to_continue(int button_number)" and "return_pressed_button ()" in extra fucntions
 **  * Fixed bugs in XY axis init process.
@@ -11,6 +16,8 @@
 **  * Implemented counter init procedure
 **  * Added a full error control sistem in init procedures
 **  * Added serial compatibility when pressing buttons 1,2,3
+**  * Changed names of the main files 
+**    "Stepper_ac06.h" -> "Stepper_ac.h" /  "Seed_counterV2.1.pde" -> "Seed_counter.pde"
 **
 **  V2.1.1 - 11/08/2011
 **  * Added control of the axis limits in manual mode to avoid going to far and damaging the sensors 

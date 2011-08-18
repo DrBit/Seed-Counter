@@ -9,6 +9,9 @@
 // ************************************************************
 // ** MANUAL FUNCTIONS  (NOT USED)
 // ************************************************************
+
+
+/***** MANUAL MODE XY AXIS  *****/
 boolean holdX = false;
 boolean holdY = false; 
 boolean holdX1 = false;
@@ -17,7 +20,6 @@ boolean holdX2 = false;
 boolean holdY2 = false;
 boolean Xaxis_enabled = true;
 
-/***** MANUAL MODE XY AXIS  *****/
 void manual_modeXY() {
   if (digitalRead(button1) == HIGH) {
     Xaxis_enabled =true;
@@ -114,6 +116,40 @@ void manual_mode_blisters() {
   delayMicroseconds(3990);
 }
 
+
+/***** MANUAL MODE Counter  *****/
+boolean holdD1 = false;
+boolean holdD2 = false;
+
+void manual_modeCounter() {
+	// Button 2 moves motor BACKWARDS
+	if (digitalRead(button2) == HIGH) {
+		counter.set_direction (true);   // Goes backward towards the sensor
+		counter.do_step();
+		holdC1 = true;
+		delayMicroseconds(18);
+	}else{
+		if (holdC1) {
+			holdC1 = false;
+			print_counter_pos ();
+		}
+	}
+	// Botton 3 moves motor FORWARD
+	if (digitalRead(button3) == HIGH) {
+		counter.set_direction (false);   // Goes forward
+		counter.do_step();
+		holdC2 = true;
+		delayMicroseconds(18);
+	}else{
+		if (holdC2) {
+			holdC2 = false;
+			print_counter_pos();
+		}
+	}
+  delayMicroseconds(3990);
+}
+
+
 /***** Print Position X axis  *****/
 void print_x_pos () {
   Serial.print ("* X_cycles: ");
@@ -121,6 +157,7 @@ void print_x_pos () {
   Serial.print (", X_steps: ");
   Serial.println (Xaxis.get_steps());
 }
+
 
 /***** Print Position Y axis  *****/
 void print_y_pos () {
@@ -130,58 +167,28 @@ void print_y_pos () {
   Serial.println (Yaxis.get_steps());
 }
 
+
 /***** Print Position Blisters axis  *****/
 void print_blisters_pos () {
-  Serial.print ("* Y_cycles: ");
+  Serial.print ("* Blister_cycles: ");
   Serial.print (blisters.get_steps_cycles());
-  Serial.print (", Y_steps: ");
+  Serial.print (", Blister_steps: ");
   Serial.println (blisters.get_steps());
 }
 
+
 /***** Print Position Counter axis  *****/
 void print_counter_pos () {
-  Serial.print ("* Couter cycles: ");
+  Serial.print ("* Couter_cycles: ");
   Serial.print (counter.get_steps_cycles());
-  Serial.print (", Counter steps: ");
+  Serial.print (", Counter_steps: ");
   Serial.println (counter.get_steps());
 }
-
-/***** Print Position Counter axis  *****/
-/***** NOT FINISHED!!!!!!!!!!!!!!!  *****/
-boolean holdD1 = false;
-boolean holdD2 = false;
-void manual_modeCounter() {
-
-  if (digitalRead(button1) == HIGH) {
-    holdD2 = true;
-  }
-  else{    
-    delayMicroseconds(190);
-    if (holdD1) {
-      holdD1 = false;
-      print_counter_pos ();
-    }
-  }
-
-  if (digitalRead(button2) == HIGH) {
-    holdD2 = true;
-  }
-  else{    
-    delayMicroseconds(190);
-    if (holdD2) {
-      holdD2 = false;
-      print_counter_pos ();
-    }
-  }
-  delayMicroseconds(390);
-}
-
 
 
 // ************************************************************
 // ** UTILS  FUNCTIONS
 // ************************************************************
-
 
 /***** Checks free ram and prints it serial *****/
 void mem_check () {
@@ -197,7 +204,6 @@ int freeRam () {
   int v; 
   return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
 }
-
 
 /***** Pause and wait till a button is pressed  *****/
 void press_button_to_continue (int button_number) {
@@ -250,45 +256,165 @@ void press_button_to_continue (int button_number) {
 	}
 }
 
-
 /***** Pause and return the number of any button pressed  *****/
 int return_pressed_button () {
-  Serial.flush();
-  boolean pause = true;
-  int pressed_button = 0;
-  while(pause) {
-    if (digitalRead(button1) == HIGH) {
-      pressed_button = 1;
-      pause = false;   // If we do, unpause
-    }
-    if (digitalRead(button2) == HIGH) {
-      pressed_button = 2;
-      pause = false;   // If we do, unpause
-    }
-    if (digitalRead(button3) == HIGH) {
-      pressed_button = 3;
-      pause = false;   // If we do, unpause
-    }
-    
-    // Serial interface
-    if (Serial.available()) {
-      char received_char = Serial.read();
-      if (received_char == '1') {
-        pressed_button = 1;
-        pause = false;
-      }
-      if (received_char == '2') {
-        pressed_button = 2;
-        pause = false;
-      }
-      if (received_char == '3') {
-        pressed_button = 3;
-        pause = false;
-      }
-    }  
-  }
-  Serial.flush();
-  return pressed_button;
+	Serial.flush();
+	boolean pause = true;
+	int pressed_button = 0;
+	while(pause) {
+		if (digitalRead(button1) == HIGH) {
+			pressed_button = 1;
+			pause = false;   // If we do, unpause
+		}
+		if (digitalRead(button2) == HIGH) {
+			pressed_button = 2;
+			pause = false;   // If we do, unpause
+		}
+		if (digitalRead(button3) == HIGH) {
+			pressed_button = 3;
+			pause = false;   // If we do, unpause
+		}
+
+		// Serial interface
+		if (Serial.available()) {
+			char received_char = Serial.read();
+			if (received_char == '1') {
+				pressed_button = 1;
+				pause = false;
+			}
+			if (received_char == '2') {
+				pressed_button = 2;
+				pause = false;
+			}
+			if (received_char == '3') {
+				pressed_button = 3;
+				pause = false;
+			}
+			if (received_char == '4') {
+				pressed_button = 4;
+				pause = false;
+			}
+			if (received_char == '5') {
+				pressed_button = 5;
+				pause = false;
+			}
+			if (received_char == '6') {
+				pressed_button = 6;
+				pause = false;
+			}
+			if (received_char == '7') {
+				pressed_button = 7;
+				pause = false;
+			}
+			if (received_char == '8') {
+				pressed_button = 8;
+				pause = false;
+			}
+			if (received_char == '9') {
+				pressed_button = 9;
+				pause = false;
+			}
+			if (received_char == '0') {
+				pressed_button = 0;
+				pause = false;
+			}
+		}  
+	}
+	Serial.flush();
+	return pressed_button;
+}
+
+/***** Test Menu, all functions included  *****/
+void test_functions () {
+boolean inTestMenu = true;
+	while (inTestMenu) {
+		Serial.println("\n	Select Action, to do :");
+		Serial.println("		1 to pick up a seed and release");
+		Serial.println("		2 to release blister");
+		Serial.println("		3 to move XY motors");
+		Serial.println("		4 to move counter motors");
+		Serial.println("		5 to move blisters motors");
+		Serial.println("		6 to init all motors");
+		Serial.println("		7 to change motor mode");
+		Serial.println("		8 to check sensors status");
+		Serial.println("		0 go to Main Menu");
+		boolean InMenuTemp = true;				// Init temp value for menu
+		switch (return_pressed_button ()) { 
+			case 1:
+				Serial.println("\n	Pickup one seed");
+				if (error_counter) {
+						Serial.println("\n	Error ** Counter not initialized correctly, first INIT");
+				}else pickup_seed ();
+			break;
+			
+			case 2:
+				Serial.println("\n	Release one blister");
+				if (error_blister) {
+						Serial.println("\n	Error ** Blister not initialized correctly, first INIT");
+				}else release_blister ();
+			break;
+			
+			case 3:
+				Serial.println("\n	Move XY motors, buttons to move motors and press keyboard key 4 to quit");
+				if (error_XY) {
+						Serial.println("\n	Error ** XY motors not initialized correctly, first INIT");
+				}else{
+					while (InMenuTemp) {
+						manual_modeXY();
+						if (Serial.read() == '4')  InMenuTemp = false;
+					}
+				}
+			break;
+
+			case 4:
+				Serial.println("\n	Move Counter motors, buttons to move motors and press keyboard key 4 to quit");
+				while (InMenuTemp) {
+					manual_modeCounter();
+					if (Serial.read() == '4')  InMenuTemp = false;
+				}
+			break;
+			
+			case 5:
+				Serial.println("\n	Move Blisters motors, buttons to move motors and press keyboard key 4 to quit");
+				if (error_blister) {
+						Serial.println("\n	Error ** Blisters motors not initialized correctly, first INIT");
+				}else{
+					while (InMenuTemp) {
+						manual_mode_blisters();
+						if (Serial.read() == '4')  InMenuTemp = false;
+					}
+				}
+			break;
+
+			case 6:
+				Serial.println("\n	Init all motors");
+				init_blocks(ALL);
+			break;
+			
+			case 7:
+				Serial.println("\n	Change motor modes");
+				//
+			break;
+			
+			case 8:
+			Serial.println("\n	Sensor Stats. Press keyboard key 4 to quit");
+				while (InMenuTemp) {
+					print_sensor_stats();
+					for (int i =0; i<=10; i++) {
+						if (Serial.read() == '4')  {
+							InMenuTemp = false;
+							i=10;
+						}
+						delay (100);
+					}
+				}
+			break;
+			
+			case 0:
+				inTestMenu = false;
+			break;
+		}
+	}
 }
 
 
@@ -299,72 +425,54 @@ int return_pressed_button () {
 
 /***** Enters into main menu  *****/
 void enter_main_menu() {
-  boolean inMainMenu = true;
+	boolean inMainMenu = true;
   
-  while (inMainMenu) {
-    Serial.println("Main Menu:");
-    Serial.println("1 to start the seed counter");
-    Serial.println("2 to check sensors status");
-    Serial.println("3 to *****");
+	while (inMainMenu) {
+		Serial.println("Main Menu:");
+		Serial.println("1 to start the seed counter");
+		Serial.println("2 go to TEST menu ");
+		//Serial.println("3 to *****");
     
-    switch (return_pressed_button ()) {
-		case 1:   //Button 1 - to start the seed counter
-		  Serial.println("Check the seed counter for any blister that may be left in the X axel");
-                  Serial.println("When ready press button 1 to start set-up process");
-                  delay (150);
-                  // Press button 1 to start
-                  press_button_to_continue (1);
-                  inMainMenu = false;   // Quit main menu and start
-		break;
-                case 2:   //Button 1
-                  Serial.println (" Press 3 to go back to main menu");
-                  boolean inSensorCheck = true;
-                  // While insede sensor chek we show sensors every second
-		  while (inSensorCheck) {
-		    //Chek if we press button 3
-		    print_sensor_stats();
-                    // 10 times 100 = 1000, so we wait 1 second while cheking the button each 300 ms
-                    for (int i = 0; i <= 10; i++) {
-                      delay (100);
-                      // if button 3 is pressed we go back to the menu
-                      if (digitalRead(button3) == HIGH) {
-                        inSensorCheck = false;
-                        i = 10;
-                      }
-                    }
-                  }
-		break;
-    }
-    delay (150); // wait 200ms so we unpress any pressed buttons
-  }
+		switch (return_pressed_button ()) {
+			case 1:   //Button 1 - to start the seed counter
+				// START INIT
+				inMainMenu = false;   // Quit main menu and start
+			break;
+			
+			case 2:   //Button 1
+				test_functions ();
+			break;
+		}
+		delay (150); // wait 200ms so we unpress any pressed buttons
+	}
 }
   
 /***** Prints the sensor status *****/
 void print_sensor_stats() {
-  // Print X
-  Serial.print ("\nX axis sensor [");
-  if (Xaxis.sensor_check()) {
-    Serial.print ("TRUE");
-  }else{
-    Serial.print ("FALSE");
-  }
-  Serial.println ("]");
-  // Print Y
-  Serial.print ("Y axis sensor [");
-  if (Yaxis.sensor_check()) {
-    Serial.print ("TRUE");
-  }else{
-    Serial.print ("FALSE");
-  }
-  Serial.println ("]");
-  // Print Counter
-  Serial.print ("Counter sensor [");
-  if (counter.sensor_check()) {
-    Serial.print ("TRUE");
-  }else{
-    Serial.print ("FALSE");
-  }
-  Serial.println ("]");
+	// Print X
+	Serial.print ("\nX axis sensor [");
+	if (Xaxis.sensor_check()) {
+		Serial.print ("TRUE");
+	}else{
+		Serial.print ("FALSE");
+	}
+	Serial.println ("]");
+	// Print Y
+	Serial.print ("Y axis sensor [");
+	if (Yaxis.sensor_check()) {
+		Serial.print ("TRUE");
+	}else{
+		Serial.print ("FALSE");
+	}
+	Serial.println ("]");
+	// Print Counter
+	Serial.print ("Counter sensor [");
+	if (counter.sensor_check()) {
+		Serial.print ("TRUE");
+	}else{
+		Serial.print ("FALSE");
+	}
+	Serial.println ("]");
 }
 
 
@@ -373,36 +481,42 @@ void print_sensor_stats() {
 // ************************************************************
 
 int init_blocks(int block) {
-  //Switch mode
-  switch (block) {
-   //Init XY 
-   case 1:
-     return init_XY_menu();
-   break;
-   //Init counter
-   case 2:
-     return init_counter_menu ();
-   break;
-   //Init blisters
-   case 3:
-     return init_blisters_menu ();
-   break;  
-   //Init ALL
-   default:
-     int error = 0; 
-     if (!init_XY_menu()) error++;
-     if (!init_counter_menu ()) error++;
-     if (!init_blisters_menu ()) error++;
-     mem_check ();
-     // If we found an error we will return 0 so it did not completed
-     // We can chek which one failed trough the error sistem
-     if (error == 0) {
-       return 1; 
-     }else{
-       return 0;
-     }
-    break;
-  }
+	//Switch mode
+	switch (block) {
+		//Init XY 
+		case 1:
+			return init_blisters_menu ();
+		break;
+		//Init counter
+		case 2:
+			return init_XY_menu();
+		break;
+		//Init blisters
+		case 3:
+			return init_counter_menu ();
+		break;  
+		//Init ALL
+		default:
+			int error = 0;
+			if (!init_blisters_menu ()) error++;
+				// Security Check
+				Serial.println("Check the seed counter for any blister that may be left in the X axel");
+				Serial.println("When ready press button 1 to continue set-up process");
+				delay (150);
+				// Press button 1 to continue
+				press_button_to_continue (1);
+			if (!init_XY_menu()) error++;
+			if (!init_counter_menu ()) error++;
+			mem_check ();
+			// If we found an error we will return 0 so it did not completed
+			// We can chek which one failed trough the error sistem
+			if (error == 0) {
+				return 1; 
+			}else{
+				return 0;
+			}
+		break;
+	}
 }
 
 int init_XY_menu() {
