@@ -4,7 +4,7 @@
 *********************************************
 **  REVISIONS
 **
-**  V2.1.3 - 17/08/2011
+**  V2.1.3 - 18/08/2011
 **  * Added testing menu function
 **  * Changed init order of motors to first init the blisters
 **  * Added counter manual mode + print position
