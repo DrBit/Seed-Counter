@@ -145,9 +145,9 @@ void setup() {
 
 void loop() {
 	Serial.print("Done!");
-	while (true) {}
+	//while (true) {}
 	
-	// test_functions();
+	test_functions();
 	
 	/*	
 	// Init Counter
