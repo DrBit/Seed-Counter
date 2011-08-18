@@ -222,20 +222,20 @@ void speed_cntr_Init_Timer1(void)
  */
 
 // Arduino Interrupt handling
- ISR(TIMER1_COMPA_vect) 
- {
-  // Holds next delay period.
-  unsigned int new_step_delay;
-  // Remember the last step delay used when accelrating.
-  static int last_accel_delay;
-  // Counting steps when moving.
-  static unsigned int step_count = 0;
-  // Keep track of remainder from new_step-delay calculation to incrase accurancy
-  static unsigned int rest = 0;
+ISR(TIMER1_COMPA_vect) 
+{
+	// Holds next delay period.
+	unsigned int new_step_delay;
+	// Remember the last step delay used when accelrating.
+	static int last_accel_delay;
+	// Counting steps when moving.
+	static unsigned int step_count = 0;
+	// Keep track of remainder from new_step-delay calculation to incrase accurancy
+	static unsigned int rest = 0;
 
-  OCR1A = srd_step_delay;
+	OCR1A = srd_step_delay;
 
-  switch(srd_run_state) {
+	switch(srd_run_state) {
     case STOP:
       step_count = 0;
       rest = 0;
