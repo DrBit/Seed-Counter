@@ -10,6 +10,7 @@
 **  * Added main menu with function show sensor status
 **  * Implemented counter init procedure
 **  * Added a full error control sistem in init procedures
+**  * Added serial compatibility when pressing buttons 1,2,3
 **
 **  V2.1.1 - 11/08/2011
 **  * Added control of the axis limits in manual mode to avoid going to far and damaging the sensors 
