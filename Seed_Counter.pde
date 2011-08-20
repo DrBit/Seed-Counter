@@ -15,6 +15,13 @@
 **
 */
 
+
+// #define DEBUG
+// example debug:
+// #if defined DEBUG
+// Serial.println(val);
+// #endif
+
 // ***********************
 // ** DEFINES PIN MAP
 // ***********************
