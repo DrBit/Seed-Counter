@@ -16,7 +16,8 @@
 */
 
 
-// #define DEBUG
+// #define DEBUG		// Remove "//" to enable DEBUG
+
 // example debug:
 // #if defined DEBUG
 // Serial.println(val);

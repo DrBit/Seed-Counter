@@ -63,17 +63,20 @@ boolean Seedcounter_init() {
 void pickup_seed() {
 	motor_select = 0;
 	boolean seed_detected = false;
+#if defined DEBUG
+	Serial.print ("Init position: ");
 	Serial.print (counter.get_steps_cycles());
 	Serial.print (" - ");
 	Serial.println (counter.get_steps());
+#endif
 	while (!seed_detected) {
-		if ((counter.get_steps() == 400)  || (counter.get_steps() == -1200)){
-			delay (300);   // Wait for the interruption to reset itself   // CHEK WHY IS THIS HAPPENING --
-			speed_cntr_Move(1600/counter.get_step_accuracy(),5500,9000,5500);  // We do a full turn, NOTICE that the acceleration in this case is lower
+		if ((counter.get_steps() == 400)  || (counter.get_steps() == -1200)){			// The -1200 represents the first time we go back to init position
+			delay (100);   // Wait for the interruption to reset itself   // CHEK WHY IS THIS HAPPENING --
+			speed_cntr_Move(1600/counter.get_step_accuracy(),5500,9000,5500);	// We do a full turn, NOTICE that the acceleration in this case is lower
 			// Thats to avoid trowing seeds and to achieve a better grip on the seed
 		}
-		if ((counter.get_steps() >= 1180) || (counter.get_steps() <= 20)) {   // We check the sensor only when we are in the range of the sensor
-			if (counter.sensor_check()){                 // We got a seed!!!
+		if ((counter.get_steps() >= 1180) || (counter.get_steps() <= 20)) {				// We check the sensor only when we are in the range of the sensor
+			if (counter.sensor_check()){			// We got a seed!!!
 				seed_detected = true; 
 				while (!(counter.get_steps() == 400))
 				{
@@ -83,90 +86,3 @@ void pickup_seed() {
 		}
 	}
 }
-//original 
-/*
-void pickup_seed () {
-	motor_select = 0;
-	boolean seed_detected = false;
-	 
-	while (!seed_detected) {
-		if ((counter.get_steps() == 1200) || (counter.get_steps() == 400)  || (counter.get_steps() == -400)) {
-			delay (150);   // Wait for the interruption to reset itself   // CHEK WHY IS THIS HAPPENING --
-			speed_cntr_Move(-800,5500,19000,19000);  // We do a half turn, NOTICE that the acceleration in this case is lower
-			// Thats to avoid trowing seeds and to achieve a better grip on the seed
-		}
-		if ((counter.get_steps() == 1600) || (counter.get_steps() == 800) || (counter.get_steps() == 0)) {   // We chek the sensor only when we are in the range of the sensor
-			if (counter.sensor_check()){                 // We got a seed!!!
-				seed_detected = true; 
-				while (!(counter.get_steps() == 1200) && !(counter.get_steps() == 400))
-				{
-				//delay (100); // Wait for the seed to fall
-				}
-			}
-		}
-	}
-}
-*/
-
-
-// OLD CODES**************
-/*
-void pickup_seed_extended () {
-  motor_select = 0;
-  boolean seed_detected = false;
-  // IMLEMENT BOTH HOLES of the vacuum hole ... see below
-  
-  while (!seed_detected) {
-    if (Seedcounter1.get_steps() == 375) {
-      delay (100);   // Wait for the interruption to reset itself   // CHEK WHY IS THIS HAPPENING --
-      speed_cntr_Move(-1800,5500,19000,19000);  // We do a half turn, NOTICE that the acceleration in this case is lower
-                                                // Thats to avoid trowing seeds and to achieve a better grip on the seed
-    }
-    if ((Seedcounter1.get_steps() >= 375) || (Seedcounter1.get_steps() <= 20)) {   // We chek the sensor only when we are in the range of the sensor
-      if (Seedcounter1.sensor_check()){                 // We got a seed!!!
-          seed_detected = true; 
-          Seedcounter1.wait_till_reach_position(375);   // We wait until we are bak at the deposit position (400)
-          delay (100); // Wait for the seed to fall
-      }
-    }
-  }
-  
-  while (!seed_detected) {
-    if (Seedcounter1.get_steps() == 375) {
-      delay (100);   // Wait for the interruption to reset itself   // CHEK WHY IS THIS HAPPENING --
-      speed_cntr_Move(-800,5500,19000,19000);  // We do a half turn, NOTICE that the acceleration in this case is lower
-                                                // Thats to avoid trowing seeds and to achieve a better grip on the seed
-    }
-    if ((Seedcounter1.get_steps() >= 375) || (Seedcounter1.get_steps() <= 20)) {   // We chek the sensor only when we are in the range of the sensor
-      if (Seedcounter1.sensor_check()){                 // We got a seed!!!
-          seed_detected = true; 
-          Seedcounter1.wait_till_reach_position(375);   // We wait until we are bak at the deposit position (400)
-          delay (100); // Wait for the seed to fall
-      }
-    }
-  
-  }
-}
-
-// PREVIOUS VERSION
-
-void pickup_seed_extended () {
-  motor_select = 0;
-  boolean seed_detected = false;
-  
-  while (!seed_detected) {
-    if (Seedcounter1.get_position() == 400) {
-      delay (100);   // Wait for the interruption to reset itself   // CHEK WHY IS THIS HAPPENING --
-      speed_cntr_Move(-1600,5500,19000,19000);  // We do a full turn, NOTICE that the acceleration in this case is lower
-                                                // Thats to avoid trowing seeds and to achieve a better grip on the seed
-    }
-    if ((Seedcounter1.get_position() >= 1180) || (Seedcounter1.get_position() <= 20)) {   // We check the sensor only when we are in the range of the sensor
-      if (Seedcounter1.sensor_check()){                 // We got a seed!!!
-          seed_detected = true; 
-          Seedcounter1.wait_till_reach_position(400);   // We wait until we are bak at the deposit position (400)
-          delay (100); // Wait for the seed to fall
-      }
-    }
-  }
-}
-*/
