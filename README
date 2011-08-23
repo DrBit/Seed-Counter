@@ -7,6 +7,7 @@
 **  V2.1.4 - 23/08/2011
 **  * Adapted function pick a seed for the new hardware
 **  * Implemented DEBUG function
+**  * Created new motors handling function. For now with fixed acceleration and only for X motor (Test option in Menu)
 **
 **  V2.1.3 - 18/08/2011
 **  * Added testing menu function

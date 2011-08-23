@@ -337,6 +337,7 @@ boolean inTestMenu = true;
 		Serial.println("		6 to init all motors");
 		Serial.println("		7 to change motor mode");
 		Serial.println("		8 to check sensors status");
+		Serial.println("		9 test velocity");
 		Serial.println("		0 go to Main Menu");
 		boolean InMenuTemp = true;				// Init temp value for menu
 		switch (return_pressed_button ()) { 
@@ -393,7 +394,7 @@ boolean inTestMenu = true;
 			
 			case 7:
 				Serial.println("\n	Change motor modes");
-				//
+				Serial.println("Not implemented yet");
 			break;
 			
 			case 8:
@@ -408,6 +409,17 @@ boolean inTestMenu = true;
 						delay (100);
 					}
 				}
+			break;
+			
+			case 9:
+			Serial.println("\n	test_velocity");
+				//move_motor(int motor_number, int steps, int cycles, int accel_factor, boolean direction)
+				// move_motor(1,1,1840, 40, true); find out why
+				move_motor(1,1,1600, 40, true);
+				move_motor(1,0,1600, 40, true);
+				move_motor(1,3,0, 40, false);
+				move_motor(1,1,1607, 40, true);
+				//xaxis_testing_velocity();
 			break;
 			
 			case 0:

@@ -347,7 +347,220 @@ void sm_driver_StepCounter(unsigned char Mdirection) {
 		Xaxis.set_direction (!Mdirection);
 		Xaxis.do_step();
 	}else if (motor_select == 2) {
-	Yaxis.set_direction (!Mdirection);
-	Yaxis.do_step();
+		Yaxis.set_direction (!Mdirection);
+		Yaxis.do_step();
 	}
+}
+
+
+
+// ************************************************************
+// ** NEW move function
+// ************************************************************
+
+// What would be nice to have... NOT READY
+void move_motor(int motor_number, unsigned int cycles,unsigned int steps, int accel_factor, boolean direction)
+{
+		// we set direction
+		Xaxis.set_direction (!direction);
+
+#if defined DEBUG
+		Serial.println ("Direction set ");
+#endif	
+	// accel factor standard = 40
+	// Some previos calculations
+	// 920*2 = 1840
+	unsigned int total_steps_cycles_for_aceleration = (accel_factor + (accel_factor*2) + (accel_factor*4) + (accel_factor*8*2))*2;
+	unsigned int total_steps_for_aceleration = total_steps_cycles_for_aceleration % 1600;
+	unsigned int total_cycles_for_aceleration = total_steps_cycles_for_aceleration / 1600;
+	
+	if ((total_cycles_for_aceleration > cycles) || ((total_steps_for_aceleration > steps) && (total_cycles_for_aceleration == cycles))) {		// Meaning that we need to move less than we need to just acelerate
+#if defined DEBUG
+		Serial.println ("We will not accelerate because its less steps that we could use to accelerate");
+#endif
+		// Calculation total amount of steps
+		unsigned int tota_steps_to_move = (cycles*1600)+steps;
+		Xaxis.change_step_mode(8);		// Change mode 8
+		// Executing steps
+		for (int a = 0; a < tota_steps_to_move; a++) {
+			Xaxis.do_step();
+			delayMicroseconds (360);
+		}
+#if defined DEBUG
+		Serial.print ("Total moved: ");
+		print_x_pos ();
+#endif
+		
+	}else{
+#if defined DEBUG
+		Serial.println ("We accelerate");
+		Serial.print ("steps_to_move=");
+		Serial.println(steps);
+		Serial.print ("cycles_to_move=");
+		Serial.println(cycles);
+		Serial.print ("total_steps_for aceleration=");
+		Serial.println(total_steps_for_aceleration);
+		Serial.print ("total_cycles_for aceleration=");		
+		Serial.println(total_cycles_for_aceleration);
+#endif
+
+		// firs we prepare all calculations so we dont need to calculate in the middle
+		// removing fixed steps to accelerate from the total steps to move
+		if (steps > total_steps_for_aceleration) {				// If we have less steps that we got to rest then whe need to substract one cycle and use those steps to acomplish the rest
+			steps = steps - total_steps_for_aceleration;
+		}else{
+			total_steps_for_aceleration = total_steps_for_aceleration - steps;
+			steps = 1600;
+			cycles --;
+			steps = steps - total_steps_for_aceleration;
+		}
+		cycles = cycles - total_cycles_for_aceleration;
+		
+#if defined DEBUG
+		Serial.println ("After calcs: ");
+		Serial.print ("steps_to_move=");
+		Serial.println(steps);
+		Serial.print ("cycles_to_move=");
+		Serial.println(cycles);
+#endif
+
+		// we start the ramp up
+		ramp_up ();												// 920 steps FIXED
+
+#if defined DEBUG
+		Serial.println ("Finished ramp up ");
+		Serial.print ("Total moved: ");
+		print_x_pos ();
+#endif	
+		// first we move the steps
+		move_n_steps (steps) ;
+#if defined DEBUG
+		Serial.println ("Finished move steps ");
+		Serial.print ("Total moved: ");
+		print_x_pos ();
+#endif	
+		// then we move all cycles
+		for (int a = cycles; a > 0; a--) {
+			move_n_steps (1600) ;			
+		}
+#if defined DEBUG
+		Serial.println ("Finished move cycles ");
+		Serial.print ("Total moved: ");
+		print_x_pos ();
+#endif	
+		
+		// we start the ramp down
+		ramp_down();											// 920 steps FIXED
+#if defined DEBUG
+		Serial.println ("Finished ramp down ");
+		Serial.print ("Total moved: ");
+		print_x_pos ();
+#endif
+
+// ********************** missing the error calculation. We need to check if we move 7 steps that in mode 1 we can only move 8 not less
+// Check this in DEBUG --> move_motor(1,1,1607, 40, true);
+	}
+}
+// needs to be inside and interruption
+// needs to be modular for all motors
+// needs to be multi motor, so more than one motor moving at the same time
+
+
+
+
+
+void ramp_up () {
+	for (int i = 1; i< 6; i++) {
+		select_case (i);
+	}
+}
+
+void ramp_down () {
+	for (int i = 5; i> 0; i--) {
+		select_case (i);
+	} 
+}
+
+void move_n_steps (unsigned int mov_steps) {
+	Xaxis.change_step_mode(1);		// Change mode 1
+	for (int a = 0; a < mov_steps/Xaxis.get_step_accuracy(); a++) {
+		Xaxis.do_step();
+		delayMicroseconds (490);
+	}
+}
+
+void select_case (int vel_case) {
+	const int steps_x_case = 40;
+	// Acelerating an deacelerating is moving a total of:
+	// 40 in mode 8 = 40
+	// 40 in mode 4 = 80
+	// 40 in mode 2 = 160
+	// 40 in mode 1 = 320
+	// 40 in mode 1 = 320
+	// total of = 920*2 = 1840 steps  -> ( 1600= 1 cycle )
+	// formula = steps_x_case + (steps_x_case*2) + (steps_x_case*4) + (steps_x_case*8)
+	
+	if (vel_case == 1) {
+		Xaxis.change_step_mode(8);		// Change mode 8
+		for (int a = 0; a < steps_x_case; a++) {
+			Xaxis.do_step();
+			delayMicroseconds (260);
+		}
+	}
+	if (vel_case == 2) {
+		Xaxis.change_step_mode(4);		// Change mode 4
+		for (int a = 0; a < steps_x_case; a++) {
+			Xaxis.do_step();
+			delayMicroseconds (350);
+		}
+	}
+	if (vel_case == 3) {
+		Xaxis.change_step_mode(2);		// Change mode 2
+		for (int a = 0; a < steps_x_case; a++) {
+			Xaxis.do_step();
+			delayMicroseconds (450);
+		}
+	}
+	if (vel_case == 4) {
+		Xaxis.change_step_mode(1);		// Change mode 1
+		for (int a = 0; a < steps_x_case; a++) {
+			Xaxis.do_step();
+			delayMicroseconds (560);
+		}
+	}
+	if (vel_case == 5) {
+		Xaxis.change_step_mode(1);		// Change mode 1
+		for (int a = 0; a < steps_x_case; a++) {
+			Xaxis.do_step();
+			delayMicroseconds (500);
+		}
+	}
+}
+
+
+
+// FOR TESTING
+void ramping() {
+	ramp_up ();
+#if defined DEBUG
+	print_x_pos ();
+#endif
+	move_n_steps (5000) ;
+#if defined DEBUG
+	print_x_pos ();
+#endif
+	ramp_down();
+#if defined DEBUG
+	print_x_pos ();
+#endif
+}
+
+// FOR TESTING
+void xaxis_testing_velocity() {
+	Xaxis.set_direction (false);   // Goes forward
+	ramping();
+	delay (1000);
+	Xaxis.set_direction (true);   // Goes backward
+	ramping();
+	delay(1000);
 }
