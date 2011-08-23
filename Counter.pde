@@ -3,7 +3,7 @@
 // ************************************************************
 // Inits the seedcounter using the sensor as a starting point
 #define init_turns_till_error 7    		// Number of times the couinter will try to get a seed at INITIATION before giving an error
-#define steps_from_sensor_to_init 600  	// Number of steps (based in mode 8) to go backward from the sensor to the init position
+#define steps_from_sensor_to_init 1200  	// Number of steps (based in mode 8) to go backward from the sensor to the init position
 
 boolean Seedcounter_init() {
         
@@ -60,13 +60,35 @@ boolean Seedcounter_init() {
 // ************************************************************
 // Function to pick up a seed
 // Automatically detects when there is , or not a seed and drops it.
-void pickup_seed () {
+void pickup_seed() {
 	motor_select = 0;
 	boolean seed_detected = false;
-	// IMLEMENT BOTH HOLES of the vacuum hole ... see below
 	Serial.print (counter.get_steps_cycles());
 	Serial.print (" - ");
 	Serial.println (counter.get_steps());
+	while (!seed_detected) {
+		if ((counter.get_steps() == 400)  || (counter.get_steps() == -1200)){
+			delay (300);   // Wait for the interruption to reset itself   // CHEK WHY IS THIS HAPPENING --
+			speed_cntr_Move(1600/counter.get_step_accuracy(),5500,9000,5500);  // We do a full turn, NOTICE that the acceleration in this case is lower
+			// Thats to avoid trowing seeds and to achieve a better grip on the seed
+		}
+		if ((counter.get_steps() >= 1180) || (counter.get_steps() <= 20)) {   // We check the sensor only when we are in the range of the sensor
+			if (counter.sensor_check()){                 // We got a seed!!!
+				seed_detected = true; 
+				while (!(counter.get_steps() == 400))
+				{
+				//delay (100); // Wait for the seed to fall
+				}
+			}
+		}
+	}
+}
+//original 
+/*
+void pickup_seed () {
+	motor_select = 0;
+	boolean seed_detected = false;
+	 
 	while (!seed_detected) {
 		if ((counter.get_steps() == 1200) || (counter.get_steps() == 400)  || (counter.get_steps() == -400)) {
 			delay (150);   // Wait for the interruption to reset itself   // CHEK WHY IS THIS HAPPENING --
@@ -84,6 +106,7 @@ void pickup_seed () {
 		}
 	}
 }
+*/
 
 
 // OLD CODES**************
