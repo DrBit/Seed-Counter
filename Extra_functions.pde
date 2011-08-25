@@ -424,16 +424,13 @@ boolean inTestMenu = true;
 				print_x_pos ();
 				Serial.println ("\n Move to cycle 1 step 0");
 				got_to_position (1, 0, 1,1) ;
-				Serial.print ("Finish moving! Actual position: ");
-				print_x_pos ();
+
 				Serial.println ("\n Move to cycle 10 step 0");
 				got_to_position (10, 0, 1,1) ;
-				Serial.print ("Finish moving! Actual position: ");
-				print_x_pos ();
+
 				Serial.println ("\n Move to cycle 0 step 1");
 				got_to_position (0, 1, 1,1) ;
-				Serial.print ("Finish moving! Actual position: ");
-				print_x_pos ();
+
 			break;
 			
 			case 0:

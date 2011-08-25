@@ -16,7 +16,7 @@
 **
 */
 
- #define DEBUG		// Remove / Add"//" to enable / disbale DEBUG mode
+// #define DEBUG		// Remove / Add"//" to enable / disbale DEBUG mode
 
 // example debug:
 // #if defined DEBUG

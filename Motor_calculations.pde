@@ -382,9 +382,14 @@ void move_motor(int motor_number, unsigned int cycles,unsigned int steps, int ac
 #endif
 		// Calculation total amount of steps
 		unsigned int total_steps_to_move = (cycles*1600)+steps;
+#if defined DEBUG
+		Serial.print (" * Steps to move: ");
+		Serial.println (total_steps_to_move);
+#endif
+		// Moving....
 		move_n_steps_slow (total_steps_to_move);
 #if defined DEBUG
-		Serial.print (" * Total moved: ");
+		Serial.print (" * Actual position: ");
 		print_x_pos ();
 #endif
 		
