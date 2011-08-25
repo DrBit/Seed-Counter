@@ -365,7 +365,9 @@ void move_motor(int motor_number, unsigned int cycles,unsigned int steps, int ac
 		Xaxis.set_direction (!direction);
 
 #if defined DEBUG
-		Serial.println ("Direction set ");
+		Serial.println ("\n ****** Movement started ********");
+		Serial.print (" * Direction set: ");
+		Serial.println (direction,DEC);
 #endif	
 	// accel factor standard = 40
 	// Some previos calculations
@@ -376,32 +378,29 @@ void move_motor(int motor_number, unsigned int cycles,unsigned int steps, int ac
 	
 	if ((total_cycles_for_aceleration > cycles) || ((total_steps_for_aceleration > steps) && (total_cycles_for_aceleration == cycles))) {		// Meaning that we need to move less than we need to just acelerate
 #if defined DEBUG
-		Serial.println ("We will not accelerate because its less steps that we could use to accelerate");
+		Serial.println (" * Switch into plain mode, no acceleration.");
 #endif
 		// Calculation total amount of steps
-		unsigned int tota_steps_to_move = (cycles*1600)+steps;
-		Xaxis.change_step_mode(8);		// Change mode 8
-		// Executing steps
-		for (int a = 0; a < tota_steps_to_move; a++) {
-			Xaxis.do_step();
-			delayMicroseconds (360);
-		}
+		unsigned int total_steps_to_move = (cycles*1600)+steps;
+		move_n_steps_slow (total_steps_to_move);
 #if defined DEBUG
-		Serial.print ("Total moved: ");
+		Serial.print (" * Total moved: ");
 		print_x_pos ();
 #endif
 		
 	}else{
 #if defined DEBUG
-		Serial.println ("We accelerate");
-		Serial.print ("steps_to_move=");
-		Serial.println(steps);
-		Serial.print ("cycles_to_move=");
-		Serial.println(cycles);
-		Serial.print ("total_steps_for aceleration=");
-		Serial.println(total_steps_for_aceleration);
-		Serial.print ("total_cycles_for aceleration=");		
-		Serial.println(total_cycles_for_aceleration);
+		Serial.println (" * Switch into acceleratde mode.");
+		Serial.print ("Total to move:  ");
+		Serial.print(steps);
+		Serial.print (" steps and  ");
+		Serial.print(cycles);
+		Serial.println (" cycles.");
+		Serial.print ("Acceleration will consume a total of: ");
+		Serial.print(total_steps_for_aceleration);
+		Serial.print (" steps and ");		
+		Serial.print(total_cycles_for_aceleration);
+		Serial.println (" cyces.");	
 #endif
 
 		// firs we prepare all calculations so we dont need to calculate in the middle
@@ -417,43 +416,57 @@ void move_motor(int motor_number, unsigned int cycles,unsigned int steps, int ac
 		cycles = cycles - total_cycles_for_aceleration;
 		
 #if defined DEBUG
-		Serial.println ("After calcs: ");
-		Serial.print ("steps_to_move=");
-		Serial.println(steps);
-		Serial.print ("cycles_to_move=");
-		Serial.println(cycles);
+		Serial.println (" * As a result we will be moving at max speed a total of: ");
+		Serial.print(steps);
+		Serial.print (" steps and ");
+		Serial.print(cycles);
+		Serial.println (" cycles.");
 #endif
 
-		// we start the ramp up
+		// we start the ramp up and achieve certain velocity
 		ramp_up ();												// 920 steps FIXED
 
 #if defined DEBUG
-		Serial.println ("Finished ramp up ");
-		Serial.print ("Total moved: ");
+		Serial.println (" * Finished ramp up ");
+		Serial.print ("Actual position: ");
 		print_x_pos ();
 #endif	
-		// first we move the steps
-		move_n_steps (steps) ;
+		// at a certain velocity we move the steps
+		int remaining_steps = move_n_steps_fast (steps) ;
+		// inside "remaining_steps" there is the steps we couldnt do beacuse of a lack of resolution
+		// we will move them slowlty at the end because now we are going at max speed.
 #if defined DEBUG
-		Serial.println ("Finished move steps ");
-		Serial.print ("Total moved: ");
+		Serial.println (" * Finished move steps at top speed ");
+		Serial.print ("Actual position: ");
 		print_x_pos ();
+		Serial.print ("Remaining to move: ");
+		Serial.println (remaining_steps);
 #endif	
-		// then we move all cycles
+		// then we move all cycles also at max speed
 		for (int a = cycles; a > 0; a--) {
-			move_n_steps (1600) ;			
+			move_n_steps_fast (1600) ;			
 		}
 #if defined DEBUG
-		Serial.println ("Finished move cycles ");
-		Serial.print ("Total moved: ");
+		Serial.println (" * Finished move cycles at top speed ");
+		Serial.print ("Actual position: ");
 		print_x_pos ();
 #endif	
 		
-		// we start the ramp down
+		// once we moved all steps we start the ramp down
 		ramp_down();											// 920 steps FIXED
 #if defined DEBUG
-		Serial.println ("Finished ramp down ");
-		Serial.print ("Total moved: ");
+		Serial.println (" * Finished ramp down ");
+		Serial.print ("Actual position: ");
+		print_x_pos ();
+#endif
+
+		//Now that we are almost stop and the resolution of the motor is max, we move the steps we missed at max speed
+		move_n_steps_slow (remaining_steps);
+
+		#if defined DEBUG
+		Serial.print (" * Moved remaingin steps: ");
+		Serial.println (remaining_steps);
+		Serial.print ("Actual position: ");
 		print_x_pos ();
 #endif
 
@@ -481,11 +494,21 @@ void ramp_down () {
 	} 
 }
 
-void move_n_steps (unsigned int mov_steps) {
+int move_n_steps_fast (unsigned int mov_steps) {
 	Xaxis.change_step_mode(1);		// Change mode 1
 	for (int a = 0; a < mov_steps/Xaxis.get_step_accuracy(); a++) {
 		Xaxis.do_step();
 		delayMicroseconds (490);
+	}
+	return (mov_steps % Xaxis.get_step_accuracy());
+}
+
+void move_n_steps_slow (unsigned int mov_steps){
+	Xaxis.change_step_mode(8);		// Change mode 8 steps 
+	// Executing steps
+	for (int a = 0; a < mov_steps; a++) {
+		Xaxis.do_step();
+		delayMicroseconds (260);
 	}
 }
 
@@ -545,7 +568,7 @@ void ramping() {
 #if defined DEBUG
 	print_x_pos ();
 #endif
-	move_n_steps (5000) ;
+	move_n_steps_fast (5000) ;
 #if defined DEBUG
 	print_x_pos ();
 #endif

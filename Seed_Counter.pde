@@ -1,7 +1,7 @@
 #include <Stepper_ac.h>
 #include <avr/pgmspace.h>
 
-#define version_prog "TEST V2.1.4"
+#define version_prog "TEST V2.1.5"
 
 /********************************************
 **  Name: Seed Counter 
@@ -16,7 +16,7 @@
 */
 
 
-// #define DEBUG		// Remove / Add"//" to enable / disbale DEBUG mode
+#define DEBUG		// Remove / Add"//" to enable / disbale DEBUG mode
 
 // example debug:
 // #if defined DEBUG
