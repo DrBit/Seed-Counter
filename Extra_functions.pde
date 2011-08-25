@@ -76,7 +76,7 @@ void manual_modeXY() {
       print_y_pos();
     }
   }
-  delayMicroseconds(1990);
+  delayMicroseconds(300);
 }
 
 
@@ -113,7 +113,7 @@ void manual_mode_blisters() {
       print_blisters_pos();
     }
   }
-  delayMicroseconds(3990);
+  delayMicroseconds(4300);
 }
 
 
@@ -146,7 +146,7 @@ void manual_modeCounter() {
 			print_counter_pos();
 		}
 	}
-  delayMicroseconds(3990);
+  delayMicroseconds(3000);
 }
 
 

@@ -232,7 +232,7 @@ void got_to_position (unsigned int pos_x_cycles, unsigned int pos_x_steps, unsig
 	}
 	
 	// Acceleration 40 seems to work pretty well
-	const int acceleration = 44; 
+	const int acceleration = 40; 
 	// void move_motor(int motor_number, unsigned int cycles,unsigned int steps, int accel_factor, boolean direction)
 	move_motor(1, X_cycles_to_move, X_steps_to_move, acceleration, directionX);
 	//move_motor(2, Y_cycles_to_move, Y_steps_to_move, acceleration, directionY);
