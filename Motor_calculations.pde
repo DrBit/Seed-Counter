@@ -353,13 +353,13 @@ void sm_driver_StepCounter(unsigned char Mdirection) {
 }
 
 
-
 // ************************************************************
 // ** NEW move function
 // ************************************************************
 
-// What would be nice to have... NOT READY
+/***** Main fucntion, move motor a certain number of steps and cicles at a designed direction  *****/
 void move_motor(int motor_number, unsigned int cycles,unsigned int steps, int accel_factor, boolean direction)
+// Still to implement selection of motor!! probably this piece of code should be inside the library.
 {
 		// we set direction
 		Xaxis.set_direction (!direction);
@@ -424,7 +424,7 @@ void move_motor(int motor_number, unsigned int cycles,unsigned int steps, int ac
 #endif
 
 		// we start the ramp up and achieve certain velocity
-		ramp_up ();												// 920 steps FIXED
+		ramp_up (accel_factor);												// 920 steps FIXED
 
 #if defined DEBUG
 		Serial.println (" * Finished ramp up ");
@@ -453,7 +453,7 @@ void move_motor(int motor_number, unsigned int cycles,unsigned int steps, int ac
 #endif	
 		
 		// once we moved all steps we start the ramp down
-		ramp_down();											// 920 steps FIXED
+		ramp_down(accel_factor);											// 920 steps FIXED
 #if defined DEBUG
 		Serial.println (" * Finished ramp down ");
 		Serial.print ("Actual position: ");
@@ -469,31 +469,24 @@ void move_motor(int motor_number, unsigned int cycles,unsigned int steps, int ac
 		Serial.print ("Actual position: ");
 		print_x_pos ();
 #endif
-
-// ********************** missing the error calculation. We need to check if we move 7 steps that in mode 1 we can only move 8 not less
-// Check this in DEBUG --> move_motor(1,1,1607, 40, true);
 	}
 }
-// needs to be inside and interruption
-// needs to be modular for all motors
-// needs to be multi motor, so more than one motor moving at the same time
 
-
-
-
-
-void ramp_up () {
+/***** Ramping up, achieve velocity  *****/
+void ramp_up (int accel_factor) {
 	for (int i = 1; i< 6; i++) {
-		select_case (i);
+		select_case (i, accel_factor);
 	}
 }
 
-void ramp_down () {
+/***** Ramping down, decreasing velocity  *****/
+void ramp_down (int accel_factor) {
 	for (int i = 5; i> 0; i--) {
-		select_case (i);
+		select_case (i, accel_factor);
 	} 
 }
 
+/***** Move N steps at the max velocity *****/
 int move_n_steps_fast (unsigned int mov_steps) {
 	Xaxis.change_step_mode(1);		// Change mode 1
 	for (int a = 0; a < mov_steps/Xaxis.get_step_accuracy(); a++) {
@@ -503,6 +496,7 @@ int move_n_steps_fast (unsigned int mov_steps) {
 	return (mov_steps % Xaxis.get_step_accuracy());
 }
 
+/***** Move N steps at the min velocity *****/
 void move_n_steps_slow (unsigned int mov_steps){
 	Xaxis.change_step_mode(8);		// Change mode 8 steps 
 	// Executing steps
@@ -512,16 +506,16 @@ void move_n_steps_slow (unsigned int mov_steps){
 	}
 }
 
-void select_case (int vel_case) {
-	const int steps_x_case = 40;
-	// Acelerating an deacelerating is moving a total of:
-	// 40 in mode 8 = 40
-	// 40 in mode 4 = 80
-	// 40 in mode 2 = 160
-	// 40 in mode 1 = 320
-	// 40 in mode 1 = 320
-	// total of = 920*2 = 1840 steps  -> ( 1600= 1 cycle )
-	// formula = steps_x_case + (steps_x_case*2) + (steps_x_case*4) + (steps_x_case*8)
+// ************************************************************
+// ** Extra functions for ramping and testing
+// ************************************************************
+
+/***** Ramping cases for changin velocities *****/
+void select_case (int vel_case, int steps_x_case) {
+	//const int steps_x_case = 40;  // ol variable for defining number of steps to do in each velocity step
+
+	// for acelerating or deacelerating (for both = result*2)
+	// formula = steps_x_case + (steps_x_case*2) + (steps_x_case*4) + (steps_x_case*8*2) 
 	
 	if (vel_case == 1) {
 		Xaxis.change_step_mode(8);		// Change mode 8
@@ -558,32 +552,4 @@ void select_case (int vel_case) {
 			delayMicroseconds (500);
 		}
 	}
-}
-
-
-
-// FOR TESTING
-void ramping() {
-	ramp_up ();
-#if defined DEBUG
-	print_x_pos ();
-#endif
-	move_n_steps_fast (5000) ;
-#if defined DEBUG
-	print_x_pos ();
-#endif
-	ramp_down();
-#if defined DEBUG
-	print_x_pos ();
-#endif
-}
-
-// FOR TESTING
-void xaxis_testing_velocity() {
-	Xaxis.set_direction (false);   // Goes forward
-	ramping();
-	delay (1000);
-	Xaxis.set_direction (true);   // Goes backward
-	ramping();
-	delay(1000);
 }
