@@ -7,6 +7,9 @@
 **  V2.1.5 - 25/08/2011
 **  * Fixed bug in motors handling that would prevent moving small number of steps in motor modes 1,2 and 4 
 **    due to lack of resolution.
+**  * Implemented function "go to position X Y" (for now only for X motor). The function will determine how to move
+**  * the motor in order to go to the specific position with the better possible way (added in test menu).
+**  * Added Version tracking to warn user when working whith an outdatet version of the library (from version 0.6.3)
 **
 **  V2.1.4 - 23/08/2011
 **  * Adapted function pick a seed for the new hardware

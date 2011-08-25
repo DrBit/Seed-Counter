@@ -2,6 +2,7 @@
 #include <avr/pgmspace.h>
 
 #define version_prog "TEST V2.1.5"
+#define lib_version 63
 
 /********************************************
 **  Name: Seed Counter 
@@ -15,8 +16,7 @@
 **
 */
 
-
-#define DEBUG		// Remove / Add"//" to enable / disbale DEBUG mode
+ #define DEBUG		// Remove / Add"//" to enable / disbale DEBUG mode
 
 // example debug:
 // #if defined DEBUG
@@ -97,13 +97,24 @@ boolean error_blister = true;
 void setup() {
 
 	//*** BASIC SETUP
-
+	
 	// INIT Serila
 	init_serial();	
 	//Configure 3 Input Buttons
 	pinMode (button1, INPUT);
 	pinMode (button2, INPUT);
 	pinMode (button3, INPUT);
+	
+	// Check Version
+	if ((Xaxis.get_version()) != lib_version) {
+		Serial.println("Library version mismatch");
+		Serial.print(" This code is designed to work with library V");
+		Serial.println(lib_version);
+		Serial.print(" And the library installed is version V");
+		Serial.println(Xaxis.get_version());
+		Serial.println (" Program stoped!");
+		while (true) {}
+	}
 	
 	// Initiate the Timer1 config function in order to prepare the timing functions of motor acceleration
 	speed_cntr_Init_Timer1();
@@ -158,16 +169,6 @@ void loop() {
 	test_functions();
 	
 	/*	
-	// Init Counter
-	Serial.print("Initializing Seed counter roll: ");
-	if (Seedcounter_init()) {  // Initiates seed counters
-		print_ok();
-	}else{
-		print_fail();
-		// error = 2;
-	}
-	press_button_to_continue (1);
-
 	// Testing....
 	Serial.print("Testing release one blister");
 	release_blister ();

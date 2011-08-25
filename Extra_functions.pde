@@ -152,37 +152,37 @@ void manual_modeCounter() {
 
 /***** Print Position X axis  *****/
 void print_x_pos () {
-  Serial.print ("* X_cycles: ");
-  Serial.print (Xaxis.get_steps_cycles());
-  Serial.print (", X_steps: ");
-  Serial.println (Xaxis.get_steps());
+	Serial.print ("* X_cycles: ");
+	Serial.print (Xaxis.get_steps_cycles());
+	Serial.print (", X_steps: ");
+	Serial.println (Xaxis.get_steps());
 }
 
 
 /***** Print Position Y axis  *****/
 void print_y_pos () {
-  Serial.print ("* Y_cycles: ");
-  Serial.print (Yaxis.get_steps_cycles());
-  Serial.print (", Y_steps: ");
-  Serial.println (Yaxis.get_steps());
+	Serial.print ("* Y_cycles: ");
+	Serial.print (Yaxis.get_steps_cycles());
+	Serial.print (", Y_steps: ");
+	Serial.println (Yaxis.get_steps());
 }
 
 
 /***** Print Position Blisters axis  *****/
 void print_blisters_pos () {
-  Serial.print ("* Blister_cycles: ");
-  Serial.print (blisters.get_steps_cycles());
-  Serial.print (", Blister_steps: ");
-  Serial.println (blisters.get_steps());
+	Serial.print ("* Blister_cycles: ");
+	Serial.print (blisters.get_steps_cycles());
+	Serial.print (", Blister_steps: ");
+	Serial.println (blisters.get_steps());
 }
 
 
 /***** Print Position Counter axis  *****/
 void print_counter_pos () {
-  Serial.print ("* Couter_cycles: ");
-  Serial.print (counter.get_steps_cycles());
-  Serial.print (", Counter_steps: ");
-  Serial.println (counter.get_steps());
+	Serial.print ("* Couter_cycles: ");
+	Serial.print (counter.get_steps_cycles());
+	Serial.print (", Counter_steps: ");
+	Serial.println (counter.get_steps());
 }
 
 
@@ -192,17 +192,17 @@ void print_counter_pos () {
 
 /***** Checks free ram and prints it serial *****/
 void mem_check () {
-  //checking memory:
-  Serial.print("Memory available: [");
-  Serial.print(freeRam());
-  Serial.println(" bytes]");
+	//checking memory:
+	Serial.print("Memory available: [");
+	Serial.print(freeRam());
+	Serial.println(" bytes]");
 }
 
 /***** Returns free ram *****/
 int freeRam () {
-  extern int __heap_start, *__brkval; 
-  int v; 
-  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
+	extern int __heap_start, *__brkval; 
+	int v; 
+	return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
 }
 
 /***** Pause and wait till a button is pressed  *****/
@@ -216,11 +216,11 @@ void press_button_to_continue (int button_number) {
 				if (digitalRead(button1) == HIGH) {
 					pause = false;   // If we do, unpause
 				}
-                                if (Serial.available()) {
-                                  if (Serial.read() == '1') {
-                                   pause = false;
-                                  }
-                                } 
+				if (Serial.available()) {
+					if (Serial.read() == '1') {
+						pause = false;
+					}
+				} 
 			}
 		break;
 		case 2:
@@ -229,11 +229,11 @@ void press_button_to_continue (int button_number) {
 				if (digitalRead(button2) == HIGH) {
 					pause = false;   // If we do, unpause
 				}
-                                if (Serial.available()) {
-                                  if (Serial.read() == '2') {
-                                   pause = false;
-                                  }
-                                } 
+				if (Serial.available()) {
+					 if (Serial.read() == '2') {
+						pause = false;
+					 }
+				} 
 			}
 		break;
 		case 3:
@@ -242,11 +242,11 @@ void press_button_to_continue (int button_number) {
 				if (digitalRead(button3) == HIGH) {
 					pause = false;   // If we do, unpause
 				}
-                                if (Serial.available()) {
-                                  if (Serial.read() == '2') {
-                                   pause = false;
-                                  }
-                                } 
+				if (Serial.available()) {
+					if (Serial.read() == '2') {
+						pause = false;
+					}
+				} 
 			}
 		break;
 		default: 
@@ -415,11 +415,25 @@ boolean inTestMenu = true;
 			Serial.println("\n	test_velocity");
 				//move_motor(int motor_number, int steps, int cycles, int accel_factor, boolean direction)
 				// move_motor(1,1,1840, 40, true); find out why
-				move_motor(1,1,1600, 40, true);
-				move_motor(1,0,1600, 40, true);
-				move_motor(1,3,0, 40, false);
-				move_motor(1,1,1607, 40, true);
+				// move_motor(1,1,1600, 40, true);
+				// move_motor(1,0,1600, 40, true);
+				// move_motor(1,3,0, 40, false);
+				// move_motor(1,1,1607, 40, true);
 				//xaxis_testing_velocity();
+				Serial.print ("INIT position: ");
+				print_x_pos ();
+				Serial.println ("\n Move to cycle 1 step 0");
+				got_to_position (1, 0, 1,1) ;
+				Serial.print ("Finish moving! Actual position: ");
+				print_x_pos ();
+				Serial.println ("\n Move to cycle 10 step 0");
+				got_to_position (10, 0, 1,1) ;
+				Serial.print ("Finish moving! Actual position: ");
+				print_x_pos ();
+				Serial.println ("\n Move to cycle 0 step 1");
+				got_to_position (0, 1, 1,1) ;
+				Serial.print ("Finish moving! Actual position: ");
+				print_x_pos ();
 			break;
 			
 			case 0:
@@ -492,6 +506,7 @@ void print_sensor_stats() {
 // ** INIT  FUNCTIONS
 // ************************************************************
 
+/***** Init indivudual or all blocks of the system *****/
 int init_blocks(int block) {
 	//Switch mode
 	switch (block) {
@@ -531,6 +546,7 @@ int init_blocks(int block) {
 	}
 }
 
+/***** Init XY from menu *****/
 int init_XY_menu() {
   // Init XY axis
     Serial.print("Initializing XY Axes: ");
@@ -545,6 +561,7 @@ int init_XY_menu() {
     }
 }
 
+/***** Init Counter from menu *****/
 int init_counter_menu () {
   // Init Counter
     Serial.print("Initializing Seed counter roll: ");
@@ -559,6 +576,7 @@ int init_counter_menu () {
     }
 }
 
+/***** Init Blisters from menu *****/
 int init_blisters_menu () {
   //Init blister dispenser
     Serial.print("Initializing blister dispenser: ");
