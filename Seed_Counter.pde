@@ -164,42 +164,42 @@ void setup() {
 
 void loop() {
 
-	Serial.print("go to Blister Position");
+	Serial.println("go to Blister Position");
 	got_to_position (9, 0, 1,1) ;  // blister
 	
-	Serial.print("Get blister");
+	Serial.println("Get blister");
 	release_blister ();
 	
-	Serial.print("1rst hole");
+	Serial.println("1rst hole");
 	got_to_position (61, 1094, 1,1) ;  // first hole
 	pickup_seed ();
 	
-	Serial.print("2nd hole");
+	Serial.println("2nd hole");
 	got_to_position (69, 287, 1,1) ;  // second hole
 	pickup_seed ();
 	
-	Serial.print("3rd hole");
+	Serial.println("3rd hole");
 	got_to_position (76, 6010, 1,1) ;  // 3d hole
 	pickup_seed ();
 	
-	Serial.print("4th hole");
+	Serial.println("4th hole");
 	got_to_position (86, 555, 1,1) ;  //4th hole
 	pickup_seed ();
 	
-	Serial.print("5th hole");
+	Serial.println("5th hole");
 	got_to_position (94, 1, 1,1) ;  // 5th hole
 	pickup_seed ();
 	
-	Serial.print("Goto print position");
+	Serial.println("Goto print position");
 	got_to_position (194, 1, 1,1) ;  // Printer position
-	Serial.print("Printing....");
+	Serial.println("Printing....");
 	
 	delay (3000);
 	
-	Serial.print("Go to exit");
+	Serial.println("Go to exit");
 	got_to_position (278, 1, 1,1) ;  //  exit
 	
-	Serial.print("DONE!");
+	Serial.println("DONE!");
 	
 	
 	test_functions();
