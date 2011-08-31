@@ -393,7 +393,8 @@ boolean inTestMenu = true;
 			break;
 			
 			case 7:
-				Serial.println("\n	Change motor modes");
+			//Change motor modes
+				Serial.println("\n Empty");
 				Serial.println("Not implemented yet");
 			break;
 			
@@ -412,7 +413,7 @@ boolean inTestMenu = true;
 			break;
 			
 			case 9:
-			Serial.println("\n	test_velocity");
+			Serial.println("\n	empty");
 				//move_motor(int motor_number, int steps, int cycles, int accel_factor, boolean direction)
 				// move_motor(1,1,1840, 40, true); find out why
 				// move_motor(1,1,1600, 40, true);
@@ -420,16 +421,16 @@ boolean inTestMenu = true;
 				// move_motor(1,3,0, 40, false);
 				// move_motor(1,1,1607, 40, true);
 				//xaxis_testing_velocity();
-				Serial.print ("INIT position: ");
-				print_x_pos ();
-				Serial.println ("\n Move to cycle 1 step 0");
-				got_to_position (1, 0, 1,1) ;
+				//Serial.print ("INIT position: ");
+				//print_x_pos ();
+				//Serial.println ("\n Move to cycle 1 step 0");
+				//got_to_position (1, 0, 1,1) ;
 
-				Serial.println ("\n Move to cycle 10 step 0");
-				got_to_position (10, 0, 1,1) ;
+				//Serial.println ("\n Move to cycle 10 step 0");
+				//got_to_position (10, 0, 1,1) ;
 
-				Serial.println ("\n Move to cycle 0 step 1");
-				got_to_position (0, 1, 1,1) ;
+				//Serial.println ("\n Move to cycle 0 step 1");
+				//got_to_position (0, 1, 1,1) ;
 
 			break;
 			

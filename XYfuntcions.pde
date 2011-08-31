@@ -181,59 +181,11 @@ void go_to_memory_position (int position_index_to_go) {
 	int Ycycles = Yaxis.get_steps_cycles() - get_cycle_Ypos_from_index(position_index_to_go);
 	int Ysteps = Yaxis.get_steps() - get_step_Ypos_from_index(position_index_to_go); 
 	
-	got_to_position (Xsteps, Xcycles, Ysteps, Ycycles) ;
+	go_to_posXY (Xcycles, Xsteps, Ycycles, Ysteps) ;
 }
 
-void got_to_position (unsigned int pos_x_cycles, unsigned int pos_x_steps, unsigned int pos_y_cycles, unsigned int pos_y_steps) {
-
-	//error chgecking if steps are greater that 1600 (max).
-
-	int X_cycles_to_move = pos_x_cycles - Xaxis.get_steps_cycles();
-	int X_steps_to_move =  pos_x_steps - Xaxis.get_steps();
-	int Y_cycles_to_move = pos_y_cycles - Yaxis.get_steps_cycles() ;
-	int Y_steps_to_move = pos_y_steps - Yaxis.get_steps() ; 
-	// determine the direction X axis
-	boolean directionX;
-	if (X_cycles_to_move < 0) {
-		// Direction false
-		directionX = false;
-	}else if (X_cycles_to_move > 0) {
-		//  direction true
-		directionX = true;
-	}else{  // Means its = to 0
-		// we need to check the steps in order to determine the direction
-		if (X_steps_to_move < 0) {
-			directionX = false;
-		}else{
-		   directionX = true;
-		   // in case X_steps_to_move is == 0 we dont care as we will not be moving anywhere
-		}
-	}
-
-	if (directionX) {
-		if (X_steps_to_move > 0) {
-			// Keeps as it is
-		} else {
-			// because its a negative number we add it to the total and we will get a positive number
-			X_steps_to_move = 1600 + X_steps_to_move;
-			X_cycles_to_move --;
-		}
-	} else {
-		if (X_steps_to_move < 0) {	
-			// Numbers stay as they are. 
-		} else {
-			X_steps_to_move = X_steps_to_move -1600;
-			X_cycles_to_move ++;
-		}
-		//We change them from negative to positive as the direction will control the motion.
-		// Prepare numbers to be send
-		X_cycles_to_move = -X_cycles_to_move;
-		X_steps_to_move = -X_steps_to_move;
-	}
-	
-	// Acceleration 40 seems to work pretty well
-	const int acceleration = 40; 
-	// void move_motor(int motor_number, unsigned int cycles,unsigned int steps, int accel_factor, boolean direction)
-	move_motor(1, X_cycles_to_move, X_steps_to_move, acceleration, directionX);
-	//move_motor(2, Y_cycles_to_move, Y_steps_to_move, acceleration, directionY);
+void go_to_posXY (int Xcy,int Xst,int Ycy,int Yst) {
+	Xaxis.got_to_position (Xcy, Xst) ;
+	Yaxis.got_to_position (Ycy, Yst) ;
 }
+

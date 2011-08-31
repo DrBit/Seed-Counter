@@ -1,8 +1,8 @@
 #include <Stepper_ac.h>
 #include <avr/pgmspace.h>
 
-#define version_prog "TEST V2.1.5"
-#define lib_version 63
+#define version_prog "TEST V2.1.6"
+#define lib_version 10
 
 /********************************************
 **  Name: Seed Counter 
@@ -29,6 +29,7 @@
 #define button1 23
 #define button2 25
 #define button3 27
+#define Vibration 13
 
 #define stepA 8
 #define stepB 10
@@ -39,7 +40,7 @@
 #define dirC 5
 #define dirD 53
 #define sensA 12
-#define sensB 13
+#define sensB 4
 #define sensC "not_used"
 #define sensD 7
 
@@ -104,6 +105,7 @@ void setup() {
 	pinMode (button1, INPUT);
 	pinMode (button2, INPUT);
 	pinMode (button3, INPUT);
+	pinMode (Vibration, OUTPUT);
 	
 	// Check Version
 	if ((Xaxis.get_version()) != lib_version) {
@@ -163,41 +165,40 @@ void setup() {
 // ************************************************************
 
 void loop() {
-
 	Serial.println("go to Blister Position");
-	got_to_position (9, 0, 1,1) ;  // blister
+	//got_to_position (9, 0, 1,1) ;  // blister
 	
 	Serial.println("Get blister");
 	release_blister ();
 	
 	Serial.println("1rst hole");
-	got_to_position (61, 1094, 1,1) ;  // first hole
+	go_to_posXY (61, 1094, 0,0) ;  // first hole
 	pickup_seed ();
 	
 	Serial.println("2nd hole");
-	got_to_position (69, 287, 1,1) ;  // second hole
+	go_to_posXY (69, 287, 1,0) ;  // first hole
 	pickup_seed ();
 	
 	Serial.println("3rd hole");
-	got_to_position (76, 6010, 1,1) ;  // 3d hole
+	go_to_posXY (76, 6010, 1,1) ;  // 3d hole
 	pickup_seed ();
 	
 	Serial.println("4th hole");
-	got_to_position (86, 555, 1,1) ;  //4th hole
+	go_to_posXY (86, 555, 0,1) ;  //4th hole
 	pickup_seed ();
 	
 	Serial.println("5th hole");
-	got_to_position (94, 1, 1,1) ;  // 5th hole
+	go_to_posXY (94, 1, 1,1) ;  // 5th hole
 	pickup_seed ();
 	
 	Serial.println("Goto print position");
-	got_to_position (194, 1, 1,1) ;  // Printer position
+	go_to_posXY (194, 1, 0,1) ;  // Printer position
 	Serial.println("Printing....");
 	
 	delay (3000);
 	
 	Serial.println("Go to exit");
-	got_to_position (278, 1, 1,1) ;  //  exit
+	go_to_posXY (278, 1, 1,1) ;  //  exit
 	
 	Serial.println("DONE!");
 	

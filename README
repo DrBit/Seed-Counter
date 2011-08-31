@@ -4,6 +4,11 @@
 *********************************************
 **  REVISIONS
 **
+**  V2.1.6 - 31/08/2011
+**  * Sensor PIN B changed from 13 to 4
+**  * Ported some X  movement fucntiosn to library, now available for all motors
+**  * Updatedlibrary to V1.0
+**
 **  V2.1.5 - 25/08/2011
 **  * Fixed bug in motors handling that would prevent moving small number of steps in motor modes 1,2 and 4 
 **    due to lack of resolution.
