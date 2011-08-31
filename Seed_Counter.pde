@@ -107,6 +107,10 @@ void setup() {
 	pinMode (button3, INPUT);
 	pinMode (Vibration, OUTPUT);
 	
+	analogWrite(Vibration, 224);
+	delay (1000);
+	analogWrite(Vibration, 0);
+	
 	// Check Version
 	if ((Xaxis.get_version()) != lib_version) {
 		Serial.println("Library version mismatch");
@@ -173,7 +177,9 @@ void loop() {
 	
 	Serial.println("1rst hole");
 	go_to_posXY (61, 1094, 0,0) ;  // first hole
+	analogWrite(Vibration, 220);
 	pickup_seed ();
+	analogWrite(Vibration, 0);
 	
 	Serial.println("2nd hole");
 	go_to_posXY (69, 287, 1,0) ;  // first hole
