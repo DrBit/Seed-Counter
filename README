@@ -4,6 +4,9 @@
 *********************************************
 **  REVISIONS
 **
+**  V2.1.7 - 07/09/2011
+**  * Added Vibrator in TEST menu
+**
 **  V2.1.6 - 31/08/2011
 **  * Sensor PIN B changed from 13 to 4
 **  * Ported some X  movement fucntiosn to library, now available for all motors

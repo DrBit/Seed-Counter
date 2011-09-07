@@ -335,7 +335,7 @@ boolean inTestMenu = true;
 		Serial.println("		4 to move counter motors");
 		Serial.println("		5 to move blisters motors");
 		Serial.println("		6 to init all motors");
-		Serial.println("		7 to change motor mode");
+		Serial.println("		7 Test Vibrator motor");
 		Serial.println("		8 to check sensors status");
 		Serial.println("		9 test velocity");
 		Serial.println("		0 go to Main Menu");
@@ -394,8 +394,14 @@ boolean inTestMenu = true;
 			
 			case 7:
 			//Change motor modes
-				Serial.println("\n Empty");
-				Serial.println("Not implemented yet");
+				Serial.println("\n Test Vibrator motor");
+				Serial.println("Motor Starts. Press keyboard key 4 to quit");
+				while (InMenuTemp) {
+					analogWrite(Vibration, 255);
+					while (Serial.read() != '4') {}
+					analogWrite(Vibration, 0);
+					InMenuTemp = false;
+				}
 			break;
 			
 			case 8:
