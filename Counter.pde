@@ -78,11 +78,13 @@ void pickup_seed() {
 		if (counter.get_steps() == steps_from_sensor_to_init_clockwise){			// If we are at the starting position means we are ready to continue
 			delay (200);   // Wait for the interruption to reset itself   // CHEK WHY IS THIS HAPPENING --
 			speed_cntr_Move(1600/counter.get_step_accuracy(),5500,9000,5500);	// We do a full turn, NOTICE that the acceleration in this case is lower
+			count_total_turns ++;		// for statistics pourpous
 			// Thats to avoid trowing seeds and to achieve a better grip on the seed
 		}else if (first_time_drop) {				// If its the first time we wont be at the starting position so instead of a full turn we move less toa rrive at the default pos.
 			first_time_drop = false;
 			delay (200);   // Wait for the interruption to reset itself   // CHEK WHY IS THIS HAPPENING --
 			speed_cntr_Move(steps_from_sensor_to_init_clockwise/counter.get_step_accuracy(),5500,9000,5500);	// We do a full turn, NOTICE that the acceleration in this case is lower
+			count_total_turns ++;		// for statistics pourpous
 		}
 		if ((counter.get_steps() >= 1580) || (counter.get_steps() <= 20)) {				// We check the sensor only when we are in the range of the sensor
 			if (counter.sensor_check()){			// We got a seed!!!

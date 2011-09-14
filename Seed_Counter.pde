@@ -1,5 +1,6 @@
 #include <Stepper_ac.h>
 #include <avr/pgmspace.h>
+#include <StopWatch.h>
 
 #define version_prog "TEST V2.1.8 Plain Counter"
 #define lib_version 11
@@ -73,6 +74,9 @@ Stepper_ac blisters(stepC,dirC,0,ms1C,ms2C,200,4);
 // Setting up motor D, step pin, direction pin, sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for wighth step(mode of the stepper driver)
 Stepper_ac counter(stepD,dirD,sensD,ms1D,ms2D,200,4);
 
+// Stop Watch Timer
+StopWatch MySW;
+
 
 // ***********************
 // ** DEFINES variables
@@ -96,6 +100,7 @@ boolean error_blister = true;
 
 int count_limit = 200;
 int updated_count_limit = count_limit;
+int count_total_turns = 0;
 
 /////////////////////////////////////////////////
 void setup() {
@@ -172,6 +177,8 @@ void setup() {
 	Serial.print ("Counting till reach ");
 	Serial.print (count_limit);
 	Serial.println (" seeds");
+	
+	MySW.start();
 }
 
 
@@ -189,6 +196,7 @@ void loop() {
 	Serial.println (counter_s);
 	
 	if (counter_s == updated_count_limit) {
+		MySW.stop();
 		pause = true;
 		Serial.print ("Reached count value of:  ");
 		Serial.println (updated_count_limit);
@@ -203,18 +211,28 @@ void loop() {
 				case 1:
 					pause = false;
 					updated_count_limit =+ count_limit;
+					MySW.start();
 				break;
 				
 				case 2:
 					pause = false;
 					counter_s = 0;
 					updated_count_limit = count_limit;
+					count_total_turns = 0;
+					MySW.reset();
+					MySW.start();
+				break;
+				
+				case 3:
+					statistics();
 				break;
 			}
 		}
 	}
 	
 	if (Serial.available()) {
+		pause = true;
+		MySW.stop();
 		Serial.flush();
 		Serial.println ("Pause activated ");
 		Serial.println ("Press 1 to resume");
@@ -225,15 +243,57 @@ void loop() {
 			switch (return_pressed_button ()) {			
 				case 1:
 					pause = false;
+					MySW.start();
 				break;
 				
 				case 2:
 					pause = false;
 					counter_s = 0;
 					updated_count_limit = count_limit;
+					count_total_turns = 0;
+					MySW.reset();
+					MySW.start();
+				break;
+				
+				case 3:
+					statistics();
 				break;
 			}
 		}
 	}
 	
+}
+
+void statistics () {
+	Serial.print ("\nCounter picked ");
+	Serial.print (counter_s);
+	Serial.print (" seeds from a total of ");
+	Serial.println (updated_count_limit);
+
+	Serial.print ("Counter roll made a total of ");
+	Serial.print (count_total_turns);
+	Serial.println (" turns");
+	
+	Serial.print ("Turns rate: ");
+	int turns_per_seed = count_total_turns / counter_s;
+	Serial.print (turns_per_seed);
+	Serial.println (" turns / seed");
+
+	Serial.print ("\ntranscurred time from start: ");
+	int minutes = MySW.value() / 60000;
+	Serial.print(minutes);
+	Serial.print (" : ");
+	int seconds = (MySW.value() % 60000) / 1000;
+	Serial.println(seconds);
+	
+	int seeds_per_minute = 0;
+	Serial.print ("Seed rate: ");
+	if (minutes == 0) {
+		seeds_per_minute = counter_s;
+	}else{
+		seeds_per_minute = counter_s / minutes;
+	}
+	Serial.print(seeds_per_minute);
+	Serial.println (" seeds per minute");
+
 }
