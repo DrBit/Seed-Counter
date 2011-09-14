@@ -2,7 +2,7 @@
 // ** Physical limits of the blister motors
 // ***********************
 
-#define blisters_steps_limit 300
+#define blisters_steps_limit 400
 #define blisters_steps_absoulut_limit 1000
 
 

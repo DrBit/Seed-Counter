@@ -6,6 +6,7 @@
 **
 **  V2.1.8 - 14/09/2011
 **  * Changed behavior of the INIT counter procedure to match new counting system (with vibration from the same wheel)
+**  * Optimized parameters in counter and blister dispenser
 **
 **  V2.1.7 - 07/09/2011
 **  * Added Vibrator in TEST menu

@@ -3,8 +3,8 @@
 // ************************************************************
 // Inits the seedcounter using the sensor as a starting point
 #define init_turns_till_error 7    		// Number of times the couinter will try to get a seed at INITIATION before giving an error
-#define steps_from_sensor_to_init 1200  	// Number of steps (based in mode 8) to go backward from the sensor to the init position (not used)
-#define steps_from_sensor_to_init_clockwise 1200  	// Number of steps (based in mode 8) to go forward from the sensor to the init position
+// #define steps_from_sensor_to_init 1200  	// Number of steps (based in mode 8) to go backward from the sensor to the init position (not used)
+#define steps_from_sensor_to_init_clockwise 1220  	// Number of steps (based in mode 8) to go forward from the sensor to the init position
 boolean first_time_drop = true;		// Used only to acomodate positionafter INIT. Once hase been used we won't used anymore.
 
 boolean Seedcounter_init() {
