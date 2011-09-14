@@ -1,7 +1,7 @@
 #include <Stepper_ac.h>
 #include <avr/pgmspace.h>
 
-#define version_prog "TEST V2.1.8"
+#define version_prog "TEST V2.1.8 Plain Counter"
 #define lib_version 11
 
 /********************************************
@@ -94,6 +94,8 @@ boolean error_counter = true;
 boolean error_blister = true;
 #define ALL 0
 
+int count_limit = 200;
+int updated_count_limit = count_limit;
 
 /////////////////////////////////////////////////
 void setup() {
@@ -134,23 +136,25 @@ void setup() {
 	Serial.println("SETTING UP");
 	// INIT SISTEM, and CHECK for ERRORS
 	int temp_err = 0;   // flag for found errors
-	if (!init_blocks(ALL)) temp_err = 1;
+	//if (!init_blocks(ALL)) temp_err = 1;
+	if (!init_blocks(3)) temp_err = 1;  // We only init the counter
 
+	
 	while (temp_err > 0) { // We found an error, we chek ALL errors and try to initiate correctly
 		temp_err = 0;
 		Serial.println("\nErrors found, press 1 when ready to check again, 2 to bypas the errors");
 		switch (return_pressed_button ()) {
 			//Init XY 
 			case 1:
-				if (error_XY) {
+				/*if (error_XY) {
 					if (!init_blocks(2)) temp_err++;
-				}
+				}*/
 				if (error_counter) {
 					if (!init_blocks(3)) temp_err++;
 				}
-				if (error_blister) {
+				/*if (error_blister) {
 					if (!init_blocks(1)) temp_err++;
-				}
+				}*/
 			break;
 			
 			case 2:
@@ -162,65 +166,74 @@ void setup() {
 	// Press button 1 to start
 	// press_button_to_continue (1);
 	// END of setup
+	
+	
+	Serial.println ("Starting simple counter, press any key to pause ");
+	Serial.print ("Counting till reach ");
+	Serial.print (count_limit);
+	Serial.println (" seeds");
 }
 
 
 // ************************************************************
 // ** MAIN LOOP FUNCTION
 // ************************************************************
+unsigned long counter_s = 0;
+boolean pause = true;	
 
 void loop() {
-	go_to_posXY (0, 0, 6,1) ;  // blister
-	go_to_posXY (0, 0, 1,1) ;  // blister
-	go_to_posXY (0, 0, 2,1) ;  // blister
-	go_to_posXY (0, 0, 9,1) ;  // blister
-	go_to_posXY (0, 0, 0,0) ;  // blister
-	/*
-	Serial.println("go to Blister Position");
-	go_to_posXY (6, 0, 0,1) ;  // blister
-	
-	Serial.println("Get blister");
-	release_blister ();
 
-	Serial.println("1rst hole");
-	go_to_posXY (61,1094,0,1) ;  // first hole
-	pickup_seed ();
+	pickup_seed();
+	counter_s ++;
+	Serial.print (" Counted seeds: ");
+	Serial.println (counter_s);
 	
-	Serial.println("2nd hole");
-	go_to_posXY (69,287,0,1) ;  // first hole
-	pickup_seed ();
+	if (counter_s == updated_count_limit) {
+		pause = true;
+		Serial.print ("Reached count value of:  ");
+		Serial.println (updated_count_limit);
+		Serial.print ("Press 1 to count ");
+		Serial.print (count_limit);
+		Serial.println(" seeds extra");
+		Serial.println ("Press 2 to start from 0");
+		Serial.println ("Press 3 to print statistics");
+		
+		while(pause) {
+			switch (return_pressed_button ()) {			
+				case 1:
+					pause = false;
+					updated_count_limit =+ count_limit;
+				break;
+				
+				case 2:
+					pause = false;
+					counter_s = 0;
+					updated_count_limit = count_limit;
+				break;
+			}
+		}
+	}
 	
-	Serial.println("3rd hole");
-	go_to_posXY (76,6010,0,1) ;  // 3d hole
-	pickup_seed ();
-
-	Serial.println("4th hole");
-	go_to_posXY (86,555,0,1) ;  //4th hole
-	pickup_seed ();
+	if (Serial.available()) {
+		Serial.flush();
+		Serial.println ("Pause activated ");
+		Serial.println ("Press 1 to resume");
+		Serial.println ("Press 2 to reset counter to default");
+		Serial.println ("Press 3 to print statistics");
+		
+		while(pause) {
+			switch (return_pressed_button ()) {			
+				case 1:
+					pause = false;
+				break;
+				
+				case 2:
+					pause = false;
+					counter_s = 0;
+					updated_count_limit = count_limit;
+				break;
+			}
+		}
+	}
 	
-	Serial.println("5th hole");
-	go_to_posXY (94,1,0,1) ;  // 5th hole
-	pickup_seed ();
-	
-	Serial.println("Goto print position");
-	go_to_posXY (194,1,0,1) ;  // Printer position
-	Serial.println("Printing....");
-	
-	delay (1000);
-	
-	Serial.println("Go to exit");
-	go_to_posXY (278,1,0,1) ;  //  exit
-
-	Serial.println("DONE!");
-	go_to_posXY (6, 0, 0,1) ;  // blister
-	*/
-	test_functions();
-	
-	/*	
-	// Testing....
-	Serial.print("Testing release one blister");
-	release_blister ();
-	press_button_to_continue (1);
-	pickup_seed_extended ();
-	*/
 }
