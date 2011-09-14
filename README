@@ -8,8 +8,8 @@
 **  * Added Vibrator in TEST menu
 **
 **  V2.1.6 - 31/08/2011
-**  * Sensor PIN B changed from 13 to 4
-**  * Ported some X  movement fucntiosn to library, now available for all motors
+**  * Sensor PIN B changed from 13 to 4 (due to problems with led conected in pin 13 via hardware)
+**  * Removed "go to position X Y" function and included into library, now available for all motors
 **  * Updatedlibrary to V1.0
 **
 **  V2.1.5 - 25/08/2011
