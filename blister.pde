@@ -1,16 +1,8 @@
 // ***********************
 // ** Physical limits of the blister motors
 // ***********************
-
-#define blisters_steps_limit 480
+#define blisters_steps_limit 300
 #define blisters_steps_absoulut_limit 1000
-
-
-// ***********************
-// ** Blister timings
-// ***********************
-
-#define blisters_timing 3000		// Timing in betwen steps for the blister motors
 
 
 // ************************************************************
@@ -22,7 +14,7 @@ boolean blisters_init () {
 	blisters.set_direction (true);
 	for (int i = 0 ; i< steps_to_do; i++) {
 		blisters.do_step();
-		delayMicroseconds (blisters_timing);
+		delayMicroseconds (motor_speed_blisters);
 	} 
 	blisters.set_init_position();
 	return true;
@@ -37,11 +29,11 @@ void release_blister () {
 	blisters.set_direction (false);
 	for (int i = 0 ; i< steps_to_do; i++) {
 		blisters.do_step();
-		delayMicroseconds (blisters_timing);
+		delayMicroseconds (motor_speed_blisters);
 	} 
 	blisters.set_direction (true);
 	for (int i = 0 ; i< steps_to_do; i++) {
 		blisters.do_step();
-		delayMicroseconds (blisters_timing);
+		delayMicroseconds (motor_speed_blisters);
 	}
 }

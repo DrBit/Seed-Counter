@@ -39,7 +39,7 @@ boolean XYaxes_init () {
 			// When both sensors are NOT activated means we are inside the safe zone, now we can correctly init the axes
 			both_sensors = true;
 		}
-		delayMicroseconds(600);
+		delayMicroseconds(motor_speed_XY);
 		// Error checking, if we cannot reach a point where we dont hit the sensor meands that there is a problem
 		temp_counter++;
 		if (temp_counter > max_insensor_stepsError) {			// More than 3200 steps will generate an error (3200 steps = to 2 complete turns in step mode 8)
@@ -79,7 +79,7 @@ boolean XYaxes_init () {
 			// When both sensors are activated means we reached both init points
 			both_sensors = true;
 		}
-		delayMicroseconds(600);
+		delayMicroseconds(motor_speed_XY);
 		// Error checking, if we cannot reach a point where we hit the sensor means that ther is a problem
 		temp_counter++;
 		if (temp_counter > max_outsensor_stepsError) {			// recheck the limit of revolutions
@@ -185,7 +185,7 @@ void go_to_memory_position (int position_index_to_go) {
 }
 
 void go_to_posXY (int Xcy,int Xst,int Ycy,int Yst) {
-	Xaxis.got_to_position (Xcy, Xst) ;
-	Yaxis.got_to_position (Ycy, Yst) ;
+	Xaxis.got_to_position (Xcy,Xst) ;
+	Yaxis.got_to_position (Ycy,Yst) ;
 }
 

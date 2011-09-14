@@ -17,7 +17,7 @@ boolean Seedcounter_init() {
 	counter.set_direction (true);   // Set direction
 	for (count = (counter.get_steps_per_cycle()); count > 0; count--) {
 		counter.do_step();
-		delayMicroseconds(motor_speed);
+		delayMicroseconds(motor_speed_counter);
 	} */
 
 	count =0;
@@ -40,19 +40,19 @@ boolean Seedcounter_init() {
 		}
 		// This delay slows down the velocity so we won't miss any step
 		// Thats because we are not using acceleration in this case
-		delayMicroseconds(motor_speed);
+		delayMicroseconds(motor_speed_counter);
 	}
 	for (int i=0;i<10; i++) {   // Since the detection of the seed is just at the edge of the same seed we do	
 								// 10 steps further to be in the middle of the sensor
 		counter.do_step();
-		delayMicroseconds(motor_speed);
+		delayMicroseconds(motor_speed_counter);
 	}
 	counter.set_init_position();  
 	/*
 	counter.set_direction (true);   // Set direction
 	for (int i=0;i<(steps_from_sensor_to_init/counter.get_step_accuracy()); i++) {   // we go back at the position we should be for starting point
 		counter.do_step();
-		delayMicroseconds(motor_speed);
+		delayMicroseconds(motor_speed_counter);
 	}
 	counter.set_direction (true);   // Set direction
 	*/

@@ -2,7 +2,7 @@
 #include <avr/pgmspace.h>
 
 #define version_prog "TEST V2.1.8"
-#define lib_version 10
+#define lib_version 11
 
 /********************************************
 **  Name: Seed Counter 
@@ -82,8 +82,9 @@ long old_xpos=0;
 long old_ypos=0;
 int motor_select=0;
 int situation=0;
-int motor_speed=580;
-
+const int motor_speed_counter=900;
+const int motor_speed_XY=450;
+const int motor_speed_blisters=2500;
 
 // ***********************
 // ** Error FLAGS
@@ -169,46 +170,50 @@ void setup() {
 // ************************************************************
 
 void loop() {
+	go_to_posXY (0, 0, 6,1) ;  // blister
+	go_to_posXY (0, 0, 1,1) ;  // blister
+	go_to_posXY (0, 0, 2,1) ;  // blister
+	go_to_posXY (0, 0, 9,1) ;  // blister
+	go_to_posXY (0, 0, 0,0) ;  // blister
+	/*
 	Serial.println("go to Blister Position");
-	go_to_posXY (6, 0, 0,0) ;  // blister
+	go_to_posXY (6, 0, 0,1) ;  // blister
 	
 	Serial.println("Get blister");
 	release_blister ();
-	
+
 	Serial.println("1rst hole");
-	go_to_posXY (61, 1094, 0,0) ;  // first hole
-	analogWrite(Vibration, 220);
+	go_to_posXY (61,1094,0,1) ;  // first hole
 	pickup_seed ();
-	analogWrite(Vibration, 0);
 	
 	Serial.println("2nd hole");
-	go_to_posXY (69, 287, 1,0) ;  // first hole
+	go_to_posXY (69,287,0,1) ;  // first hole
 	pickup_seed ();
 	
 	Serial.println("3rd hole");
-	go_to_posXY (76, 6010, 1,1) ;  // 3d hole
+	go_to_posXY (76,6010,0,1) ;  // 3d hole
 	pickup_seed ();
-	
+
 	Serial.println("4th hole");
-	go_to_posXY (86, 555, 0,1) ;  //4th hole
+	go_to_posXY (86,555,0,1) ;  //4th hole
 	pickup_seed ();
 	
 	Serial.println("5th hole");
-	go_to_posXY (94, 1, 1,1) ;  // 5th hole
+	go_to_posXY (94,1,0,1) ;  // 5th hole
 	pickup_seed ();
 	
 	Serial.println("Goto print position");
-	go_to_posXY (194, 1, 0,1) ;  // Printer position
+	go_to_posXY (194,1,0,1) ;  // Printer position
 	Serial.println("Printing....");
 	
-	delay (3000);
+	delay (1000);
 	
 	Serial.println("Go to exit");
-	go_to_posXY (278, 1, 1,1) ;  //  exit
-	
+	go_to_posXY (278,1,0,1) ;  //  exit
+
 	Serial.println("DONE!");
-	
-	
+	go_to_posXY (6, 0, 0,1) ;  // blister
+	*/
 	test_functions();
 	
 	/*	
