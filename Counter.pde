@@ -12,12 +12,13 @@ boolean Seedcounter_init() {
 	boolean seed_sensor = false; 
 	int count = 0;
 
+	/*
 	// First time we init we just go back one complete cycle in case we have seeds atached and we bring them into the deposit
 	counter.set_direction (true);   // Set direction
 	for (count = (counter.get_steps_per_cycle()); count > 0; count--) {
 		counter.do_step();
 		delayMicroseconds(motor_speed);
-	}
+	} */
 
 	count =0;
 	counter.set_direction (false);   // Set direction
@@ -74,21 +75,21 @@ void pickup_seed() {
 	Serial.println (counter.get_steps());
 #endif
 	while (!seed_detected) {
-		if ((counter.get_steps() == 400)  || (counter.get_steps() == -1200)){			// The -1200 represents the first time we go back to init position
+		if (counter.get_steps() == steps_from_sensor_to_init_clockwise){			// If we are at the starting position means we are ready to continue
 			delay (200);   // Wait for the interruption to reset itself   // CHEK WHY IS THIS HAPPENING --
 			speed_cntr_Move(1600/counter.get_step_accuracy(),5500,9000,5500);	// We do a full turn, NOTICE that the acceleration in this case is lower
 			// Thats to avoid trowing seeds and to achieve a better grip on the seed
-		}else if (first_time_drop) {\
+		}else if (first_time_drop) {				// If its the first time we wont be at the starting position so instead of a full turn we move less toa rrive at the default pos.
 			first_time_drop = false;
 			delay (200);   // Wait for the interruption to reset itself   // CHEK WHY IS THIS HAPPENING --
 			speed_cntr_Move(steps_from_sensor_to_init_clockwise/counter.get_step_accuracy(),5500,9000,5500);	// We do a full turn, NOTICE that the acceleration in this case is lower
 		}
-		if ((counter.get_steps() >= 1180) || (counter.get_steps() <= 20)) {				// We check the sensor only when we are in the range of the sensor
+		if ((counter.get_steps() >= 1580) || (counter.get_steps() <= 20)) {				// We check the sensor only when we are in the range of the sensor
 			if (counter.sensor_check()){			// We got a seed!!!
 				seed_detected = true; 
-				while (!(counter.get_steps() == 400))
+				while (!(counter.get_steps() == steps_from_sensor_to_init_clockwise))	// If we are not finished moving...
 				{
-					delay (100); 					// Wait for the seed to fall
+					// Do nothing and wait
 				}
 			}
 		}

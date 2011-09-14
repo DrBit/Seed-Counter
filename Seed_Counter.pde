@@ -99,7 +99,7 @@ void setup() {
 
 	//*** BASIC SETUP
 	
-	// INIT Serila
+	// INIT Serial
 	init_serial();	
 	//Configure 3 Input Buttons
 	pinMode (button1, INPUT);
