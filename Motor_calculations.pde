@@ -24,24 +24,24 @@
 ////////////////////////
 // VARIABLES
 ////////////////////////
-// These are being used inside an interruption hence the volatile prefix
-//! True when stepper motor is running.
-volatile unsigned char glob_running = 1;
+  // These are being used inside an interruption hence the volatile prefix
+  //! True when stepper motor is running.
+  volatile unsigned char glob_running = 1;
 
-//! What part of the speed ramp we are in.
-unsigned char srd_run_state = 3;
-//! Direction stepper motor should move.
-unsigned char srd_dir = 1;
-//! Peroid of next timer delay. At start this value set the accelration rate.
-unsigned int srd_step_delay;
-//! What step_pos to start decelaration
-unsigned int srd_decel_start;
-//! Sets deceleration rate.
-signed int srd_decel_val;
-//! Minimum time delay (max speed)
-signed int srd_min_delay;
-//! Counter used when accelerateing/decelerateing to calculate step_delay.
-volatile signed int srd_accel_count;
+  //! What part of the speed ramp we are in.
+  unsigned char srd_run_state = 3;
+  //! Direction stepper motor should move.
+  unsigned char srd_dir = 1;
+  //! Peroid of next timer delay. At start this value set the accelration rate.
+  unsigned int srd_step_delay;
+  //! What step_pos to start decelaration
+  unsigned int srd_decel_start;
+  //! Sets deceleration rate.
+  signed int srd_decel_val;
+  //! Minimum time delay (max speed)
+  signed int srd_min_delay;
+  //! Counter used when accelerateing/decelerateing to calculate step_delay.
+  volatile signed int srd_accel_count;
 ///////////////////////////////////
 
 
@@ -90,94 +90,101 @@ volatile signed int srd_accel_count;
  */
 void speed_cntr_Move(signed int step_, unsigned int accel, unsigned int decel, unsigned int speed_)
 {
-	//! Number of steps before we hit max speed.
-	unsigned int max_s_lim;
-	//! Number of steps before we must start deceleration (if accel does not hit max speed).
-	unsigned int accel_lim;
+  //! Number of steps before we hit max speed.
+  unsigned int max_s_lim;
+  //! Number of steps before we must start deceleration (if accel does not hit max speed).
+  unsigned int accel_lim;
 
-	// Set direction from sign on step_ value.
-	if(step_ < 0){
-		srd_dir = CCW;
-		step_ = -step_;
-	}else{
-		srd_dir = CW;
-	}
+  // Set direction from sign on step_ value.
+  if(step_ < 0){
+    srd_dir = CCW;
+    step_ = -step_;
+  }
+  else{
+    srd_dir = CW;
+  }
 
-	// If moving only 1 step.
-	if(step_ == 1){
-		// Move one step...
-		srd_accel_count = -1;
-		// ...in DECEL state.
-		srd_run_state = DECEL;
-		// Just a short delay so main() can act on 'running'.
-		srd_step_delay = 1000;
-		glob_running = TRUE;
-		OCR1A = 100;
-		// Run Timer/Counter 1 with prescaler = 8. 
-		//TCCR1B |= ((0<<CS12)|(1<<CS11)|(0<<CS10));
-		// No prescaler (p.134)
-		TCCR1B = (TCCR1B & ~(_BV(CS12)) | _BV(CS11) | _BV(CS10));
-	} else if(step_ != 0) {			// Only move if number of steps to move is not zero.
-		// Refer to documentation for detailed information about these calculations.
+  // If moving only 1 step.
+  if(step_ == 1){
+    // Move one step...
+    srd_accel_count = -1;
+    // ...in DECEL state.
+    srd_run_state = DECEL;
+    // Just a short delay so main() can act on 'running'.
+    srd_step_delay = 1000;
+    glob_running = TRUE;
+    OCR1A = 100;
+    // Run Timer/Counter 1 with prescaler = 8. 
+    //TCCR1B |= ((0<<CS12)|(1<<CS11)|(0<<CS10));
+    // No prescaler (p.134)
+    TCCR1B = (TCCR1B & ~(_BV(CS12)) | _BV(CS11) | _BV(CS10));
+  }
+  // Only move if number of steps to move is not zero.
+  else if(step_ != 0){
+    // Refer to documentation for detailed information about these calculations.
 
-		// Set max speed limit, by calc min_delay to use in timer.
-		// min_delay = (alpha / tt)/ w
-		srd_min_delay = A_T_x100 / speed_;
+    // Set max speed limit, by calc min_delay to use in timer.
+    // min_delay = (alpha / tt)/ w
+    srd_min_delay = A_T_x100 / speed_;
 
-		// Set accelration by calc the first (c0) step delay .
-		// step_delay = 1/tt * sqrt(2*alpha/accel)
-		// step_delay = ( tfreq*0.676/100 )*100 * sqrt( (2*alpha*10000000000) / (accel*100) )/10000
-		srd_step_delay = (T1_FREQ_148 * sqrt_(A_SQ / accel))/100;                   
-		// Find out after how many steps does the speed hit the max speed limit.
-		// max_s_lim = speed^2 / (2*alpha*accel)
-		max_s_lim = (long)speed_*speed_/(long)(((long)A_x20000*accel)/100);
-		// If we hit max speed limit before 0,5 step it will round to 0.
-		// But in practice we need to move atleast 1 step to get any speed at all.
-		if(max_s_lim == 0){
-			max_s_lim = 1;
-		}
+    // Set accelration by calc the first (c0) step delay .
+    // step_delay = 1/tt * sqrt(2*alpha/accel)
+    // step_delay = ( tfreq*0.676/100 )*100 * sqrt( (2*alpha*10000000000) / (accel*100) )/10000
+    srd_step_delay = (T1_FREQ_148 * sqrt_(A_SQ / accel))/100;                   
+    // Find out after how many steps does the speed hit the max speed limit.
+    // max_s_lim = speed^2 / (2*alpha*accel)
+    max_s_lim = (long)speed_*speed_/(long)(((long)A_x20000*accel)/100);
+    // If we hit max speed limit before 0,5 step it will round to 0.
+    // But in practice we need to move atleast 1 step to get any speed at all.
+    if(max_s_lim == 0){
+     
+      max_s_lim = 1;
+    }
 
-		// Find out after how many steps we must start deceleration.
-		// n1 = (n1+n2)decel / (accel + decel)
-		accel_lim = ((long)step_*decel) / (accel+decel);
-		// We must accelrate at least 1 step before we can start deceleration.
-		if(accel_lim == 0){
-			accel_lim = 1;
-		}
+    // Find out after how many steps we must start deceleration.
+    // n1 = (n1+n2)decel / (accel + decel)
+    accel_lim = ((long)step_*decel) / (accel+decel);
+    // We must accelrate at least 1 step before we can start deceleration.
+    if(accel_lim == 0){
+      accel_lim = 1;
+    }
 
-		// Use the limit we hit first to calc decel.
-		if(accel_lim <= max_s_lim){
-			srd_decel_val = accel_lim - step_;
-		}else{
-			srd_decel_val = -((long)max_s_lim*accel)/decel;
-		}
-		// We must decelrate at least 1 step to stop.
-		if(srd_decel_val == 0){
-			srd_decel_val = -1;
-		}
+    // Use the limit we hit first to calc decel.
+    if(accel_lim <= max_s_lim){
+      srd_decel_val = accel_lim - step_;
+    }
+    else{
+      srd_decel_val = -((long)max_s_lim*accel)/decel;
+    }
+    // We must decelrate at least 1 step to stop.
+    if(srd_decel_val == 0){
+      srd_decel_val = -1;
+    }
 
-		// Find step to start decleration.
-		srd_decel_start = step_ + srd_decel_val;
+    // Find step to start decleration.
+    srd_decel_start = step_ + srd_decel_val;
 
-		// If the maximum speed is so low that we dont need to go via accelration state.
-		if(srd_step_delay <= srd_min_delay){
-			srd_step_delay = srd_min_delay;
-			srd_run_state = RUN;
-		}else{
-			srd_run_state = ACCEL;
-		}
+    // If the maximum speed is so low that we dont need to go via accelration state.
+    if(srd_step_delay <= srd_min_delay){
+      srd_step_delay = srd_min_delay;
+      srd_run_state = RUN;
+    }
+    else{
+      srd_run_state = ACCEL;
+    }
 
-		// Reset counter.
-		srd_accel_count = 0;
-		glob_running = true;
-		OCR1A = 0xFFFF;
-		// Set Timer/Counter to divide clock by 8
-		//TCCR1B |= ((0<<CS12)|(1<<CS11)|(0<<CS10));
-		// No prescaler (p.134)
-		//TCCR1B = (TCCR1B & ~(_BV(CS12) | _BV(CS11))) | _BV(CS10);
-		//prescaler 64
-		TCCR1B = (TCCR1B & ~(_BV(CS12)) | _BV(CS11) | _BV(CS10));
-	}
+    // Reset counter.
+    srd_accel_count = 0;
+    glob_running = true;
+    OCR1A = 0xFFFF;
+    // Set Timer/Counter to divide clock by 8
+    //TCCR1B |= ((0<<CS12)|(1<<CS11)|(0<<CS10));
+    // No prescaler (p.134)
+    //TCCR1B = (TCCR1B & ~(_BV(CS12) | _BV(CS11))) | _BV(CS10);
+    //prescaler 64
+    TCCR1B = (TCCR1B & ~(_BV(CS12)) | _BV(CS11) | _BV(CS10));
+    
+  }
 }
 
 /*! \brief Init of Timer/Counter1.
@@ -187,26 +194,27 @@ void speed_cntr_Move(signed int step_, unsigned int accel, unsigned int decel, u
  */
 void speed_cntr_Init_Timer1(void)
 {
-	// Tells what part of speed ramp we are in.
-	srd_run_state = STOP;
-	/*
-	Serial.println("Setup timer");
-	// Timer/Counter 1 in mode 4 CTC (Not running).
-	TCCR1B = (1<<WGM12);
-	// Timer/Counter 1 Output Compare A Match Interrupt enable.
-	TIMSK1 = (1<<OCIE1A);
-	*/
-	cli();
-	unsigned char sreg;
-	sreg = SREG;
-	// Set CTC mode (Clear Timer on Compare Match) (p.133)
-	// Have to set OCR1A *after*, otherwise it gets reset to 0!
-	TCCR1B = (TCCR1B & ~_BV(WGM13)) | _BV(WGM12);
-	TCCR1A = TCCR1A & ~(_BV(WGM11) | _BV(WGM10));
-	// Enable interrupt when TCNT1 == OCR1A (p.136)
-	TIMSK1 |= _BV(OCIE1A);  
-	SREG = sreg;
-	sei();
+  
+  // Tells what part of speed ramp we are in.
+  srd_run_state = STOP;
+ /*
+ Serial.println("Setup timer");
+  // Timer/Counter 1 in mode 4 CTC (Not running).
+  TCCR1B = (1<<WGM12);
+  // Timer/Counter 1 Output Compare A Match Interrupt enable.
+  TIMSK1 = (1<<OCIE1A);
+  */
+  cli();
+  unsigned char sreg;
+  sreg = SREG;
+  // Set CTC mode (Clear Timer on Compare Match) (p.133)
+  // Have to set OCR1A *after*, otherwise it gets reset to 0!
+  TCCR1B = (TCCR1B & ~_BV(WGM13)) | _BV(WGM12);
+  TCCR1A = TCCR1A & ~(_BV(WGM11) | _BV(WGM10));
+  // Enable interrupt when TCNT1 == OCR1A (p.136)
+  TIMSK1 |= _BV(OCIE1A);  
+  SREG = sreg;
+  sei();
 }
   
   
@@ -222,20 +230,20 @@ void speed_cntr_Init_Timer1(void)
  */
 
 // Arduino Interrupt handling
-ISR(TIMER1_COMPA_vect) 
-{
-	// Holds next delay period.
-	unsigned int new_step_delay;
-	// Remember the last step delay used when accelrating.
-	static int last_accel_delay;
-	// Counting steps when moving.
-	static unsigned int step_count = 0;
-	// Keep track of remainder from new_step-delay calculation to incrase accurancy
-	static unsigned int rest = 0;
+ ISR(TIMER1_COMPA_vect) 
+ {
+  // Holds next delay period.
+  unsigned int new_step_delay;
+  // Remember the last step delay used when accelrating.
+  static int last_accel_delay;
+  // Counting steps when moving.
+  static unsigned int step_count = 0;
+  // Keep track of remainder from new_step-delay calculation to incrase accurancy
+  static unsigned int rest = 0;
 
-	OCR1A = srd_step_delay;
+  OCR1A = srd_step_delay;
 
-	switch(srd_run_state) {
+  switch(srd_run_state) {
     case STOP:
       step_count = 0;
       rest = 0;
@@ -305,51 +313,36 @@ ISR(TIMER1_COMPA_vect)
  */
 static unsigned long sqrt_(unsigned long x)
 {
-	register unsigned long xr;	// result register
-	register unsigned long q2;	// scan-bit register
-	register unsigned char f;		// flag (one bit)
+  register unsigned long xr;  // result register
+  register unsigned long q2;  // scan-bit register
+  register unsigned char f;   // flag (one bit)
 
-	xr = 0;									// clear result
-	q2 = 0x40000000L;				// higest possible result bit
-	while(q2 >>= 2) 					// shift twice
-	{
-		if((xr + q2) <= x)
-		{
-			x -= xr + q2;
-			f = 1;							// set flag
-		}else{
-			f = 0;							// clear flag
-		}
-		xr >>= 1;
-		if(f){
-			xr += q2;						// test flag
-		}
-	} 
-	if(xr < x){
-		return xr +1;					// add for rounding
-	}else{
-		return xr;
-	}
+  xr = 0;                     // clear result
+  q2 = 0x40000000L;           // higest possible result bit
+  while(q2 >>= 2)          // shift twice
+  {
+    if((xr + q2) <= x)
+    {
+      x -= xr + q2;
+      f = 1;                  // set flag
+    }
+    else{
+      f = 0;                  // clear flag
+    }
+    xr >>= 1;
+    if(f){
+      xr += q2;               // test flag
+    }
+  } 
+  if(xr < x){
+    return xr +1;             // add for rounding
+  }
+  else{
+    return xr;
+  }
 }
 
 
-////////////////////////////////////////////////////////////
-// This function comes back from the acceleration function with a proper timing to 
-// do steps on the motors
-// As we dont have any way of knowing which motor we are moving back from this function
-// we preselect the motor (0,1,2) before doing the movement
-/////////////////////////////////////////////////////////////
-void sm_driver_StepCounter(unsigned char Mdirection) {
-	if (motor_select == 0) {
-		counter.set_direction (Mdirection);
-		counter.do_step();
-	}else if (motor_select == 1) {
-		Xaxis.set_direction (!Mdirection);
-		Xaxis.do_step();
-	}else if (motor_select == 2) {
-		Yaxis.set_direction (!Mdirection);
-		Yaxis.do_step();
-	}
-}
+
 
 

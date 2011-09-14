@@ -1,79 +1,17 @@
 /********************************************
 **  Name: Seed Counter 
-**  Created: 27/06/2011
+**  Version: V1.3
+**  Last Updated: 13/05/2011
 *********************************************
 **  REVISIONS
-**
-**  V2.1.8 - 14/09/2011
-**  * Changed behavior of the INIT counter procedure to match new counting system (with vibration from the same wheel)
-**  * Optimized parameters in counter and blister dispenser
-**
-**  V2.1.7 - 07/09/2011
-**  * Added Vibrator in TEST menu
-**
-**  V2.1.6 - 31/08/2011
-**  * Sensor PIN B changed from 13 to 4 (due to problems with led conected in pin 13 via hardware)
-**  * Removed "go to position X Y" function and included into library, now available for all motors
-**  * Updatedlibrary to V1.0
-**
-**  V2.1.5 - 25/08/2011
-**  * Fixed bug in motors handling that would prevent moving small number of steps in motor modes 1,2 and 4 
-**    due to lack of resolution.
-**  * Implemented function "go to position X Y" (for now only for X motor). The function will determine how to move
-**  * the motor in order to go to the specific position with the better possible way (added in test menu).
-**  * Added Version tracking to warn user when working whith an outdatet version of the library (from version 0.6.3)
-**
-**  V2.1.4 - 23/08/2011
-**  * Adapted function pick a seed for the new hardware
-**  * Implemented DEBUG function
-**  * Created new motors handling function. For now with fixed acceleration and only for X motor (Test option in Menu)
-**
-**  V2.1.3 - 18/08/2011
-**  * Added testing menu function
-**  * Changed init order of motors to first init the blisters
-**  * Added counter manual mode + print position
-**  * Added file "Label_printer.pde"
-**
-**  V2.1.2 - 17/08/2011
-**  * Added "press_button_to_continue(int button_number)" and "return_pressed_button ()" in extra fucntions
-**  * Fixed bugs in XY axis init process.
-**  * Added main menu with function show sensor status
-**  * Implemented counter init procedure
-**  * Added a full error control sistem in init procedures
-**  * Added serial compatibility when pressing buttons 1,2,3
-**  * Changed names of the main files 
-**    "Stepper_ac06.h" -> "Stepper_ac.h" /  "Seed_counterV2.1.pde" -> "Seed_counter.pde"
-**
-**  V2.1.1 - 11/08/2011
-**  * Added control of the axis limits in manual mode to avoid going to far and damaging the sensors 
-**    or going off limits.
-**  * Added Manual mode for the blisters dispenser
-**  * Changed to the new library version 0.6 "Stepper_ac06.h"
-**
-**  V2.1.0 - 10/08/2011
-**  * Merging code from previous motor testings
-**  * Created new set of functions for controlling blister's motors "blisters.pde"
-**  * Implemented error checking system in XY motors init algorithm. Depured code.
-**  * Added velocity control of the motors. MS1,MS2 conencted from Arduino to the "easy driver" 
-**    (functions included in library "Stepper_ac05.h")
-**  *
-**  V2.0 - 27/06/2011
-**  * Changed hardware, new motors, new functionality, complete code reset
-**  * Testing New motors
-**
-**  V1.4 - 31/05/2011
-**  * Implement 2 holes pick-up seed
-**  * Improved INIT sequence of the counter
-**  * Check free memory during program
-**  * removed first time drop function (instead included in motor_INIT function)
-**
 **  V1.3 - 13/05/2011
 **  * Included version 0.5 of library
-**  * Improved steps counting (in library "Stepper_ac05.h")
+**  * Improved steps counting (library)
 **  * Code readability improved
-**  * Implemented PROGMEM to store data of the matrix into flash memroy (on hold waiting for 
-**    new HW prototype version)
+**  * Implemented PROGMEM to store data of the matrix into flash memroy (cancelled)
 **  * Added serial debugging
 **
+**  V1.2 - 13/05/2011
+**  * Code readability improved
 *********************************************
 */
