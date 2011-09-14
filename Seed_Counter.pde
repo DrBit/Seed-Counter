@@ -170,7 +170,7 @@ void setup() {
 
 void loop() {
 	Serial.println("go to Blister Position");
-	go_to_posXY (8, 0, 0,0) ;  // blister
+	go_to_posXY (6, 0, 0,0) ;  // blister
 	
 	Serial.println("Get blister");
 	release_blister ();

@@ -2,7 +2,7 @@
 // ** Physical limits of the blister motors
 // ***********************
 
-#define blisters_steps_limit 400
+#define blisters_steps_limit 480
 #define blisters_steps_absoulut_limit 1000
 
 
@@ -10,7 +10,7 @@
 // ** Blister timings
 // ***********************
 
-#define blisters_timing 2000		// Timing in betwen steps for the blister motors
+#define blisters_timing 3000		// Timing in betwen steps for the blister motors
 
 
 // ************************************************************
