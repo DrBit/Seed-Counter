@@ -1,7 +1,7 @@
 #include <Stepper_ac.h>
 #include <avr/pgmspace.h>
 
-#define version_prog "TEST V2.1.7"
+#define version_prog "TEST V2.1.8"
 #define lib_version 10
 
 /********************************************

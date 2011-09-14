@@ -3,7 +3,9 @@
 // ************************************************************
 // Inits the seedcounter using the sensor as a starting point
 #define init_turns_till_error 7    		// Number of times the couinter will try to get a seed at INITIATION before giving an error
-#define steps_from_sensor_to_init 1200  	// Number of steps (based in mode 8) to go backward from the sensor to the init position
+#define steps_from_sensor_to_init 1200  	// Number of steps (based in mode 8) to go backward from the sensor to the init position (not used)
+#define steps_from_sensor_to_init_clockwise 1200  	// Number of steps (based in mode 8) to go forward from the sensor to the init position
+boolean first_time_drop = true;		// Used only to acomodate positionafter INIT. Once hase been used we won't used anymore.
 
 boolean Seedcounter_init() {
         
@@ -45,13 +47,15 @@ boolean Seedcounter_init() {
 		delayMicroseconds(motor_speed);
 	}
 	counter.set_init_position();  
-
+	/*
 	counter.set_direction (true);   // Set direction
 	for (int i=0;i<(steps_from_sensor_to_init/counter.get_step_accuracy()); i++) {   // we go back at the position we should be for starting point
 		counter.do_step();
 		delayMicroseconds(motor_speed);
 	}
 	counter.set_direction (true);   // Set direction
+	*/
+	first_time_drop = true;		// State that the first time we drop a seed has to be different because we just INIT and the wheel is in a different posuition than by default
 	return true;
 }
 
@@ -71,19 +75,32 @@ void pickup_seed() {
 #endif
 	while (!seed_detected) {
 		if ((counter.get_steps() == 400)  || (counter.get_steps() == -1200)){			// The -1200 represents the first time we go back to init position
-			delay (100);   // Wait for the interruption to reset itself   // CHEK WHY IS THIS HAPPENING --
+			delay (200);   // Wait for the interruption to reset itself   // CHEK WHY IS THIS HAPPENING --
 			speed_cntr_Move(1600/counter.get_step_accuracy(),5500,9000,5500);	// We do a full turn, NOTICE that the acceleration in this case is lower
 			// Thats to avoid trowing seeds and to achieve a better grip on the seed
+		}else if (first_time_drop) {\
+			first_time_drop = false;
+			delay (200);   // Wait for the interruption to reset itself   // CHEK WHY IS THIS HAPPENING --
+			speed_cntr_Move(steps_from_sensor_to_init_clockwise/counter.get_step_accuracy(),5500,9000,5500);	// We do a full turn, NOTICE that the acceleration in this case is lower
 		}
 		if ((counter.get_steps() >= 1180) || (counter.get_steps() <= 20)) {				// We check the sensor only when we are in the range of the sensor
 			if (counter.sensor_check()){			// We got a seed!!!
 				seed_detected = true; 
 				while (!(counter.get_steps() == 400))
 				{
-				//delay (100); // Wait for the seed to fall
+					delay (100); 					// Wait for the seed to fall
 				}
 			}
 		}
 	}
 }
 
+/*  // NOT USED
+void start_vibration () {
+	analogWrite(Vibration, 255);
+}
+
+void stop_vibration () {
+	analogWrite(Vibration, 0);
+}
+*/
