@@ -4,6 +4,9 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V2.1.9 - 15/09/2011  TESTING plain counter (accuracy)
+**  * Improved pause button
+**
 **   V2.1.8 - 14/09/2011 TESTING plain counter (accuracy)
 **  * Changed behavior of the INIT counter procedure to match new counting system (with vibration from the same wheel)
 **  * Optimized parameters in counter and blister dispenser
