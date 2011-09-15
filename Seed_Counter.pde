@@ -2,7 +2,7 @@
 #include <avr/pgmspace.h>
 #include <StopWatch.h>
 
-#define version_prog "TEST V2.1.8 Plain Counter"
+#define version_prog "TEST V2.1.9 Plain Counter"
 #define lib_version 11
 
 /********************************************
@@ -230,6 +230,12 @@ void loop() {
 		}
 	}
 	
+	check_pause ();
+	
+}
+
+void check_pause () {
+
 	if (Serial.available()) {
 		pause = true;
 		MySW.stop();
@@ -261,7 +267,6 @@ void loop() {
 			}
 		}
 	}
-	
 }
 
 void statistics () {
@@ -286,14 +291,14 @@ void statistics () {
 	int seconds = (MySW.value() % 60000) / 1000;
 	Serial.println(seconds);
 	
-	int seeds_per_minute = 0;
+	float seeds_per_minute = 0;
 	Serial.print ("Seed rate: ");
 	if (minutes == 0) {
 		seeds_per_minute = counter_s;
 	}else{
-		seeds_per_minute = counter_s / minutes;
+		float temp_minutes = (seconds/60) + minutes ;
+		seeds_per_minute = counter_s / temp_minutes;
 	}
 	Serial.print(seeds_per_minute);
 	Serial.println (" seeds per minute");
-
 }

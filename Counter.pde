@@ -75,6 +75,7 @@ void pickup_seed() {
 	Serial.println (counter.get_steps());
 #endif
 	while (!seed_detected) {
+		check_pause ();				// Enters menu if a button is pressed
 		if (counter.get_steps() == steps_from_sensor_to_init_clockwise){			// If we are at the starting position means we are ready to continue
 			delay (200);   // Wait for the interruption to reset itself   // CHEK WHY IS THIS HAPPENING --
 			speed_cntr_Move(1600/counter.get_step_accuracy(),5500,9000,5500);	// We do a full turn, NOTICE that the acceleration in this case is lower
