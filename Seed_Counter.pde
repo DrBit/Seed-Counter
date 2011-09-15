@@ -1,7 +1,7 @@
 #include <Stepper_ac.h>
 #include <avr/pgmspace.h>
 
-#define version_prog "TEST V2.1.8"
+#define version_prog "TEST V2.1.9"
 #define lib_version 11
 
 /********************************************
@@ -82,9 +82,9 @@ long old_xpos=0;
 long old_ypos=0;
 int motor_select=0;
 int situation=0;
-const int motor_speed_counter=900;
+const int motor_speed_counter=1200;
 const int motor_speed_XY=450;
-const int motor_speed_blisters=2500;
+const int motor_speed_blisters=7500;
 
 // ***********************
 // ** Error FLAGS
@@ -168,14 +168,33 @@ void setup() {
 // ************************************************************
 // ** MAIN LOOP FUNCTION
 // ************************************************************
+#define Yc1 0
+#define Ys1 0
 
+#define Yc2 7
+#define Ys2 368
+
+#define Xc1 70
+#define Xs1 1292
+
+#define Xc2 80
+#define Xs2 120
+
+#define Xc3 88
+#define Xs3 96
+
+#define Xc4 96
+#define Xs4 476
+
+#define Xc5 104
+#define Xs5 1168
+
+// Blister positions
+// * 10 * 08 * 06 * 04 * 02 * Y2
+// * 09 * 07 * 05 * 03 * 01 * Y1
+// * X5 * X4 * X3 * X2 * X1 *
 void loop() {
-	go_to_posXY (0, 0, 6,1) ;  // blister
-	go_to_posXY (0, 0, 1,1) ;  // blister
-	go_to_posXY (0, 0, 2,1) ;  // blister
-	go_to_posXY (0, 0, 9,1) ;  // blister
-	go_to_posXY (0, 0, 0,0) ;  // blister
-	/*
+	
 	Serial.println("go to Blister Position");
 	go_to_posXY (6, 0, 0,1) ;  // blister
 	
@@ -183,23 +202,43 @@ void loop() {
 	release_blister ();
 
 	Serial.println("1rst hole");
-	go_to_posXY (61,1094,0,1) ;  // first hole
+	go_to_posXY (Xc1,Xs1,Yc1,Ys1) ;  // first hole
 	pickup_seed ();
 	
 	Serial.println("2nd hole");
-	go_to_posXY (69,287,0,1) ;  // first hole
+	go_to_posXY (Xc1,Xs1,Yc2,Ys2) ;  // 2nd hole
 	pickup_seed ();
 	
-	Serial.println("3rd hole");
-	go_to_posXY (76,6010,0,1) ;  // 3d hole
+	Serial.println("3th hole");
+	go_to_posXY (Xc2,Xs2,Yc2,Ys2) ;  //4th hole
+	pickup_seed ();
+	
+	Serial.println("4rd hole");
+	go_to_posXY (Xc2,Xs2,Yc1,Ys1) ;  // 3d hole
 	pickup_seed ();
 
-	Serial.println("4th hole");
-	go_to_posXY (86,555,0,1) ;  //4th hole
+	Serial.println("5th hole");
+	go_to_posXY (Xc3,Xs3,Yc1,Ys1) ;  // 5th hole
 	pickup_seed ();
 	
-	Serial.println("5th hole");
-	go_to_posXY (94,1,0,1) ;  // 5th hole
+	Serial.println("6th hole");
+	go_to_posXY (Xc3,Xs3,Yc2,Ys2) ;  // 6th hole
+	pickup_seed ();
+	
+	Serial.println("7th hole");
+	go_to_posXY (Xc4,Xs4,Yc2,Ys2) ;  // 8th hole
+	pickup_seed ();
+	
+	Serial.println("8th hole");
+	go_to_posXY (Xc4,Xs4,Yc1,Ys1) ;  // 7th hole
+	pickup_seed ();
+	
+	Serial.println("9th hole");
+	go_to_posXY (Xc5,Xs5,Yc1,Ys1) ;  // 9th hole
+	pickup_seed ();
+	
+	Serial.println("10th hole");
+	go_to_posXY (Xc5,Xs5,Yc2,Ys2) ;  // 10th hole
 	pickup_seed ();
 	
 	Serial.println("Goto print position");
@@ -213,7 +252,7 @@ void loop() {
 
 	Serial.println("DONE!");
 	go_to_posXY (6, 0, 0,1) ;  // blister
-	*/
+
 	test_functions();
 	
 	/*	

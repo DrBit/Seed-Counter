@@ -31,6 +31,16 @@ void release_blister () {
 		blisters.do_step();
 		delayMicroseconds (motor_speed_blisters);
 	} 
+	
+	// shake 
+	Yaxis.got_to_position (0,50) ;
+	delay (100);
+	Yaxis.got_to_position (0,0) ;
+	delay (100);
+	Yaxis.got_to_position (0,50) ;
+	delay (100);
+	Yaxis.got_to_position (0,0) ;
+	
 	blisters.set_direction (true);
 	for (int i = 0 ; i< steps_to_do; i++) {
 		blisters.do_step();

@@ -4,6 +4,10 @@
 *********************************************
 **  REVISIONS
 **
+**  V2.1.9 - 15/09/2011
+**  * Updated positions for blisters
+**  * Releas blisters function improved
+**
 **  V2.1.8 - 14/09/2011
 **  * Changed behavior of the INIT counter procedure to match new counting system (with vibration from the same wheel)
 **  * Optimized parameters in counter and blister dispenser
