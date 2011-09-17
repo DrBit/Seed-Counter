@@ -116,8 +116,8 @@ boolean XYaxes_init () {
 **
 ** Basic Positions:
 ** 
-** 1. X - INIT POSITION					Y - INIT POSITION
-** 2. X - Right before the blisters	Y - INIT POSITION
+** 1. X - INIT POSITION						Y - INIT POSITION
+** 2. X - Right before the blisters			Y - INIT POSITION
 ** 3. X - Printer position					Y - Printer position
 ** 4. X - Exit position						Y - Exit position
 **
@@ -133,7 +133,7 @@ boolean XYaxes_init () {
 ** 11. X - Hole 7								Y - Row 1
 ** 12. X - Hole 8								Y - Row 2
 ** 13. X - Hole 9								Y - Row 1
-** 14. X - Hole 10							Y - Row 2
+** 14. X - Hole 10								Y - Row 2
 **
 **
 ** Blister type 5 Holes:
@@ -146,11 +146,78 @@ boolean XYaxes_init () {
 **
 ********************************************************/
 
+// Y
+#define Yc1 0
+#define Ys1 0
+#define Yc2 7
+#define Ys2 368
+// X
+#define Xc1 70
+#define Xs1 1292
+#define Xc2 80
+#define Xs2 120
+#define Xc3 88
+#define Xs3 96
+#define Xc4 96
+#define Xs4 476
+#define Xc5 104
+#define Xs5 1168
+
+#define number_of_positions 20
 // PROGMEM  prog_uchar name_of_array
 // prog_uchar is an unsigned char (1 byte) 0 to 255
 // prog_uint is an unsigned int (2 byte) 0 to 65,535
-PROGMEM  prog_uint16_t x_axis_set[]  = { 2,14,43,800,85,153,125,181,165,717,206,67,247,150};
-PROGMEM  prog_uint16_t y_axis_set[]  = { 1,1,38,465,57,567};
+PROGMEM  const prog_uint16_t x_axis_set[number_of_positions*2] = {
+// Basic positions
+0,0,			// 1- INIT position
+6,0,			// 2- Blister position
+194,1,			// 3- Printer position
+278,1,			// 4- Exit position
+// 2 rows blisters
+Xc1,Xs1,		// 5- Position Hole 1
+Xc1,Xs1,		// 6- Position Hole 2
+Xc2,Xs2,		// 7- Position Hole 3
+Xc2,Xs2,		// 8- Position Hole 4
+Xc3,Xs3,		// 9- Position Hole 5
+Xc3,Xs3,		// 10- Position Hole 6
+Xc4,Xs4,		// 11- Position Hole 7
+Xc4,Xs4,		// 12- Position Hole 8
+Xc5,Xs5,		// 13- Position Hole 9
+Xc5,Xs5			// 14- Position Hole 10
+// 1row blisters
+Xc1,Xs1,		// 5- Position Hole 1
+Xc1,Xs1,		// 6- Position Hole 2
+Xc2,Xs2,		// 7- Position Hole 3
+Xc2,Xs2,		// 8- Position Hole 4
+Xc3,Xs3,		// 9- Position Hole 5
+};
+
+
+PROGMEM  const prog_uint16_t y_axis_set[number_of_positions*2] = {
+// Basic positions
+0,0,			// 1- INIT position
+0,0,			// 2- Blister position
+0,0,			// 3- Printer position
+0,0,			// 4- Exit position
+// 2 rows blisters
+Yc1,Ys1,		// 5- Position Hole 1
+Yc2,Ys2,		// 6- Position Hole 2
+Yc2,Ys2,		// 7- Position Hole 3
+Yc1,Ys1,		// 8- Position Hole 4
+Yc1,Ys1,		// 9- Position Hole 5
+Yc2,Ys2,		// 10- Position Hole 6
+Yc2,Ys2,		// 11- Position Hole 7
+Yc1,Ys1,		// 12- Position Hole 8
+Yc1,Ys1,		// 13- Position Hole 9
+Yc2,Ys2			// 14- Position Hole 10
+// 1row blisters
+Yc1,Ys1,		// 5- Position Hole 1
+Yc2,Ys2,		// 6- Position Hole 2
+Yc2,Ys2,		// 7- Position Hole 3
+Yc1,Ys1,		// 8- Position Hole 4
+};
+
+
 // read back a 2-byte int example:
 // pgm_read_word_near(y_axis_set + N)
 // calculate cycle index position if index is N  -- > N = N + (N - 1)
@@ -178,8 +245,8 @@ void go_to_memory_position (int position_index_to_go) {
 
 	int Xcycles = get_cycle_Xpos_from_index(position_index_to_go);
 	int Xsteps = get_step_Xpos_from_index(position_index_to_go);
-	int Ycycles = Yaxis.get_steps_cycles() - get_cycle_Ypos_from_index(position_index_to_go);
-	int Ysteps = Yaxis.get_steps() - get_step_Ypos_from_index(position_index_to_go); 
+	int Ycycles = get_cycle_Ypos_from_index(position_index_to_go);
+	int Ysteps = get_step_Ypos_from_index(position_index_to_go); 
 	
 	go_to_posXY (Xcycles, Xsteps, Ycycles, Ysteps) ;
 }
@@ -188,4 +255,3 @@ void go_to_posXY (int Xcy,int Xst,int Ycy,int Yst) {
 	Xaxis.got_to_position (Xcy,Xst) ;
 	Yaxis.got_to_position (Ycy,Yst) ;
 }
-

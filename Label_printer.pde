@@ -9,3 +9,7 @@ http://tronixstuff.wordpress.com/2011/07/08/tutorial-arduino-and-a-thermal-print
 
 */ 
 
+
+void print_label () {
+	
+}

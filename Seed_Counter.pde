@@ -1,7 +1,7 @@
 #include <Stepper_ac.h>
 #include <avr/pgmspace.h>
 
-#define version_prog "TEST V2.1.9"
+#define version_prog "TEST V2.1.10"
 #define lib_version 11
 
 /********************************************
@@ -64,7 +64,7 @@
 // ***********************
 // ** CONFIG MOTOR PINS
 // ***********************
-// Setting up motor A, step pin, direction pin, sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for wighth step(mode of the stepper driver)
+// Setting up motor A, step pin, direction pin, sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for eighth step(mode of the stepper driver)
 Stepper_ac Xaxis(stepA,dirA,sensA,ms1A,ms2A,200,2);
 // Setting up motor B, step pin, direction pin, sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for wighth step(mode of the stepper driver)
 Stepper_ac Yaxis(stepB,dirB,sensB,ms1B,ms2B,200,4);
@@ -168,26 +168,6 @@ void setup() {
 // ************************************************************
 // ** MAIN LOOP FUNCTION
 // ************************************************************
-#define Yc1 0
-#define Ys1 0
-
-#define Yc2 7
-#define Ys2 368
-
-#define Xc1 70
-#define Xs1 1292
-
-#define Xc2 80
-#define Xs2 120
-
-#define Xc3 88
-#define Xs3 96
-
-#define Xc4 96
-#define Xs4 476
-
-#define Xc5 104
-#define Xs5 1168
 
 // Blister positions
 // * 10 * 08 * 06 * 04 * 02 * Y2
@@ -196,64 +176,65 @@ void setup() {
 void loop() {
 	
 	Serial.println("go to Blister Position");
-	go_to_posXY (6, 0, 0,1) ;  // blister
+	go_to_memory_position (1);			// blister
 	
 	Serial.println("Get blister");
 	release_blister ();
 
 	Serial.println("1rst hole");
-	go_to_posXY (Xc1,Xs1,Yc1,Ys1) ;  // first hole
+	go_to_memory_position (5);			// first hole
 	pickup_seed ();
 	
 	Serial.println("2nd hole");
-	go_to_posXY (Xc1,Xs1,Yc2,Ys2) ;  // 2nd hole
+	go_to_memory_position (6);			// 2nd hole
 	pickup_seed ();
 	
 	Serial.println("3th hole");
-	go_to_posXY (Xc2,Xs2,Yc2,Ys2) ;  //4th hole
+	go_to_memory_position (7);			//4th hole
 	pickup_seed ();
 	
 	Serial.println("4rd hole");
-	go_to_posXY (Xc2,Xs2,Yc1,Ys1) ;  // 3d hole
+	go_to_memory_position (8);			// 3d hole
 	pickup_seed ();
 
 	Serial.println("5th hole");
-	go_to_posXY (Xc3,Xs3,Yc1,Ys1) ;  // 5th hole
+	go_to_memory_position (9);			// 5th hole
 	pickup_seed ();
 	
 	Serial.println("6th hole");
-	go_to_posXY (Xc3,Xs3,Yc2,Ys2) ;  // 6th hole
+	go_to_memory_position (10);			// 6th hole
 	pickup_seed ();
 	
 	Serial.println("7th hole");
-	go_to_posXY (Xc4,Xs4,Yc2,Ys2) ;  // 8th hole
+	go_to_memory_position (11);			// 8th hole
 	pickup_seed ();
 	
 	Serial.println("8th hole");
-	go_to_posXY (Xc4,Xs4,Yc1,Ys1) ;  // 7th hole
+	go_to_memory_position (12);			// 7th hole
 	pickup_seed ();
 	
 	Serial.println("9th hole");
-	go_to_posXY (Xc5,Xs5,Yc1,Ys1) ;  // 9th hole
+	go_to_memory_position (13);			// 9th hole
 	pickup_seed ();
 	
 	Serial.println("10th hole");
-	go_to_posXY (Xc5,Xs5,Yc2,Ys2) ;  // 10th hole
+	go_to_memory_position (14);			// 10th hole
 	pickup_seed ();
 	
 	Serial.println("Goto print position");
-	go_to_posXY (194,1,0,1) ;  // Printer position
+	go_to_memory_position (3);			// Print position
 	Serial.println("Printing....");
 	
-	delay (1000);
+	print_label ();
 	
 	Serial.println("Go to exit");
-	go_to_posXY (278,1,0,1) ;  //  exit
+	go_to_memory_position (4);			// Exit
 
 	Serial.println("DONE!");
-	go_to_posXY (6, 0, 0,1) ;  // blister
-
-	test_functions();
+	go_to_memory_position (1);			// Blister
+	
+	
+	test_functions ();
 	
 	/*	
 	// Testing....

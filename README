@@ -4,6 +4,9 @@
 *********************************************
 **  REVISIONS
 **
+**  V2.1.10 - 17/09/2011
+**	* Updated hardcode of positions into solid state memory
+**
 **  V2.1.9 - 15/09/2011
 **  * Updated positions for blisters
 **  * Releas blisters function improved

@@ -32,13 +32,13 @@ void release_blister () {
 		delayMicroseconds (motor_speed_blisters);
 	} 
 	
-	// shake 
+	// shake    // under testing
 	Yaxis.got_to_position (0,50) ;
-	delay (100);
+	delay (200);
 	Yaxis.got_to_position (0,0) ;
-	delay (100);
-	Yaxis.got_to_position (0,50) ;
-	delay (100);
+	delay (200);
+	Yaxis.got_to_position (0,70) ;
+	delay (200);
 	Yaxis.got_to_position (0,0) ;
 	
 	blisters.set_direction (true);
