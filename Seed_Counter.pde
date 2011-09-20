@@ -1,8 +1,8 @@
 #include <Stepper_ac.h>
 #include <avr/pgmspace.h>
 
-#define version_prog "TEST V2.1.10"
-#define lib_version 11
+#define version_prog "TEST V2.1.11"
+#define lib_version 12
 
 /********************************************
 **  Name: Seed Counter 

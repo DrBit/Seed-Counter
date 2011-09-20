@@ -183,13 +183,13 @@ Xc3,Xs3,		// 10- Position Hole 6
 Xc4,Xs4,		// 11- Position Hole 7
 Xc4,Xs4,		// 12- Position Hole 8
 Xc5,Xs5,		// 13- Position Hole 9
-Xc5,Xs5			// 14- Position Hole 10
+Xc5,Xs5,			// 14- Position Hole 10
 // 1row blisters
 Xc1,Xs1,		// 5- Position Hole 1
 Xc1,Xs1,		// 6- Position Hole 2
 Xc2,Xs2,		// 7- Position Hole 3
 Xc2,Xs2,		// 8- Position Hole 4
-Xc3,Xs3,		// 9- Position Hole 5
+Xc3,Xs3		// 9- Position Hole 5
 };
 
 
@@ -209,12 +209,12 @@ Yc2,Ys2,		// 10- Position Hole 6
 Yc2,Ys2,		// 11- Position Hole 7
 Yc1,Ys1,		// 12- Position Hole 8
 Yc1,Ys1,		// 13- Position Hole 9
-Yc2,Ys2			// 14- Position Hole 10
+Yc2,Ys2,			// 14- Position Hole 10
 // 1row blisters
 Yc1,Ys1,		// 5- Position Hole 1
 Yc2,Ys2,		// 6- Position Hole 2
 Yc2,Ys2,		// 7- Position Hole 3
-Yc1,Ys1,		// 8- Position Hole 4
+Yc1,Ys1		// 8- Position Hole 4
 };
 
 

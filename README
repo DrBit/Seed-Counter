@@ -4,6 +4,10 @@
 *********************************************
 **  REVISIONS
 **
+**  V2.1.11 - 20/09/2011  (new branch)
+**  * Changed acceleration metoth 
+**  * Updated library to V1.2 (acceleration in motors)
+**
 **  V2.1.10 - 17/09/2011
 **	* Updated hardcode of positions into solid state memory
 **
