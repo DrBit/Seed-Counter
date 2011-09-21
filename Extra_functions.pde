@@ -324,6 +324,23 @@ int return_pressed_button () {
 	return pressed_button;
 }
 
+/***** Pause and return the number of any button pressed  *****/
+int pause_if_any_key_pressed () {
+		// Serial interface
+	if (Serial.available()) {
+		Serial.flush();
+		boolean pause = true;
+		Serial.println(" Press 1 to unpause... ");
+		while(pause) {
+			char received_char = Serial.read();
+			if (received_char == '1') {
+				pause = false;
+			}
+		}
+	}  
+	Serial.flush();
+}
+
 /***** Test Menu, all functions included  *****/
 void test_functions () {
 boolean inTestMenu = true;

@@ -153,15 +153,15 @@ boolean XYaxes_init () {
 #define Ys2 368
 // X
 #define Xc1 70
-#define Xs1 1292
-#define Xc2 80
-#define Xs2 120
-#define Xc3 88
-#define Xs3 96
-#define Xc4 96
-#define Xs4 476
-#define Xc5 104
-#define Xs5 1168
+#define Xs1 1472
+#define Xc2 79
+#define Xs2 132
+#define Xc3 87
+#define Xs3 964
+#define Xc4 95
+#define Xs4 944
+#define Xc5 103
+#define Xs5 956
 
 #define number_of_positions 20
 // PROGMEM  prog_uchar name_of_array
@@ -171,8 +171,8 @@ PROGMEM  const prog_uint16_t x_axis_set[number_of_positions*2] = {
 // Basic positions
 0,0,			// 1- INIT position
 6,0,			// 2- Blister position
-194,1,			// 3- Printer position
-278,1,			// 4- Exit position
+216,956,			// 3- Printer position
+280,1,			// 4- Exit position
 // 2 rows blisters
 Xc1,Xs1,		// 5- Position Hole 1
 Xc1,Xs1,		// 6- Position Hole 2

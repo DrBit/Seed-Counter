@@ -1,7 +1,7 @@
 #include <Stepper_ac.h>
 #include <avr/pgmspace.h>
 
-#define version_prog "TEST V2.1.11"
+#define version_prog "TEST V2.1.12"
 #define lib_version 12
 
 /********************************************
@@ -223,18 +223,19 @@ void loop() {
 	
 	Serial.println("Goto print position");
 	go_to_memory_position (3);			// Print position
-	Serial.println("Printing....");
+	Serial.println("Give print command");
 	
 	print_label ();
 	
 	Serial.println("Go to exit");
 	go_to_memory_position (4);			// Exit
-
+	
 	Serial.println("DONE!");
-	go_to_memory_position (1);			// Blister
 	
-	
-	test_functions ();
+	delay (1000);
+	pause_if_any_key_pressed();
+	//go_to_memory_position (1);			// Blister
+	//test_functions ();
 	
 	/*	
 	// Testing....

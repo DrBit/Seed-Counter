@@ -4,6 +4,11 @@
 *********************************************
 **  REVISIONS
 **
+**  V2.1.12 - 20/09/2011 
+**	* Merged branch acceleration
+**  * Fine tune positions in the prototype
+**  * Serial speed changed to maxim
+**
 **  V2.1.11 - 20/09/2011  (new branch)
 **  * Changed acceleration metoth 
 **  * Updated library to V1.2 (acceleration in motors)
