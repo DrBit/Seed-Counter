@@ -1,6 +1,7 @@
 
 void init_serial() {
   Serial.begin (115200);
+  Serial1.begin(9600);		// For conenction with Ethernet moduel
   Serial.println ("*****************************");
   Serial.println ("** Seed Counter on-line    **");
   Serial.println ("*****************************");
