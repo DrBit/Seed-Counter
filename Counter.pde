@@ -5,6 +5,7 @@
 #define init_turns_till_error 7    		// Number of times the couinter will try to get a seed at INITIATION before giving an error
 // #define steps_from_sensor_to_init 1200  	// Number of steps (based in mode 8) to go backward from the sensor to the init position (not used)
 #define steps_from_sensor_to_init_clockwise 1220  	// Number of steps (based in mode 8) to go forward from the sensor to the init position
+#define margin_steps_to_detect_seed 30		// Its the steps margin in wich the sensor will check if we have a seed
 boolean first_time_drop = true;		// Used only to acomodate positionafter INIT. Once hase been used we won't used anymore.
 
 boolean Seedcounter_init() {
@@ -42,8 +43,9 @@ boolean Seedcounter_init() {
 		// Thats because we are not using acceleration in this case
 		delayMicroseconds(motor_speed_counter);
 	}
-	for (int i=0;i<10; i++) {   // Since the detection of the seed is just at the edge of the same seed we do	
-								// 10 steps further to be in the middle of the sensor
+	for (int i=0;i<9; i++) {	// Since the detection of the seed is just at the edge of the same seed we do	
+								// 9 steps further to be in the middle of the sensor
+		//delay (1000);			// Just for testing if its correct
 		counter.do_step();
 		delayMicroseconds(motor_speed_counter);
 	}
@@ -84,7 +86,7 @@ void pickup_seed() {
 			delay (200);   // Wait for the interruption to reset itself   // CHEK WHY IS THIS HAPPENING --
 			speed_cntr_Move(steps_from_sensor_to_init_clockwise/counter.get_step_accuracy(),5500,9000,5500);	// We do a full turn, NOTICE that the acceleration in this case is lower
 		}
-		if ((counter.get_steps() >= 1580) || (counter.get_steps() <= 20)) {				// We check the sensor only when we are in the range of the sensor
+		if ((counter.get_steps() >= (1600-margin_steps_to_detect_seed)) || (counter.get_steps() <= margin_steps_to_detect_seed)) {				// We check the sensor only when we are in the range of the sensor
 			if (counter.sensor_check()){			// We got a seed!!!
 				seed_detected = true; 
 				while (!(counter.get_steps() == steps_from_sensor_to_init_clockwise))	// If we are not finished moving...

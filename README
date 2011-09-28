@@ -4,6 +4,11 @@
 *********************************************
 **  REVISIONS
 **
+**  V2.1.13 - 28/09/2011
+**  * Fixed bug in the counter sensor and position of the wheel when initializing the counter
+**	* Increased range of detection of seeds in the counter
+**	* Addes some motor parameters definitions in setup (Acceleration and speed defaults)
+**
 **  V2.1.12 - 20/09/2011 
 **	* Merged branch acceleration
 **  * Fine tune positions in the prototype

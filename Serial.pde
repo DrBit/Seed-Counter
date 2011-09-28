@@ -6,6 +6,8 @@ void init_serial() {
   Serial.println ("*****************************");
   Serial.print   ("Version: ");
   Serial.println (version_prog);
+  Serial.print   ("Library: V");
+  Serial.println (lib_version);
   Serial.println (" ");
 }
 

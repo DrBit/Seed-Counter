@@ -1,8 +1,8 @@
 #include <Stepper_ac.h>
 #include <avr/pgmspace.h>
 
-#define version_prog "TEST V2.1.12"
-#define lib_version 12
+#define version_prog "TEST V2.1.13"
+#define lib_version 13
 
 /********************************************
 **  Name: Seed Counter 
@@ -161,6 +161,12 @@ void setup() {
 	// Serial.println("\nReady! Press button 1 to start");
 	// Press button 1 to start
 	// press_button_to_continue (1);
+	
+	// some motor adjustments ( This configurations have been proved to work well, but there is still room for adjustments )
+	Xaxis.set_speed_in_slow_mode (200);
+	Xaxis.set_accel_profile(700, 14, 10, 50);
+	Yaxis.set_speed_in_slow_mode (220);
+	Yaxis.set_accel_profile(700, 14, 10, 50);
 	// END of setup
 }
 
