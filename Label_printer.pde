@@ -4,9 +4,9 @@
 #define server_script	"/labelgenerator/generate.php?batch_id=290"
 // Password needs to be in form user:password ( all enconded in base 64)
 // Check website http://maxcalci.com/base64.html for encoding/decoding
-#define password		"YXJkdWlubzpQQXBhWXViQTMzd3I="
 #define printer_IP		"10.10.249.105"  // subjetc to change
 #define printer_port	"8000"
+unsigned int seeds_batch = 290;
 
 /*  test
 SA: drbit.nl
@@ -42,6 +42,10 @@ void init_printer () {
 	Serial1.println("PP");				// Tell arduino next data is the printer_port
 	delay(300);
 	Serial1.println(printer_port);		// Send printer port
+	delay(300);
+	Serial1.println("SB");				// Tell arduino next data is the printer_port
+	delay(300);
+	Serial1.println(seeds_batch);		// Send printer port
 	delay(300);
 	
 	Serial.print ("Received IP: ");
