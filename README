@@ -4,6 +4,14 @@
 *********************************************
 **  REVISIONS
 **
+**  V2.1.14 - 2/10/2011
+**  * Added basic comunication handling with network module
+**	* Fine tuned comunication protcol
+**	* Splited functiond command in Command & Error
+**
+**  V2.1.13 - 1/10/2011
+**  * Starting process of implementing communication with network module 
+**
 **  V2.1.13 - 28/09/2011
 **  * Fixed bug in the counter sensor and position of the wheel when initializing the counter
 **	* Increased range of detection of seeds in the counter
@@ -32,7 +40,7 @@
 **  * Updated Library to V1.1 (fixed bug) 
 **
 **  V2.1.7 - 07/09/2011
-**  * Added Vibrator in TEST menu
+**  * Added Vibrator in TEST menu (later removed)
 **
 **  V2.1.6 - 31/08/2011
 **  * Sensor PIN B changed from 13 to 4 (due to problems with led conected in pin 13 via hardware)
@@ -100,3 +108,11 @@
 **
 *********************************************
 */
+
+TODO
+
+Config menu with:
+	Network configuration (Dynnamic addresses ports,...)
+	Positions Configurations (Re-set any position)
+	Change the handling of movements in manual mode. (Diff speeds depending on how long you press the button)
+	

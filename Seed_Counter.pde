@@ -1,7 +1,7 @@
 #include <Stepper_ac.h>
 #include <avr/pgmspace.h>
 
-#define version_prog "TEST V2.1.13"
+#define version_prog "TEST V2.1.14"
 #define lib_version 13
 
 /********************************************
@@ -133,9 +133,13 @@ void setup() {
 	//**** CONTINUE with normal process
 	Serial.println("SETTING UP");
 	// INIT SISTEM, and CHECK for ERRORS
+	// Init network module
+	init_printer ();
+	
+	// Init rest of modules
 	int temp_err = 0;   // flag for found errors
 	if (!init_blocks(ALL)) temp_err = 1;
-
+	
 	while (temp_err > 0) { // We found an error, we chek ALL errors and try to initiate correctly
 		temp_err = 0;
 		Serial.println("\nErrors found, press 1 when ready to check again, 2 to bypas the errors");
@@ -167,6 +171,14 @@ void setup() {
 	Xaxis.set_accel_profile(700, 14, 10, 50);
 	Yaxis.set_speed_in_slow_mode (220);
 	Yaxis.set_accel_profile(700, 14, 10, 50);
+	
+	
+	// print 1 label at the beginning
+	if (!print_label ()) {
+		Serial.println("Press button 1 to continue");
+		press_button_to_continue (1);
+	}
+	
 	// END of setup
 }
 
@@ -180,6 +192,8 @@ void setup() {
 // * 09 * 07 * 05 * 03 * 01 * Y1
 // * X5 * X4 * X3 * X2 * X1 *
 void loop() {
+
+
 	
 	Serial.println("go to Blister Position");
 	go_to_memory_position (1);			// blister
@@ -226,12 +240,22 @@ void loop() {
 	Serial.println("10th hole");
 	go_to_memory_position (14);			// 10th hole
 	pickup_seed ();
+
 	
 	Serial.println("Goto print position");
 	go_to_memory_position (3);			// Print position
-	Serial.println("Give print command");
+	// Serial.println("Give print command");
 	
-	print_label ();
+	// If last print command NOT completed succesfuly
+	if (!printed_successfully ()) {
+		Serial.println("Press button 1 to continue");
+		press_button_to_continue (1);
+	}
+	
+	if (!print_label ()) {
+		Serial.println("Press button 1 to continue");
+		press_button_to_continue (1);
+	}
 	
 	Serial.println("Go to exit");
 	go_to_memory_position (4);			// Exit
@@ -240,6 +264,7 @@ void loop() {
 	
 	delay (1000);
 	pause_if_any_key_pressed();
+	
 	//go_to_memory_position (1);			// Blister
 	//test_functions ();
 	

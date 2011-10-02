@@ -1,7 +1,12 @@
+void init_serial1() {
+  Serial1.begin (9600);
+  Serial.println   (" Starting comunication with Ethernet module");
+}
+
 
 void init_serial() {
-  Serial.begin (115200);
-  Serial1.begin(9600);		// For conenction with Ethernet moduel
+  delay (200);
+  Serial.begin (9600);
   Serial.println ("*****************************");
   Serial.println ("** Seed Counter on-line    **");
   Serial.println ("*****************************");
@@ -20,3 +25,5 @@ void print_ok () {
 void print_fail() {
 	Serial.println("[FAIL]");
 }
+
+
