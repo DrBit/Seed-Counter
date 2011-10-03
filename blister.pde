@@ -34,7 +34,7 @@ void release_blister () {
 	
 	// shake    // under testing
 	Yaxis.got_to_position (1,50) ;
-	delay (1000);
+	delay (300);
 	Yaxis.got_to_position (0,0) ;
 
 	

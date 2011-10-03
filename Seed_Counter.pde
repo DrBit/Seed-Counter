@@ -1,7 +1,7 @@
 #include <Stepper_ac.h>
 #include <avr/pgmspace.h>
 
-#define version_prog "TEST V2.1.14"
+#define version_prog "TEST V2.1.15"
 #define lib_version 13
 
 /********************************************
@@ -82,9 +82,9 @@ long old_xpos=0;
 long old_ypos=0;
 int motor_select=0;
 int situation=0;
-const int motor_speed_counter=1200;
-const int motor_speed_XY=450;
-const int motor_speed_blisters=7500;
+const int motor_speed_counter=3200;
+const int motor_speed_XY=430;
+const int motor_speed_blisters=3000;
 
 // ***********************
 // ** Error FLAGS
@@ -108,9 +108,9 @@ void setup() {
 	pinMode (button3, INPUT);
 	pinMode (Vibration, OUTPUT);
 	
-	analogWrite(Vibration, 224);
-	delay (1000);
-	analogWrite(Vibration, 0);
+	//analogWrite(Vibration, 224);
+	//delay (1000);
+	//analogWrite(Vibration, 0);
 	
 	// Check Version
 	if ((Xaxis.get_version()) != lib_version) {
@@ -173,7 +173,15 @@ void setup() {
 	Yaxis.set_accel_profile(700, 14, 10, 50);
 	
 	
-	// print 1 label at the beginning
+	// Print 2 stickers at the begining	
+	if (!print_label ()) {
+		Serial.println("Press button 1 to continue");
+		press_button_to_continue (1);
+	}
+	if (!printed_successfully ()) {
+		Serial.println("Press button 1 to continue");
+		press_button_to_continue (1);
+	}
 	if (!print_label ()) {
 		Serial.println("Press button 1 to continue");
 		press_button_to_continue (1);
@@ -251,18 +259,20 @@ void loop() {
 		Serial.println("Press button 1 to continue");
 		press_button_to_continue (1);
 	}
-	
+
 	if (!print_label ()) {
 		Serial.println("Press button 1 to continue");
 		press_button_to_continue (1);
 	}
+	
+	delay (3800);
 	
 	Serial.println("Go to exit");
 	go_to_memory_position (4);			// Exit
 	
 	Serial.println("DONE!");
 	
-	delay (1000);
+	// delay (500);
 	pause_if_any_key_pressed();
 	
 	//go_to_memory_position (1);			// Blister

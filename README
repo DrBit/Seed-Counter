@@ -4,6 +4,9 @@
 *********************************************
 **  REVISIONS
 **
+**  V2.1.15 - 03/10/2011
+**  * Fine tune parameters. 1rst running production. WORKS!
+**
 **  V2.1.14 - 2/10/2011
 **  * Added basic comunication handling with network module
 **	* Fine tuned comunication protcol
@@ -113,6 +116,22 @@ TODO
 
 Config menu with:
 	Network configuration (Dynnamic addresses ports,...)
+	*Network Batch ID selector
 	Positions Configurations (Re-set any position)
 	Change the handling of movements in manual mode. (Diff speeds depending on how long you press the button)
+
+New sensors 
+	Sense when the blisters are empty
+	Sense if a blister correctly placed in the X axis conveier
 	
+Automatic reset of network module
+
+Statistics
+
+Relay board for on off
+
+Handle motors sleep / reset and enable
+	Create functions sleep
+	Emergency stop
+
+Send a mail

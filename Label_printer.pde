@@ -79,7 +79,7 @@ int receiveNextValidCommand () {
 	while (true) {
 		while (Serial1.available()) {
 			char c = Serial1.read();
-			Serial.print (c);	// JUST for debug
+			//Serial.print (c);	// JUST for debug
 			
 			if (c == endOfLine) { 		// begining or end of command
 				//Serial.print ("-End of line detected-");
@@ -132,7 +132,7 @@ int receiveNextValidError () {
 	while (true) {
 		while (Serial1.available()) {
 			char c = Serial1.read();
-			Serial.print (c);	// JUST for debug
+			// Serial.print (c);	// JUST for debug
 			
 			if (c == endOfLine) { 		// begining or end of command
 				//Serial.print ("-End of line detected-");
@@ -234,7 +234,7 @@ bool recevie_data () {
 // Send Command
 //////////////////////////
 
-bool send_command (unsigned int command) {
+void send_command (unsigned int command) {
 	//delay (300);
 	Serial1.print(endOfLine);	// Print begining command
 	Serial1.print("C");
@@ -247,7 +247,7 @@ bool send_command (unsigned int command) {
 	//delay(300);
 }
 
-bool send_error (unsigned int command) {
+void send_error (unsigned int command) {
 	//delay (300);
 	Serial1.print(endOfLine);	// Print begining command
 	Serial1.print("E");
@@ -269,7 +269,7 @@ void send_data () {
 boolean print_label () {
 	//Serial1.flush ();			// Clean buffer before sending command so we know we are receving
 								// The right answer
-	Serial.println (" Send print command... ");						
+	Serial.println (" Send print command... (C04)");						
 	send_command (04);			// Print one label
 	
 	// Receive an OK
@@ -286,7 +286,8 @@ boolean print_label () {
 		Serial.println ("\nError received...");
 		return false;
 	} else { 
-		Serial.println ("\nNOT A VALID COMMAND");
+		Serial.println ("\nNOT A VALID COMMAND: ");
+		Serial.print (last_command_received);
 		return false;
 	}
 }

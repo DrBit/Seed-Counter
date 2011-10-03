@@ -171,7 +171,7 @@ PROGMEM  const prog_uint16_t x_axis_set[number_of_positions*2] = {
 // Basic positions
 0,0,			// 1- INIT position
 6,0,			// 2- Blister position
-216,956,			// 3- Printer position
+213,1400,		// 3- Printer position
 280,1,			// 4- Exit position
 // 2 rows blisters
 Xc1,Xs1,		// 5- Position Hole 1
@@ -197,7 +197,7 @@ PROGMEM  const prog_uint16_t y_axis_set[number_of_positions*2] = {
 // Basic positions
 0,0,			// 1- INIT position
 0,0,			// 2- Blister position
-0,0,			// 3- Printer position
+3,834,			// 3- Printer position
 0,0,			// 4- Exit position
 // 2 rows blisters
 Yc1,Ys1,		// 5- Position Hole 1
