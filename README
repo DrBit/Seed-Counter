@@ -4,6 +4,10 @@
 *********************************************
 **  REVISIONS
 **
+**  V2.1.16 - 03/10/2011
+**  * Added functions to record positions in internal EEPROM
+**  * Added function to adjust memory positions
+**
 **  V2.1.15 - 03/10/2011
 **  * Fine tune parameters. 1rst running production. WORKS!
 **
@@ -114,6 +118,8 @@
 
 TODO
 
+INIT X somtime fails, recheck that
+
 Config menu with:
 	Network configuration (Dynnamic addresses ports,...)
 	*Network Batch ID selector
@@ -125,6 +131,8 @@ New sensors
 	Sense if a blister correctly placed in the X axis conveier
 	
 Automatic reset of network module
+
+Speed up the counter wheel
 
 Statistics
 

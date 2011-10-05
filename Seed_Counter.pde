@@ -1,7 +1,7 @@
 #include <Stepper_ac.h>
 #include <avr/pgmspace.h>
 
-#define version_prog "TEST V2.1.15"
+#define version_prog "TEST V2.1.16"
 #define lib_version 13
 
 /********************************************
@@ -82,9 +82,9 @@ long old_xpos=0;
 long old_ypos=0;
 int motor_select=0;
 int situation=0;
-const int motor_speed_counter=3200;
-const int motor_speed_XY=430;
-const int motor_speed_blisters=3000;
+const int motor_speed_counter=1000;
+const int motor_speed_XY=380;
+const int motor_speed_blisters=2000;
 
 // ***********************
 // ** Error FLAGS
@@ -127,15 +127,20 @@ void setup() {
 	speed_cntr_Init_Timer1();
 	delay (10);  // Delay to be safe
 
+	init_DB ();				// Init database
+	Show_all_records();
+	
 	//**** ENTER MAIN MENU
 	enter_main_menu();
 	
 	//**** CONTINUE with normal process
-	Serial.println("SETTING UP");
+	Serial.println("\n*****************");
+	Serial.println("** SETTING UP  **");
+	Serial.println("*****************");
 	// INIT SISTEM, and CHECK for ERRORS
 	// Init network module
-	init_printer ();
-	
+
+	init_printer ();		// Init printer
 	// Init rest of modules
 	int temp_err = 0;   // flag for found errors
 	if (!init_blocks(ALL)) temp_err = 1;
@@ -173,19 +178,7 @@ void setup() {
 	Yaxis.set_accel_profile(700, 14, 10, 50);
 	
 	
-	// Print 2 stickers at the begining	
-	if (!print_label ()) {
-		Serial.println("Press button 1 to continue");
-		press_button_to_continue (1);
-	}
-	if (!printed_successfully ()) {
-		Serial.println("Press button 1 to continue");
-		press_button_to_continue (1);
-	}
-	if (!print_label ()) {
-		Serial.println("Press button 1 to continue");
-		press_button_to_continue (1);
-	}
+	prepare_printer();
 	
 	// END of setup
 }
@@ -201,7 +194,7 @@ void setup() {
 // * X5 * X4 * X3 * X2 * X1 *
 void loop() {
 
-
+	Serial.println("\n ************ ");
 	
 	Serial.println("go to Blister Position");
 	go_to_memory_position (1);			// blister
@@ -209,62 +202,54 @@ void loop() {
 	Serial.println("Get blister");
 	release_blister ();
 
-	Serial.println("1rst hole");
+	Serial.print("1rst hole");
 	go_to_memory_position (5);			// first hole
 	pickup_seed ();
 	
-	Serial.println("2nd hole");
+	Serial.print(" - 2nd hole");
 	go_to_memory_position (6);			// 2nd hole
 	pickup_seed ();
 	
-	Serial.println("3th hole");
+	Serial.print(" - 3th hole");
 	go_to_memory_position (7);			//4th hole
 	pickup_seed ();
 	
-	Serial.println("4rd hole");
+	Serial.print(" - 4rd hole");
 	go_to_memory_position (8);			// 3d hole
 	pickup_seed ();
 
-	Serial.println("5th hole");
+	Serial.println(" - 5th hole");
 	go_to_memory_position (9);			// 5th hole
 	pickup_seed ();
 	
-	Serial.println("6th hole");
+	Serial.print("6th hole");
 	go_to_memory_position (10);			// 6th hole
 	pickup_seed ();
 	
-	Serial.println("7th hole");
+	Serial.print(" - 7th hole");
 	go_to_memory_position (11);			// 8th hole
 	pickup_seed ();
 	
-	Serial.println("8th hole");
+	Serial.print(" - 8th hole");
 	go_to_memory_position (12);			// 7th hole
 	pickup_seed ();
 	
-	Serial.println("9th hole");
+	Serial.print(" - 9th hole");
 	go_to_memory_position (13);			// 9th hole
 	pickup_seed ();
 	
-	Serial.println("10th hole");
+	Serial.println(" - 10th hole");
 	go_to_memory_position (14);			// 10th hole
 	pickup_seed ();
 
 	
 	Serial.println("Goto print position");
 	go_to_memory_position (3);			// Print position
-	// Serial.println("Give print command");
 	
-	// If last print command NOT completed succesfuly
-	if (!printed_successfully ()) {
-		Serial.println("Press button 1 to continue");
-		press_button_to_continue (1);
-	}
-
-	if (!print_label ()) {
-		Serial.println("Press button 1 to continue");
-		press_button_to_continue (1);
-	}
+	print_one_label ();
+	check_last_label_success ();
 	
+	// Wait for the printer to print a label
 	delay (3800);
 	
 	Serial.println("Go to exit");

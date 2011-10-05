@@ -1,8 +1,3 @@
-void init_serial1() {
-  Serial1.begin (9600);
-  Serial.println   (" Starting comunication with Ethernet module");
-}
-
 
 void init_serial() {
   delay (200);

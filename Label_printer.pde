@@ -132,7 +132,7 @@ int receiveNextValidError () {
 	while (true) {
 		while (Serial1.available()) {
 			char c = Serial1.read();
-			// Serial.print (c);	// JUST for debug
+			Serial.print (c);	// JUST for debug
 			
 			if (c == endOfLine) { 		// begining or end of command
 				//Serial.print ("-End of line detected-");
@@ -269,25 +269,28 @@ void send_data () {
 boolean print_label () {
 	//Serial1.flush ();			// Clean buffer before sending command so we know we are receving
 								// The right answer
-	Serial.println (" Send print command... (C04)");						
+	Serial.print ("Generate label (C04): ");						
 	send_command (04);			// Print one label
 	
 	// Receive an OK
 	last_command_received = receiveNextValidCommand();
 	if ( last_command_received == 01) {				// Correct
-		Serial.println ("\n Accepted!\n Starting printing 1 label ");
+		//Serial.println ("\n Accepted!\n Starting printing 1 label ");
 		return true;
 	} else if (last_command_received == 02) {		// Not ready yet
-		Serial.println ("\nCommand not accepted");
+		print_fail();
+		Serial.println (" * Command not accepted. Expectred response (C01)");
 		return false;
 	} else if (last_command_received == 03) {		// Error 
 		// Check error
-		//act on error
-		Serial.println ("\nError received...");
+		print_fail();
+		Serial.println (" * Error received...");
+		receiveNextValidError ();
 		return false;
 	} else { 
-		Serial.println ("\nNOT A VALID COMMAND: ");
-		Serial.print (last_command_received);
+		print_fail();
+		Serial.println (" * NOT A VALID COMMAND: ");
+		// Serial.print (last_command_received);
 		return false;
 	}
 }
@@ -295,24 +298,26 @@ boolean print_label () {
 
 boolean printed_successfully () {
 
-	Serial.println (" Checking if printed sccessfully... ");						
+	// Serial.println (" Checking if printed sccessfully... ");						
 
 	
 	last_command_received = receiveNextValidCommand();
 	if ( last_command_received == 06) {				// Correct
-		Serial.println ("\nLast printed label ended successfully");
+		print_ok();
+		//Serial.println ("\nLast printed label ended successfully");
 		return true;
 	} else if (last_command_received == 02) {		// Not ready yet
-		Serial.println ("\nCommand not accepted");
+		print_fail();
+		Serial.println (" * Command not accepted, expected response (C06)");
 		return false;
 	} else if (last_command_received == 00) {		// Error 
-		// Check error
-		//act on error
-		Serial.print ("\nError received: ");
+		print_fail();
+		Serial.print (" * Error received: ");
 		receiveNextValidError ();
 		return false;
 	} else { 
-		Serial.println ("\nNOT A VALID COMMAND");
+		print_fail();
+		Serial.println (" * NOT A VALID COMMAND");
 		return false;
 	}
 }
@@ -325,7 +330,8 @@ void init_printer () {
 	
 	// Reset arduino (TODO connect reset cable)
 	EthernetModuleReset ();
-	init_serial1 ();
+	Serial1.begin (9600);
+	Serial.print   ("Init Ethernet module: ");
 	
 	// Repeat until we receive the right start command from the network module
 	boolean cReceived = false;
@@ -333,9 +339,10 @@ void init_printer () {
 		// Wait for a ready command
 		last_command_received = receiveNextValidCommand();
 		if ( last_command_received == 05) {				// Correct
-			Serial.println (" Network ready to operate");
+			print_ok();
 			cReceived = true;
 		} else {
+			print_fail();
 			Serial.println (" Command unexpected");
 			Serial.println (last_command_received);
 		}
@@ -357,9 +364,9 @@ void init_printer () {
 		}
 	}
 	
-	Serial.print (" Self configuring....");
+	//Serial.print (" Self configuring....");
 	// delay (10000); // let configure first....
-	Serial.println (" Done!");
+	//Serial.println (" Done!");
 
 	
 	
@@ -420,5 +427,45 @@ void init_printer () {
 }
 
 void EthernetModuleReset () {
-	Serial.println (" Reset network module");
+	Serial.println (" * Press reset button of the network module to continue");
+}
+
+
+void prepare_printer() {
+	// Print 2 stickers at the begining
+	Serial.println ("Label printer should have 2 labels printed before packaging can start");
+	Serial.println (" * Press 1 when ready to start");
+	Serial.println (" * Press 2 to print one label");
+	
+	boolean ready = false;
+	
+	while (!ready) {
+		switch (return_pressed_button ()) {
+			//Print process
+			case 2:
+				print_one_label ();
+				check_last_label_success ();
+			break;
+			
+			case 1	:
+				// do nothing so we wond detect any error and we will continue
+				ready = true;
+			break;
+		}
+	}
+	
+}
+
+void print_one_label () {
+	if (!print_label ()) {
+		Serial.println("Press button 1 to continue");
+		press_button_to_continue (1);
+	}
+}
+
+void check_last_label_success () {
+	if (!printed_successfully ()) {
+		Serial.println("Press button 1 to continue");
+		press_button_to_continue (1);
+	}
 }

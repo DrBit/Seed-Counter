@@ -145,7 +145,7 @@ boolean XYaxes_init () {
 ** 19. X - Hole 5								Y - Row 1
 **
 ********************************************************/
-
+/*
 // Y
 #define Yc1 0
 #define Ys1 0
@@ -217,6 +217,7 @@ Yc2,Ys2,		// 7- Position Hole 3
 Yc1,Ys1		// 8- Position Hole 4
 };
 
+*/
 
 // read back a 2-byte int example:
 // pgm_read_word_near(y_axis_set + N)
@@ -225,6 +226,7 @@ Yc1,Ys1		// 8- Position Hole 4
 
 
 // advice: change names to Coarse & fine
+/*
 int get_cycle_Xpos_from_index(int index) {
 	return pgm_read_word_near(x_axis_set + (2*index) - 2);
 }
@@ -239,7 +241,31 @@ int get_cycle_Ypos_from_index(int index) {
 
 int get_step_Ypos_from_index(int index) {
 	return pgm_read_word_near(y_axis_set + (2*index) - 1);
+}*/
+
+// READ
+
+int get_cycle_Xpos_from_index(int index) {
+	db.read(index, DB_REC mposition);
+	return mposition.Xc;
 }
+
+int get_step_Xpos_from_index(int index) {
+	db.read(index, DB_REC mposition);
+	return mposition.Xf;
+}
+
+int get_cycle_Ypos_from_index(int index) {
+	db.read(index, DB_REC mposition);
+	return mposition.Yc;
+}
+
+int get_step_Ypos_from_index(int index) {
+	db.read(index, DB_REC mposition);
+	return mposition.Yf;
+}
+
+
 
 void go_to_memory_position (int position_index_to_go) {
 

@@ -352,7 +352,7 @@ boolean inTestMenu = true;
 		Serial.println("		4 to move counter motors");
 		Serial.println("		5 to move blisters motors");
 		Serial.println("		6 to init all motors");
-		Serial.println("		7 Test Vibrator motor");
+		Serial.println("		7 to adjust positions");
 		Serial.println("		8 to check sensors status");
 		Serial.println("		9 test velocity");
 		Serial.println("		0 go to Main Menu");
@@ -410,19 +410,55 @@ boolean inTestMenu = true;
 			break;
 			
 			case 7:
-			//Change motor modes
-				Serial.println("\n Test Vibrator motor");
-				Serial.println("Motor Starts. Press keyboard key 4 to quit");
-				while (InMenuTemp) {
-					analogWrite(Vibration, 255);
-					while (Serial.read() != '4') {}
-					analogWrite(Vibration, 0);
-					InMenuTemp = false;
+				if (error_XY) {
+						Serial.println("\n	Error ** XY motors not initialized correctly, first INIT");
+				}else{
+					Serial.println("\n Adjust positions");
+					Serial.println("Type in the position number you want to adjust and press enter (2cyfers max)");
+					int position_n = 0;
+					position_n = get_number(2);		//2 is the number of digits we need the number
+					Serial.print("Selected position: ");
+					Serial.print(position_n);
+					Serial.println(" - Go to this position before adjust? 1-yes:2-no");
+					switch (return_pressed_button ()) { 
+						case 1:
+							// Go to selected position
+							Serial.println ("Going to position: ");
+							
+							Serial.print ("Xc: "); Serial.print (get_cycle_Xpos_from_index(position_n));
+							Serial.print (" Xf: "); Serial.println (get_step_Xpos_from_index(position_n));
+							Serial.print ("Yc: "); Serial.print (get_cycle_Ypos_from_index(position_n));
+							Serial.print (" Yf: "); Serial.println (get_step_Ypos_from_index(position_n));
+
+							Serial.println ("moving...");
+							go_to_memory_position (position_n);
+							
+						break;
+						case 2:
+							// Just skip
+						break;
+					}
+					Serial.println("Press 4 to record the position");
+					
+					while (InMenuTemp) {
+						manual_modeXY();
+						if (Serial.read() == '4')  InMenuTemp = false;
+					}
+					// record the position in memory
+					// WRITE
+					mposition.Xc = Xaxis.get_steps_cycles();
+					mposition.Xf = Xaxis.get_steps();
+					mposition.Yc = Yaxis.get_steps_cycles();
+					mposition.Yf = Yaxis.get_steps();
+
+					db.write(position_n, DB_REC mposition);
+					Serial.println("Position recorded!");
 				}
+				
 			break;
 			
 			case 8:
-			Serial.println("\n	Sensor Stats. Press keyboard key 4 to quit");
+				Serial.println("\n	Sensor Stats. Press keyboard key 4 to quit");
 				while (InMenuTemp) {
 					print_sensor_stats();
 					for (int i =0; i<=10; i++) {
@@ -436,24 +472,7 @@ boolean inTestMenu = true;
 			break;
 			
 			case 9:
-			Serial.println("\n	empty");
-				//move_motor(int motor_number, int steps, int cycles, int accel_factor, boolean direction)
-				// move_motor(1,1,1840, 40, true); find out why
-				// move_motor(1,1,1600, 40, true);
-				// move_motor(1,0,1600, 40, true);
-				// move_motor(1,3,0, 40, false);
-				// move_motor(1,1,1607, 40, true);
-				//xaxis_testing_velocity();
-				//Serial.print ("INIT position: ");
-				//print_x_pos ();
-				//Serial.println ("\n Move to cycle 1 step 0");
-				//got_to_position (1, 0, 1,1) ;
-
-				//Serial.println ("\n Move to cycle 10 step 0");
-				//got_to_position (10, 0, 1,1) ;
-
-				//Serial.println ("\n Move to cycle 0 step 1");
-				//got_to_position (0, 1, 1,1) ;
+				Serial.println("\n	empty");
 
 			break;
 			
@@ -464,6 +483,27 @@ boolean inTestMenu = true;
 	}
 }
 
+int get_number(int buffer) {
+	buffer = buffer +1;
+	char PositionN[buffer];
+	int length = 0;
+	while (!Serial.available()) {}
+	while (Serial.available()) {
+		PositionN[length] = Serial.read();
+		length = (length+1) % buffer;
+		delay(30);
+	}
+	PositionN[length] = '\0';
+	
+	// Staring of script
+	// String SpositionN = PositionN;
+	int num = 0;
+	for (int i = (buffer-2); i>=0 ; i--) {
+		num = atoi(&PositionN[i]);
+	}
+	//Serial.println (num);
+	return (byte) num;
+}
 
 
 // ************************************************************
@@ -548,8 +588,8 @@ int init_blocks(int block) {
 			int error = 0;
 			if (!init_blisters_menu ()) error++;
 				// Security Check
-				Serial.println("Check the seed counter for any blister that may be left in the X axel");
-				Serial.println("When ready press button 1 to continue set-up process");
+				Serial.println(" * Check the seed counter for any blister that may be left in the X axel");
+				Serial.println(" * When ready press button 1 to continue set-up process");
 				delay (150);
 				// Press button 1 to continue
 				press_button_to_continue (1);
@@ -570,7 +610,7 @@ int init_blocks(int block) {
 /***** Init XY from menu *****/
 int init_XY_menu() {
   // Init XY axis
-    Serial.print("Initializing XY Axes: ");
+    Serial.print("Init XY Axes: ");
     if (XYaxes_init()) {       // Initiates X and Y axes
 	print_ok();
         error_XY = false;
@@ -585,7 +625,7 @@ int init_XY_menu() {
 /***** Init Counter from menu *****/
 int init_counter_menu () {
   // Init Counter
-    Serial.print("Initializing Seed counter roll: ");
+    Serial.print("Init Seed counter roll: ");
     if (Seedcounter_init()) {  // Initiates seed counters
 	print_ok();
         error_counter = false;
@@ -600,7 +640,7 @@ int init_counter_menu () {
 /***** Init Blisters from menu *****/
 int init_blisters_menu () {
   //Init blister dispenser
-    Serial.print("Initializing blister dispenser: ");
+    Serial.print("Init blister dispenser: ");
     if (blisters_init ()) {
 	print_ok();
         error_blister = false;
