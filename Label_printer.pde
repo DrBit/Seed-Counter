@@ -9,7 +9,7 @@
 //PP
 #define printer_port	"8000"				// Printer server port 		
 
-#define password		""
+#define password		"YXJkdWlubzpQQXBhWXViQTMzd3I="
 unsigned int seeds_batch = 290;
 
 /*  test
@@ -18,35 +18,36 @@ SS: /index.php
 IP: 10.10.249.105:8000
 */
 
-
+/*
 //////////////////////////
 // LIST OF COMMANDS
 //////////////////////////
 
 // All commands are begined and ended with a carriage '/0'
 // any received data failling to have '/0' at the begining anb at the end will be descarted.
-
-/*
-
-
-
+-------------
 C00 - FALSE 
 C01 - TRUE
 C02 - ERROR
-C03 - Configure network
+-------------
+C03 - empty
 C04 - Print label
-C05 - Network ready to be configured (normally after reset)
+C05 - Network ready to configure (normally after reset)
 C06 - Label printed correctly
-
-
-
-*/
+------------
+C07 - Send SA (server_address)
+C08 - Send SS (server_script)
+C09 - Send SB (seeds_batch)
+C10 - Send IP (printer_IP)
+C11 - Send PS (password)
+C12 - Send PP (printer_port)
+------------
+C13 - Begining of data stream
+C14 - End of data stream
 
 //////////////////////////
 // LIST OF POSSIBLE ERRORS
 //////////////////////////
-
-/*
 
 E00 - Failed to open connection. Network down or website not available
 E01 - Time out receiving and aswer of the server 
@@ -176,8 +177,6 @@ int receiveNextValidError () {
 }
 
 
-
-
 boolean processCommand () {
 	//Serial.print ("-P-");
 	if (incomingCommand) {
@@ -265,62 +264,46 @@ void send_data () {
 
 }
 
-	
-boolean print_label () {
-	//Serial1.flush ();			// Clean buffer before sending command so we know we are receving
-								// The right answer
-	Serial.print ("Generate label (C04): ");						
-	send_command (04);			// Print one label
-	
-	// Receive an OK
+
+int receive_next_answer (int default_answer) {
+
+	// default command is always  01
 	last_command_received = receiveNextValidCommand();
-	if ( last_command_received == 01) {				// Correct
-		//Serial.println ("\n Accepted!\n Starting printing 1 label ");
-		return true;
-	} else if (last_command_received == 02) {		// Not ready yet
-		print_fail();
-		Serial.println (" * Command not accepted. Expectred response (C01)");
-		return false;
-	} else if (last_command_received == 03) {		// Error 
-		// Check error
-		print_fail();
-		Serial.println (" * Error received...");
-		receiveNextValidError ();
-		return false;
-	} else { 
-		print_fail();
-		Serial.println (" * NOT A VALID COMMAND: ");
-		// Serial.print (last_command_received);
-		return false;
+	
+	if (last_command_received == default_answer) {
+		//ok
+		return default_answer;
+	}else{
+		switch (last_command_received) { 
+			case 00:
+				print_fail();
+				Serial.println (" * (C00) Failed execution ");
+				// Serial.print (last_command_received);
+				return 00;
+			break;
+			
+			case 01:
+				//Serial.println ("TRUE (C01)");
+				return 01;
+			break;
+			
+			case 02:
+				print_fail();
+				Serial.println (" * (C02) Error");
+				receiveNextValidError ();
+				return 02;
+			break;
+			
+			case default:
+				print_fail();
+				Serial.println (" * NOT A VALID RESPONSE: ");
+				// Serial.print (last_command_received);
+				return 00;
+			break;
+		}
 	}
 }
-
-
-boolean printed_successfully () {
-
-	// Serial.println (" Checking if printed sccessfully... ");						
-
 	
-	last_command_received = receiveNextValidCommand();
-	if ( last_command_received == 06) {				// Correct
-		print_ok();
-		//Serial.println ("\nLast printed label ended successfully");
-		return true;
-	} else if (last_command_received == 02) {		// Not ready yet
-		print_fail();
-		Serial.println (" * Command not accepted, expected response (C06)");
-		return false;
-	} else if (last_command_received == 00) {		// Error 
-		print_fail();
-		Serial.print (" * Error received: ");
-		receiveNextValidError ();
-		return false;
-	} else { 
-		print_fail();
-		Serial.println (" * NOT A VALID COMMAND");
-		return false;
-	}
-}
 
 //////////////////////////
 // Other Functions
@@ -336,95 +319,81 @@ void init_printer () {
 	// Repeat until we receive the right start command from the network module
 	boolean cReceived = false;
 	while (!cReceived) {
-		// Wait for a ready command
-		last_command_received = receiveNextValidCommand();
-		if ( last_command_received == 05) {				// Correct
+		if (receive_next_answer(05) == 05) {
 			print_ok();
 			cReceived = true;
-		} else {
-			print_fail();
-			Serial.println (" Command unexpected");
-			Serial.println (last_command_received);
 		}
 	}
 	
+	
+	
+	Serial.print   ("Configure Ethernet module: ");
 	// Send a configure command
-	if (false) { // we just skip this part for now
-		send_command (03);		// start cpnfiguration process
+	/*send_command (03);		// start configuration process
+	// Receive an OK
+	if (receive_next_answer(01) == 01) { 	// Command accepted
+		// All correct , continue
+	}else{
+		print_fail();
+		Serial.println (" * Command (C03) Failed");
+		Serial.println(" * Press button 1 to continue");
+		press_button_to_continue (1);
+	}
+
+	
+	boolean start_config = false;
+	while (!start_config) {
+		send_command (03);		// start configuration process
 		// Receive an OK
-		last_command_received = receiveNextValidCommand();
-		if ( last_command_received == 01) {				// Correct
-			Serial.println (" Starting network configuring process ");
-		} else if (last_command_received == 02) {		// Not ready yet
-			Serial.println (" Network module not ready for starting configuration process...");
-		} else if (last_command_received == 03) {		// Error 
-			// Check error
-			//act on error
-			Serial.println (" Error starting nertwork configuration process...");
+		if (receive_next_answer(01) == 01) { 	// Command accepted
+			// All correct , continue
+			start_config = true;
+		}else{
+			print_fail();
+			Serial.println (" * Command (C03) Failed");
+			Serial.println(" * Press button 1 to try again");
+			press_button_to_continue (1);
 		}
-	}
+	} */
 	
-	//Serial.print (" Self configuring....");
-	// delay (10000); // let configure first....
-	//Serial.println (" Done!");
+/* 
+C07 - Send SA (server_address)
+C08 - Send SS (server_script)
+C09 - Send SB (seeds_batch)
+C10 - Send IP (printer_IP)
+C11 - Send PS (password)
+C12 - Send PP (printer_port)
+*/
+	send_command (07);
+	send_data (server_address);
+	delay (400);	
+	send_command (08);
+	send_data (server_script);
+	delay (400);	
+	send_command (09);
+	send_data (seeds_batch);
+	delay (400);	
+	send_command (10);
+	send_data (printer_IP);
+	delay (400);	
+	send_command (11);
+	send_data (password);
+	delay (400);	
+	send_command (12);
+	send_data (printer_port);
 
 	
-	
-	// Start configuration
-	
-	// We configure the arduino with the right directions
-	
-	
-	/*
-	delay (300);
-	Serial1.println("SA");				// Tell arduino next data is the server_address
-	delay(300);
-	Serial1.println(server_address);	// Send server_address
-	delay(300);
-	Serial1.println("SS");				// Tell arduino next data is the server_scrip
-	delay(300);
-	Serial1.print(server_script);		// Send server_script
-	Serial1.println(seeds_batch);		// Add batch ID in the parameters
-	delay(300);
-	Serial1.println("IP");				// Tell arduino next data is the printer_IP
-	delay(300);
-	Serial1.println(printer_IP);		// Send printer_IP
-	delay(300);
-	Serial1.println("PS");				// Tell arduino next data is the password
-	delay(300);
-	Serial1.println(password);			// Send password
-	delay(300);
-	Serial1.println("PP");				// Tell arduino next data is the printer_port
-	delay(300);
-	Serial1.println(printer_port);		// Send printer port
-	delay(300);
-
-	
-	Serial.print ("Received IP: ");
-	// print IP...
-	while (!Serial1.available()) {}
-	while (Serial1.available()) {
-		char c = Serial1.read();
-		Serial.print (c);
-		delay (100);		// just give enough time to receive another character if 
+	if (receive_next_answer(01) == 01) { 	// Command accepted
+		// All correct , continue
+		print_ok();
+	}else{
+		print_fail();
+		Serial.println (" * Command (C03) Failed");
+		Serial.println(" * Press button 1 to try again");
+		press_button_to_continue (1);
 	}
-	
-	// Confirmation of data:
-	while (!Serial1.available()) {}
-	while (Serial1.available()) {
-		char c = Serial1.read();
-		if (c == '1') {
-			Serial.println (" Configuring network ");
-		}else if (c == '0') {
-			Serial.println (" Configuring network ");
-		}
-		delay (100);		// just give enough time to receive another character if 
-	}
-	
-	
-	*/
-	
 }
+
 
 void EthernetModuleReset () {
 	Serial.println (" * Press reset button of the network module to continue");
@@ -441,31 +410,40 @@ void prepare_printer() {
 	
 	while (!ready) {
 		switch (return_pressed_button ()) {
-			//Print process
-			case 2:
-				print_one_label ();
-				check_last_label_success ();
-			break;
-			
 			case 1	:
 				// do nothing so we wond detect any error and we will continue
 				ready = true;
+			break;
+			//Print process
+			case 2:
+				print_one_label ();
 			break;
 		}
 	}
 	
 }
 
+
 void print_one_label () {
-	if (!print_label ()) {
-		Serial.println("Press button 1 to continue");
+
+	Serial.print ("Generate label (C04): ");						
+	send_command (04);			// Print one label
+	
+	if (receive_next_answer(01) == 01) { 	// Command accepted
+		// Wait for answer (command 06 indicates sucsesful printing
+		if (receive_next_answer(06) == 06) { 
+			print_ok();				// All went OK
+		}else{
+			print_fail();
+			Serial.println (" * Expected response (C06)");
+			Serial.println(" * Press button 1 to continue");
+			press_button_to_continue (1);
+		}
+	}else{
+		print_fail();
+		Serial.println (" * Command (C04) Failed");
+		Serial.println(" * Press button 1 to continue");
 		press_button_to_continue (1);
 	}
 }
 
-void check_last_label_success () {
-	if (!printed_successfully ()) {
-		Serial.println("Press button 1 to continue");
-		press_button_to_continue (1);
-	}
-}

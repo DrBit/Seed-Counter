@@ -4,9 +4,10 @@
 *********************************************
 **  REVISIONS
 **
-**  V2.1.16 - 03/10/2011
+**  V2.1.16 - 05/10/2011
 **  * Added functions to record positions in internal EEPROM
 **  * Added function to adjust memory positions
+**  * Adde network configure process (Still to test)
 **
 **  V2.1.15 - 03/10/2011
 **  * Fine tune parameters. 1rst running production. WORKS!

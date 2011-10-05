@@ -247,7 +247,6 @@ void loop() {
 	go_to_memory_position (3);			// Print position
 	
 	print_one_label ();
-	check_last_label_success ();
 	
 	// Wait for the printer to print a label
 	delay (3800);
