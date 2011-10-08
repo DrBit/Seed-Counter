@@ -467,6 +467,7 @@ boolean inTestMenu = true;
 	}
 }
 
+// Funtion that returns a number typed in the serial interface
 int get_number(int buffer) {
 	buffer = buffer +1;
 	char PositionN[buffer];
@@ -657,6 +658,8 @@ void check_pause () {
 				
 				case 2:
 					// change_barch_code ();
+					select_batch_number ();
+					update_network_configuration ();
 				break;
 				
 				case 3:

@@ -30,9 +30,9 @@ C00 - FALSE
 C01 - TRUE
 C02 - ERROR
 -------------
-C03 - empty
+C03 - Update network configuration
 C04 - Print label
-C05 - Network ready to configure (normally after reset)
+C05 - Network module ready for operation (normally after reset)
 C06 - Label printed correctly
 ------------
 C07 - Send SA (server_address)
@@ -44,7 +44,7 @@ C12 - Send PP (printer_port)
 ------------
 C13 - Begining of data stream
 C14 - End of data stream
-
+------------
 //////////////////////////
 // LIST OF POSSIBLE ERRORS
 //////////////////////////
@@ -331,8 +331,10 @@ void init_printer () {
 	}
 	
 	
+	select_batch_number ();
 	
-	Serial.print   ("Configure Ethernet module: ");
+	update_network_configuration ();
+	
 	// Send a configure command
 	/*send_command (03);		// start configuration process
 	// Receive an OK
@@ -360,43 +362,6 @@ void init_printer () {
 			press_button_to_continue (1);
 		}
 	} */
-	
-/* 
-C07 - Send SA (server_address)
-C08 - Send SS (server_script)
-C09 - Send SB (seeds_batch)
-C10 - Send IP (printer_IP)
-C11 - Send PS (password)
-C12 - Send PP (printer_port)
-*/
-	send_command (7);
-	send_data (server_address);
-	delay (400);	
-	send_command (8);
-	send_data (server_script);
-	delay (400);	
-	send_command (9);
-	send_data (seeds_batch);
-	delay (400);	
-	send_command (10);
-	send_data (printer_IP);
-	delay (400);	
-	send_command (11);
-	send_data (password);
-	delay (400);	
-	send_command (12);
-	send_data (printer_port);
-
-	
-	if (receive_next_answer(01) == 01) { 	// Command accepted
-		// All correct , continue
-		print_ok();
-	}else{
-		print_fail();
-		Serial.println (" * Command (C03) Failed");
-		Serial.println(" * Press button 1 to try again");
-		press_button_to_continue (1);
-	}
 }
 
 
@@ -426,6 +391,77 @@ void prepare_printer() {
 		}
 	}
 	
+}
+
+// Types in a batch nomber for update it
+int select_batch_number () {
+	boolean inNumber = true;
+	while (inNumber) {
+		Serial.print (" Type in batch number: ");
+		seeds_batch = get_number(3);
+		Serial.println (seeds_batch);
+		inNumber = false;
+		
+		Serial.print (" Correct? Y/N ");
+		boolean inQuestion = true;
+		while (inQuestion) {
+			if (Serial.available ()) {
+				char C = Serial.read ();
+				if (C == "y" || C == "Y") {
+					inQuestion = false;
+				}else if (C == "n" || C == "N") {
+					inQuestion = false;
+					inNumber = true;
+				}
+			}
+		}
+	}
+}
+
+
+// TODO
+void update_network_configuration () {
+
+/* 
+C07 - Send SA (server_address)
+C08 - Send SS (server_script)
+C09 - Send SB (seeds_batch)
+C10 - Send IP (printer_IP)
+C11 - Send PS (password)
+C12 - Send PP (printer_port)
+*/
+	Serial.print   ("Update network module: ");
+	
+	// Here the network module needs to be listening to the command C03 update network configuration
+	
+	send_command (7);
+	send_data (server_address);
+	delay (400);	
+	send_command (8);
+	send_data (server_script);
+	delay (400);	
+	send_command (9);
+	send_data (seeds_batch);
+	delay (400);	
+	send_command (10);
+	send_data (printer_IP);
+	delay (400);	
+	send_command (11);
+	send_data (password);
+	delay (400);	
+	send_command (12);
+	send_data (printer_port);
+
+	
+	if (receive_next_answer(01) == 01) { 	// Command accepted
+		// All correct , continue
+		print_ok();
+	}else{
+		print_fail();
+		Serial.println (" * Command (C03) Failed");
+		Serial.println(" * Press button 1 to try again");
+		press_button_to_continue (1);
+	}
 }
 
 
