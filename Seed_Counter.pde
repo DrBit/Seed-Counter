@@ -165,15 +165,15 @@ void setup() {
 		switch (return_pressed_button ()) {
 			//Init XY 
 			case 1:
-				/*if (error_XY) {
+				if (error_XY) {
 					if (!init_blocks(2)) temp_err++;
-				}*/
+				}
 				if (error_counter) {
 					if (!init_blocks(3)) temp_err++;
 				}
-				/*if (error_blister) {
+				if (error_blister) {
 					if (!init_blocks(1)) temp_err++;
-				}*/
+				}
 			break;
 			
 			case 2:

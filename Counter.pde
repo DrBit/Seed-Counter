@@ -7,7 +7,7 @@
 #define steps_from_sensor_to_init_clockwise 1220  	// Number of steps (based in mode 8) to go forward from the sensor to the init position
 #define margin_steps_to_detect_seed 30		// Its the steps margin in wich the sensor will check if we have a seed
 
-#define fails_max_normal 1000			// Max number of tries to pick a seed before software will create an error
+#define fails_max_normal 400			// Max number of tries to pick a seed before software will create an error
 #define fails_max_end 100				// Max number of fails before 100 seeds to reach the complet batch to create an error (since we are close to the end we dont need to go to 1000)
 #define init_turns_till_error 10   		// Number of times the counter will try to get a seed at INITIATION before giving an error
 

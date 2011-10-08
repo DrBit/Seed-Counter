@@ -4,6 +4,9 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V2.1.17 - 08/10/2011
+**  * Added  statistics + pause menu
+**
 **  V2.1.16 - 05/10/2011
 **  * Added functions to record positions in internal EEPROM
 **  * Added function to adjust memory positions
