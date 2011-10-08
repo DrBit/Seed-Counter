@@ -270,53 +270,23 @@ void loop() {
 	Serial.println("Go to exit");
 	go_to_memory_position (4);			// Exit
 	
-	Serial.print (" Counted seeds: ");
+	Serial.print ("Counted seeds: ");
 	Serial.println (counter_s);
 	check_pause ();
 	
-	//Serial.println("DONE!");
-	//test_functions ();
-	////////// TESTING
 
-	/*
+	/******** USEFUL FUNCTIONS
 	
-	
-	if (counter_s == max_batch_count) {
-		MySW.stop();
-		pause = true;
-		Serial.print ("Reached count value of:  ");
-		Serial.println (max_batch_count);
-		Serial.print ("Press 1 to count ");
-		Serial.print (max_batch_count);
-		Serial.println(" seeds extra");
-		Serial.println ("Press 2 to start from 0");
-		Serial.println ("Press 3 to print statistics");
-		
-		while(pause) {
-			switch (return_pressed_button ()) {			
-				case 1:
-					pause = false;
-					updated_count_limit =+ max_batch_count;
-					MySW.start();
-				break;
-				
-				case 2:
-					pause = false;
-					counter_s = 0;
-					updated_count_limit = max_batch_count;
-					count_total_turns = 0;
-					MySW.reset();
-					MySW.start();
-				break;
-				
-				case 3:
-					statistics();
-				break;
-			}
-		}
-	}
-	
-	pause_if_any_key_pressed();
+	void mem_check ()
+	void press_button_to_continue (int button_number)
+	int return_pressed_button ()
+	boolean YN_question ()
+	int get_number(int buffer) 
+	void enter_main_menu()
+	void check_pause ()
+	void statistics ()
+	void print_time (unsigned long total_milliseconds, unsigned int hours, unsigned int minutes, unsigned int seconds)
+	void test_functions ()
 	*/
 }
 

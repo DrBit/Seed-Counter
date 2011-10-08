@@ -205,6 +205,7 @@ int freeRam () {
 	return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
 }
 
+
 /***** Pause and wait till a button is pressed  *****/
 void press_button_to_continue (int button_number) {
         Serial.flush();
@@ -255,6 +256,8 @@ void press_button_to_continue (int button_number) {
 		break;
 	}
 }
+
+
 
 /***** Pause and return the number of any button pressed  *****/
 int return_pressed_button () {
@@ -422,21 +425,29 @@ boolean inTestMenu = true;
 							// Just skip
 						break;
 					}
-					Serial.println("Press 4 to record the position");
 					
-					while (InMenuTemp) {
-						manual_modeXY();
-						if (Serial.read() == '4')  InMenuTemp = false;
+					Serial.println("Press a key when done.");
+				
+					while (inMenuTemp) {
+						manual_modeXY();					// Manual mode, adjust position
+						if (Serial.available()) {			// If a key is pressed
+							Serial.flush();					// Remove all data from serial
+							Serial.println("Save changes? Y/N");
+							if (YN_question()) {
+								// record the position in memory
+								// WRITE
+								mposition.Xc = Xaxis.get_steps_cycles();
+								mposition.Xf = Xaxis.get_steps();
+								mposition.Yc = Yaxis.get_steps_cycles();
+								mposition.Yf = Yaxis.get_steps();
+								db.write(position_n, DB_REC mposition);
+								Serial.println("Position recorded!");
+							}else{
+								Serial.println("Position NOT recorded!");
+							}
+							InMenuTemp = false;			// Exit menu
+						}
 					}
-					// record the position in memory
-					// WRITE
-					mposition.Xc = Xaxis.get_steps_cycles();
-					mposition.Xf = Xaxis.get_steps();
-					mposition.Yc = Yaxis.get_steps_cycles();
-					mposition.Yf = Yaxis.get_steps();
-
-					db.write(position_n, DB_REC mposition);
-					Serial.println("Position recorded!");
 				}
 				
 			break;
@@ -466,6 +477,21 @@ boolean inTestMenu = true;
 		}
 	}
 }
+
+// Simple YES/NO Question
+boolean YN_question () {
+	while (true) {
+		if (Serial.available ()) {
+			char C = Serial.read ();
+			if (C == "y" || C == "Y") {
+				return true;
+			}else if (C == "n" || C == "N") {
+				return false;
+			}
+		}
+	}
+}
+
 
 // Funtion that returns a number typed in the serial interface
 int get_number(int buffer) {
@@ -681,7 +707,7 @@ void check_pause () {
 }
 
 /***** Pause and return the number of any button pressed  *****/
-int pause_if_any_key_pressed () {
+void pause_if_any_key_pressed () {
 		// Serial interface
 	if (Serial.available()) {
 		Serial.flush();

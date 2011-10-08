@@ -403,17 +403,10 @@ int select_batch_number () {
 		inNumber = false;
 		
 		Serial.print (" Correct? Y/N ");
-		boolean inQuestion = true;
-		while (inQuestion) {
-			if (Serial.available ()) {
-				char C = Serial.read ();
-				if (C == "y" || C == "Y") {
-					inQuestion = false;
-				}else if (C == "n" || C == "N") {
-					inQuestion = false;
-					inNumber = true;
-				}
-			}
+		if (YN_question()) {
+			// do nothing and quit
+		}else{
+			inNumber = true;	// Ask number again
 		}
 	}
 }
