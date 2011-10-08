@@ -324,22 +324,6 @@ int return_pressed_button () {
 	return pressed_button;
 }
 
-/***** Pause and return the number of any button pressed  *****/
-int pause_if_any_key_pressed () {
-		// Serial interface
-	if (Serial.available()) {
-		Serial.flush();
-		boolean pause = true;
-		Serial.println(" Press 1 to unpause... ");
-		while(pause) {
-			char received_char = Serial.read();
-			if (received_char == '1') {
-				pause = false;
-			}
-		}
-	}  
-	Serial.flush();
-}
 
 /***** Test Menu, all functions included  *****/
 void test_functions () {
@@ -650,4 +634,118 @@ int init_blisters_menu () {
         error_blister = true;
         return 0;
     }
+}
+
+
+void check_pause () {
+	if (Serial.available() || pause) {
+		pause = true;
+		MySW.stop();
+		Serial.flush();
+		Serial.println ("Pause activated ");
+		Serial.println ("Press 1 to resume");
+		Serial.println ("Press 2 Change seed batch code");
+		Serial.println ("Press 3 to print statistics");
+		Serial.println ("Press 4 to reset statistics");
+		
+		while(pause) {
+			switch (return_pressed_button ()) {			
+				case 1:
+					pause = false;
+					MySW.start();
+				break;
+				
+				case 2:
+					// change_barch_code ();
+				break;
+				
+				case 3:
+					statistics();
+				break;
+				
+				case 4:
+					pause = false;
+					counter_s = 0;
+					count_total_turns = 0;
+					MySW.reset();
+					MySW.start();
+				break;
+				
+				
+			}
+		}
+	}
+}
+
+/***** Pause and return the number of any button pressed  *****/
+int pause_if_any_key_pressed () {
+		// Serial interface
+	if (Serial.available()) {
+		Serial.flush();
+		boolean pause = true;
+		Serial.println(" Press 1 to unpause... ");
+		while(pause) {
+			char received_char = Serial.read();
+			if (received_char == '1') {
+				pause = false;
+			}
+		}
+	}  
+	Serial.flush();
+}
+
+void statistics () {
+	unsigned int hours;
+	unsigned int minutes;
+	unsigned int seconds;
+	
+	Serial.print ("\nCounter picked ");
+	Serial.print (counter_s);
+	Serial.print (" seeds from a batch total of ");
+	Serial.println (max_batch_count);
+
+	Serial.print ("Counter roll made a total of ");
+	Serial.print (count_total_turns);
+	Serial.println (" turns");
+
+	Serial.print ("Turns rate: ");
+	int turns_per_seed = count_total_turns / counter_s;
+	Serial.print (turns_per_seed);
+	Serial.println (" turns / seed");
+
+	Serial.print ("\ntranscurred time from start: ");
+	
+	unsigned long total_ms = MySW.value();
+	print_time(total_ms, hours, minutes, seconds);
+
+	Serial.print ("Seed rate: ");
+	
+	float seeds_per_minute = 0;
+	float temp_minutes = (seconds/60) + minutes ;
+	seeds_per_minute = counter_s / temp_minutes;
+	Serial.print(seeds_per_minute);
+	Serial.print (" seeds per minute - ");
+	
+	//if (hours > 0) {
+	float seeds_per_hour = 0;
+	float temp_hours = (((seconds/60) + minutes)/60) + hours ;
+	seeds_per_hour = counter_s / temp_hours;
+	Serial.print(seeds_per_hour);
+	Serial.println (" seeds per hour");
+	//}
+}
+
+void print_time (unsigned long total_milliseconds, unsigned int hours, unsigned int minutes, unsigned int seconds) {
+	seconds = total_milliseconds / 1000;
+	minutes = seconds / 60;
+	hours = minutes / 60;
+
+	minutes = minutes - (hours*60);
+	seconds = seconds - (hours*60*60) - (minutes * 60);
+	
+	Serial.print(hours,2);
+	Serial.print(":");
+	Serial.print(minutes,2);
+	Serial.print(":");
+	Serial.println(seconds,2);
 }

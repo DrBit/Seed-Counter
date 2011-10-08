@@ -1,8 +1,10 @@
 #include <Stepper_ac.h>
 #include <avr/pgmspace.h>
+#include <StopWatch.h>
 
 #define version_prog "TEST V2.1.16"
 #define lib_version 13
+
 
 /********************************************
 **  Name: Seed Counter 
@@ -73,6 +75,9 @@ Stepper_ac blisters(stepC,dirC,0,ms1C,ms2C,200,4);
 // Setting up motor D, step pin, direction pin, sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for wighth step(mode of the stepper driver)
 Stepper_ac counter(stepD,dirD,sensD,ms1D,ms2D,200,4);
 
+// Stop Watch Timer
+StopWatch MySW;
+
 
 // ***********************
 // ** DEFINES variables
@@ -82,9 +87,10 @@ long old_xpos=0;
 long old_ypos=0;
 int motor_select=0;
 int situation=0;
-const int motor_speed_counter=1000;
-const int motor_speed_XY=380;
-const int motor_speed_blisters=2000;
+const int motor_speed_counter=1200;
+const int motor_speed_XY=450;
+const int motor_speed_blisters=2500;
+
 
 // ***********************
 // ** Error FLAGS
@@ -94,8 +100,15 @@ boolean error_counter = true;
 boolean error_blister = true;
 #define ALL 0
 
+// ***********************
+// ** PAUSE & STATISTICS
+// ***********************
+unsigned long count_total_turns = 0;
+unsigned long counter_s = 0;
+boolean pause = false;
+unsigned int max_batch_count = 1100;
 
-/////////////////////////////////////////////////
+
 void setup() {
 
 	//*** BASIC SETUP
@@ -143,6 +156,7 @@ void setup() {
 	init_printer ();		// Init printer
 	// Init rest of modules
 	int temp_err = 0;   // flag for found errors
+
 	if (!init_blocks(ALL)) temp_err = 1;
 	
 	while (temp_err > 0) { // We found an error, we chek ALL errors and try to initiate correctly
@@ -151,15 +165,15 @@ void setup() {
 		switch (return_pressed_button ()) {
 			//Init XY 
 			case 1:
-				if (error_XY) {
+				/*if (error_XY) {
 					if (!init_blocks(2)) temp_err++;
-				}
+				}*/
 				if (error_counter) {
 					if (!init_blocks(3)) temp_err++;
 				}
-				if (error_blister) {
+				/*if (error_blister) {
 					if (!init_blocks(1)) temp_err++;
-				}
+				}*/
 			break;
 			
 			case 2:
@@ -180,6 +194,7 @@ void setup() {
 	
 	prepare_printer();
 	
+	MySW.start();			// Start timer for statistics
 	// END of setup
 }
 
@@ -187,6 +202,7 @@ void setup() {
 // ************************************************************
 // ** MAIN LOOP FUNCTION
 // ************************************************************
+
 
 // Blister positions
 // * 10 * 08 * 06 * 04 * 02 * Y2
@@ -254,19 +270,53 @@ void loop() {
 	Serial.println("Go to exit");
 	go_to_memory_position (4);			// Exit
 	
-	Serial.println("DONE!");
+	Serial.print (" Counted seeds: ");
+	Serial.println (counter_s);
+	check_pause ();
 	
-	// delay (500);
-	pause_if_any_key_pressed();
-	
-	//go_to_memory_position (1);			// Blister
+	//Serial.println("DONE!");
 	//test_functions ();
+	////////// TESTING
+
+	/*
 	
-	/*	
-	// Testing....
-	Serial.print("Testing release one blister");
-	release_blister ();
-	press_button_to_continue (1);
-	pickup_seed_extended ();
+	
+	if (counter_s == max_batch_count) {
+		MySW.stop();
+		pause = true;
+		Serial.print ("Reached count value of:  ");
+		Serial.println (max_batch_count);
+		Serial.print ("Press 1 to count ");
+		Serial.print (max_batch_count);
+		Serial.println(" seeds extra");
+		Serial.println ("Press 2 to start from 0");
+		Serial.println ("Press 3 to print statistics");
+		
+		while(pause) {
+			switch (return_pressed_button ()) {			
+				case 1:
+					pause = false;
+					updated_count_limit =+ max_batch_count;
+					MySW.start();
+				break;
+				
+				case 2:
+					pause = false;
+					counter_s = 0;
+					updated_count_limit = max_batch_count;
+					count_total_turns = 0;
+					MySW.reset();
+					MySW.start();
+				break;
+				
+				case 3:
+					statistics();
+				break;
+			}
+		}
+	}
+	
+	pause_if_any_key_pressed();
 	*/
 }
+

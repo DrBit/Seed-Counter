@@ -278,6 +278,8 @@ void go_to_memory_position (int position_index_to_go) {
 }
 
 void go_to_posXY (int Xcy,int Xst,int Ycy,int Yst) {
+	check_pause ();			// Check for any pause button
 	Xaxis.got_to_position (Xcy,Xst) ;
+	check_pause ();			// Check for any pause button
 	Yaxis.got_to_position (Ycy,Yst) ;
 }

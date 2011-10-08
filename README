@@ -1,8 +1,8 @@
 /********************************************
-**  Name: Seed Counter 
+**  Name: Seed Counter TEST plain counter
 **  Created: 27/06/2011
 *********************************************
-**  REVISIONS
+**  REVISIONS from:
 **
 **  V2.1.16 - 05/10/2011
 **  * Added functions to record positions in internal EEPROM
@@ -41,6 +41,7 @@
 **  V2.1.9 - 15/09/2011
 **  * Updated positions for blisters
 **  * Releas blisters function improved
+**  * Improved pause button
 **
 **  V2.1.8 - 14/09/2011
 **  * Changed behavior of the INIT counter procedure to match new counting system (with vibration from the same wheel)
@@ -115,7 +116,6 @@
 **  * Added serial debugging
 **
 *********************************************
-*/
 
 TODO
 
@@ -144,3 +144,5 @@ Handle motors sleep / reset and enable
 	Emergency stop
 
 Send a mail
+
+*/

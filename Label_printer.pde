@@ -259,7 +259,12 @@ void send_error (unsigned int command) {
 	//delay(300);
 }
 
-void send_data () {
+void send_data (char* data_to_send) {
+
+
+}
+
+void send_data (unsigned int data_to_send) {
 
 
 }
@@ -294,7 +299,7 @@ int receive_next_answer (int default_answer) {
 				return 02;
 			break;
 			
-			case default:
+			default:
 				print_fail();
 				Serial.println (" * NOT A VALID RESPONSE: ");
 				// Serial.print (last_command_received);
@@ -364,13 +369,13 @@ C10 - Send IP (printer_IP)
 C11 - Send PS (password)
 C12 - Send PP (printer_port)
 */
-	send_command (07);
+	send_command (7);
 	send_data (server_address);
 	delay (400);	
-	send_command (08);
+	send_command (8);
 	send_data (server_script);
 	delay (400);	
-	send_command (09);
+	send_command (9);
 	send_data (seeds_batch);
 	delay (400);	
 	send_command (10);
