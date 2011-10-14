@@ -57,8 +57,143 @@ E10 - Not expected command  // When we sended a command that receiver wasn't exp
 */
 	
 #define endOfLine '*'
-
 	
+
+//////////////////////////
+// Main Functions
+//////////////////////////
+
+void init_printer () {
+	// Reset arduino (TODO connect reset cable)
+	EthernetModuleReset ();
+	Serial1.begin (9600);
+	Serial.print   ("Init Ethernet module: ");
+	// Repeat until we receive the right start command from the network module
+	boolean cReceived = false;
+	while (!cReceived) {
+		if (receive_next_answer(05) == 05) {
+			print_ok();
+			cReceived = true;
+		}
+	}
+	select_batch_number ();
+	update_network_configuration ();
+}
+
+
+// Types in a batch nomber for update it
+int select_batch_number () {
+	boolean inNumber = true;
+	while (inNumber) {
+		Serial.print (" Type in batch number: ");
+		seeds_batch = get_number(3);
+		Serial.println (seeds_batch);
+		inNumber = false;
+		
+		Serial.print (" Correct? Y/N ");
+		if (YN_question()) {
+			// if YES do nothing and quit
+		}else{
+			// if no...
+			inNumber = true;	// Ask number again
+		}
+	}
+}
+
+
+// TODO
+void update_network_configuration () {
+/* 
+C07 - Send SA (server_address)
+C08 - Send SS (server_script)
+C09 - Send SB (seeds_batch)
+C10 - Send IP (printer_IP)
+C11 - Send PS (password)
+C12 - Send PP (printer_port)
+*/
+	Serial.print   ("Update network module: ");
+	// Here the network module needs to be listening to the command C03 update network configuration
+	send_command (7);
+	send_data (server_address);
+	delay (400);	
+	send_command (8);
+	send_data (server_script);
+	delay (400);	
+	send_command (9);
+	send_data (seeds_batch);
+	delay (400);	
+	send_command (10);
+	send_data (printer_IP);
+	delay (400);	
+	send_command (11);
+	send_data (password);
+	delay (400);	
+	send_command (12);
+	send_data (printer_port);
+
+	if (receive_next_answer(01) == 01) { 	// Command accepted
+		// All correct , continue
+		print_ok();
+	}else{
+		print_fail();
+		Serial.println (" * Command (C03) Failed");
+		Serial.println(" * Press button 1 to try again");
+		press_button_to_continue (1);
+	}
+}
+
+void EthernetModuleReset () {
+	Serial.println (" * Press reset button of the network module to continue");
+}
+
+
+void prepare_printer() {
+	// Print 2 stickers at the begining
+	Serial.println ("Label printer should have 2 labels printed before packaging can start");
+	Serial.println (" * Press 1 when ready to start");
+	Serial.println (" * Press 2 to print one label");
+	boolean ready = false;
+
+	while (!ready) {
+		switch (return_pressed_button ()) {
+			case 1	:
+				// do nothing so we wond detect any error and we will continue
+				ready = true;
+			break;
+			//Print process
+			case 2:
+				print_one_label ();
+			break;
+		}
+	}
+	
+}
+
+
+void print_one_label () {
+	// Print one label 
+	Serial.print ("Generate label (C04): ");						
+	send_command (04);			// Print one label
+	
+	if (receive_next_answer(01) == 01) { 	// Command accepted
+		// Wait for answer (command 06 indicates sucsesful printing
+		if (receive_next_answer(06) == 06) { 
+			print_ok();				// All went OK
+		}else{
+			print_fail();
+			Serial.println (" * Expected response (C06)");
+			Serial.println(" * Press button 1 to continue");
+			press_button_to_continue (1);
+		}
+	}else{
+		print_fail();
+		Serial.println (" * Command (C04) Failed");
+		Serial.println(" * Press button 1 to continue");
+		press_button_to_continue (1);
+	}
+}
+
+
 //////////////////////////
 // Receive Command
 //////////////////////////
@@ -75,8 +210,8 @@ int commandNumberInt = -1;
 int errorNumberInt = 0;
 int last_command_received = 00;
 
-int receiveNextValidCommand () {
 
+int receiveNextValidCommand () {
 	while (true) {
 		while (Serial1.available()) {
 			char c = Serial1.read();
@@ -129,7 +264,6 @@ int receiveNextValidCommand () {
 }
 
 int receiveNextValidError () {
-
 	while (true) {
 		while (Serial1.available()) {
 			char c = Serial1.read();
@@ -259,6 +393,7 @@ void send_error (unsigned int command) {
 	//delay(300);
 }
 
+
 void send_data (char* data_to_send) {
 
 
@@ -308,176 +443,3 @@ int receive_next_answer (int default_answer) {
 		}
 	}
 }
-	
-
-//////////////////////////
-// Other Functions
-//////////////////////////
-
-void init_printer () {
-	
-	// Reset arduino (TODO connect reset cable)
-	EthernetModuleReset ();
-	Serial1.begin (9600);
-	Serial.print   ("Init Ethernet module: ");
-	
-	// Repeat until we receive the right start command from the network module
-	boolean cReceived = false;
-	while (!cReceived) {
-		if (receive_next_answer(05) == 05) {
-			print_ok();
-			cReceived = true;
-		}
-	}
-	
-	
-	select_batch_number ();
-	
-	update_network_configuration ();
-	
-	// Send a configure command
-	/*send_command (03);		// start configuration process
-	// Receive an OK
-	if (receive_next_answer(01) == 01) { 	// Command accepted
-		// All correct , continue
-	}else{
-		print_fail();
-		Serial.println (" * Command (C03) Failed");
-		Serial.println(" * Press button 1 to continue");
-		press_button_to_continue (1);
-	}
-
-	
-	boolean start_config = false;
-	while (!start_config) {
-		send_command (03);		// start configuration process
-		// Receive an OK
-		if (receive_next_answer(01) == 01) { 	// Command accepted
-			// All correct , continue
-			start_config = true;
-		}else{
-			print_fail();
-			Serial.println (" * Command (C03) Failed");
-			Serial.println(" * Press button 1 to try again");
-			press_button_to_continue (1);
-		}
-	} */
-}
-
-
-void EthernetModuleReset () {
-	Serial.println (" * Press reset button of the network module to continue");
-}
-
-
-void prepare_printer() {
-	// Print 2 stickers at the begining
-	Serial.println ("Label printer should have 2 labels printed before packaging can start");
-	Serial.println (" * Press 1 when ready to start");
-	Serial.println (" * Press 2 to print one label");
-	
-	boolean ready = false;
-	
-	while (!ready) {
-		switch (return_pressed_button ()) {
-			case 1	:
-				// do nothing so we wond detect any error and we will continue
-				ready = true;
-			break;
-			//Print process
-			case 2:
-				print_one_label ();
-			break;
-		}
-	}
-	
-}
-
-// Types in a batch nomber for update it
-int select_batch_number () {
-	boolean inNumber = true;
-	while (inNumber) {
-		Serial.print (" Type in batch number: ");
-		seeds_batch = get_number(3);
-		Serial.println (seeds_batch);
-		inNumber = false;
-		
-		Serial.print (" Correct? Y/N ");
-		if (YN_question()) {
-			// do nothing and quit
-		}else{
-			inNumber = true;	// Ask number again
-		}
-	}
-}
-
-
-// TODO
-void update_network_configuration () {
-
-/* 
-C07 - Send SA (server_address)
-C08 - Send SS (server_script)
-C09 - Send SB (seeds_batch)
-C10 - Send IP (printer_IP)
-C11 - Send PS (password)
-C12 - Send PP (printer_port)
-*/
-	Serial.print   ("Update network module: ");
-	
-	// Here the network module needs to be listening to the command C03 update network configuration
-	
-	send_command (7);
-	send_data (server_address);
-	delay (400);	
-	send_command (8);
-	send_data (server_script);
-	delay (400);	
-	send_command (9);
-	send_data (seeds_batch);
-	delay (400);	
-	send_command (10);
-	send_data (printer_IP);
-	delay (400);	
-	send_command (11);
-	send_data (password);
-	delay (400);	
-	send_command (12);
-	send_data (printer_port);
-
-	
-	if (receive_next_answer(01) == 01) { 	// Command accepted
-		// All correct , continue
-		print_ok();
-	}else{
-		print_fail();
-		Serial.println (" * Command (C03) Failed");
-		Serial.println(" * Press button 1 to try again");
-		press_button_to_continue (1);
-	}
-}
-
-
-void print_one_label () {
-
-	Serial.print ("Generate label (C04): ");						
-	send_command (04);			// Print one label
-	
-	if (receive_next_answer(01) == 01) { 	// Command accepted
-		// Wait for answer (command 06 indicates sucsesful printing
-		if (receive_next_answer(06) == 06) { 
-			print_ok();				// All went OK
-		}else{
-			print_fail();
-			Serial.println (" * Expected response (C06)");
-			Serial.println(" * Press button 1 to continue");
-			press_button_to_continue (1);
-		}
-	}else{
-		print_fail();
-		Serial.println (" * Command (C04) Failed");
-		Serial.println(" * Press button 1 to continue");
-		press_button_to_continue (1);
-	}
-}
-

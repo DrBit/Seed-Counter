@@ -333,70 +333,28 @@ void test_functions () {
 boolean inTestMenu = true;
 	while (inTestMenu) {
 		Serial.println("\n	Select Action, to do :");
-		Serial.println("		1 to pick up a seed and release");
-		Serial.println("		2 to release blister");
-		Serial.println("		3 to move XY motors");
-		Serial.println("		4 to move counter motors");
-		Serial.println("		5 to move blisters motors");
-		Serial.println("		6 to init all motors");
-		Serial.println("		7 to adjust positions");
-		Serial.println("		8 to check sensors status");
-		Serial.println("		9 test velocity");
+		Serial.println("		=====================================");
+		Serial.println("		1 to init all motors");
+		Serial.println("		2 to adjust defined positions");
+		Serial.println("		3 to show statistics");
+		Serial.println("		=====================================");
+		Serial.println("		4 to move XY motors manually");
+		Serial.println("		5 to move counter motor manually");
+		Serial.println("		6 to move blisters motors manually");
+		Serial.println("		7 to pick up a seed and release");
+		Serial.println("		8 to release blister");
+		Serial.println("		9 to check sensors status");
+		Serial.println("		=====================================");
 		Serial.println("		0 go to Main Menu");
 		boolean InMenuTemp = true;				// Init temp value for menu
 		switch (return_pressed_button ()) { 
+		
 			case 1:
-				Serial.println("\n	Pickup one seed");
-				if (error_counter) {
-						Serial.println("\n	Error ** Counter not initialized correctly, first INIT");
-				}else pickup_seed ();
-			break;
-			
-			case 2:
-				Serial.println("\n	Release one blister");
-				if (error_blister) {
-						Serial.println("\n	Error ** Blister not initialized correctly, first INIT");
-				}else release_blister ();
-			break;
-			
-			case 3:
-				Serial.println("\n	Move XY motors, buttons to move motors and press keyboard key 4 to quit");
-				if (error_XY) {
-						Serial.println("\n	Error ** XY motors not initialized correctly, first INIT");
-				}else{
-					while (InMenuTemp) {
-						manual_modeXY();
-						if (Serial.read() == '4')  InMenuTemp = false;
-					}
-				}
-			break;
-
-			case 4:
-				Serial.println("\n	Move Counter motors, buttons to move motors and press keyboard key 4 to quit");
-				while (InMenuTemp) {
-					manual_modeCounter();
-					if (Serial.read() == '4')  InMenuTemp = false;
-				}
-			break;
-			
-			case 5:
-				Serial.println("\n	Move Blisters motors, buttons to move motors and press keyboard key 4 to quit");
-				if (error_blister) {
-						Serial.println("\n	Error ** Blisters motors not initialized correctly, first INIT");
-				}else{
-					while (InMenuTemp) {
-						manual_mode_blisters();
-						if (Serial.read() == '4')  InMenuTemp = false;
-					}
-				}
-			break;
-
-			case 6:
 				Serial.println("\n	Init all motors");
 				init_blocks(ALL);
 			break;
 			
-			case 7:
+			case 2:
 				if (error_XY) {
 						Serial.println("\n	Error ** XY motors not initialized correctly, first INIT");
 				}else{
@@ -406,20 +364,18 @@ boolean inTestMenu = true;
 					position_n = get_number(2);		//2 is the number of digits we need the number
 					Serial.print("Selected position: ");
 					Serial.print(position_n);
+					
 					Serial.println(" - Go to this position before adjust? 1-yes:2-no");
 					switch (return_pressed_button ()) { 
 						case 1:
 							// Go to selected position
 							Serial.println ("Going to position: ");
-							
 							Serial.print ("Xc: "); Serial.print (get_cycle_Xpos_from_index(position_n));
 							Serial.print (" Xf: "); Serial.println (get_step_Xpos_from_index(position_n));
 							Serial.print ("Yc: "); Serial.print (get_cycle_Ypos_from_index(position_n));
 							Serial.print (" Yf: "); Serial.println (get_step_Ypos_from_index(position_n));
-
 							Serial.println ("moving...");
 							go_to_memory_position (position_n);
-							
 						break;
 						case 2:
 							// Just skip
@@ -427,7 +383,6 @@ boolean inTestMenu = true;
 					}
 					
 					Serial.println("Press a key when done.");
-				
 					while (inMenuTemp) {
 						manual_modeXY();					// Manual mode, adjust position
 						if (Serial.available()) {			// If a key is pressed
@@ -449,10 +404,59 @@ boolean inTestMenu = true;
 						}
 					}
 				}
-				
+			break;
+			
+			case 3:
+				statistics();
+			break;
+			
+			case 4:
+				Serial.println("\n	Move XY motors, buttons to move motors and press keyboard key 4 to quit");
+				if (error_XY) {
+						Serial.println("\n	Error ** XY motors not initialized correctly, first INIT");
+				}else{
+					while (InMenuTemp) {
+						manual_modeXY();
+						if (Serial.read() == '4')  InMenuTemp = false;
+					}
+				}
+			break;
+
+			case 5:
+				Serial.println("\n	Move Counter motors, buttons to move motors and press keyboard key 4 to quit");
+				while (InMenuTemp) {
+					manual_modeCounter();
+					if (Serial.read() == '4')  InMenuTemp = false;
+				}
+			break;
+			
+			case 6:
+				Serial.println("\n	Move Blisters motors, buttons to move motors and press keyboard key 4 to quit");
+				if (error_blister) {
+						Serial.println("\n	Error ** Blisters motors not initialized correctly, first INIT");
+				}else{
+					while (InMenuTemp) {
+						manual_mode_blisters();
+						if (Serial.read() == '4')  InMenuTemp = false;
+					}
+				}
+			break;
+			
+			case 7:
+				Serial.println("\n	Pickup one seed");
+				if (error_counter) {
+						Serial.println("\n	Error ** Counter not initialized correctly, first INIT");
+				}else pickup_seed ();
 			break;
 			
 			case 8:
+				Serial.println("\n	Release one blister");
+				if (error_blister) {
+						Serial.println("\n	Error ** Blister not initialized correctly, first INIT");
+				}else release_blister ();
+			break;
+			
+			case 9:
 				Serial.println("\n	Sensor Stats. Press keyboard key 4 to quit");
 				while (InMenuTemp) {
 					print_sensor_stats();
@@ -464,11 +468,6 @@ boolean inTestMenu = true;
 						delay (100);
 					}
 				}
-			break;
-			
-			case 9:
-				Serial.println("\n	empty");
-
 			break;
 			
 			case 0:
@@ -524,11 +523,10 @@ int get_number(int buffer) {
 /***** Enters into main menu  *****/
 void enter_main_menu() {
 	boolean inMainMenu = true;
-  
 	while (inMainMenu) {
-		Serial.println("Main Menu:");
+		//Serial.println("Main Menu:");
 		Serial.println("1 to start the seed counter");
-		Serial.println("2 go to TEST menu ");
+		Serial.println("2 go to MAIN menu ");
 		//Serial.println("3 to *****");
     
 		switch (return_pressed_button ()) {
@@ -541,7 +539,7 @@ void enter_main_menu() {
 				test_functions ();
 			break;
 		}
-		delay (150); // wait 200ms so we unpress any pressed buttons
+		//delay (150); // wait 200ms so we unpress any pressed buttons
 	}
 }
   
@@ -674,6 +672,7 @@ void check_pause () {
 		Serial.println ("Press 2 Change seed batch code");
 		Serial.println ("Press 3 to print statistics");
 		Serial.println ("Press 4 to reset statistics");
+		Serial.println ("Press 5 to go to main menu");
 		
 		while(pause) {
 			switch (return_pressed_button ()) {			
@@ -698,6 +697,10 @@ void check_pause () {
 					count_total_turns = 0;
 					MySW.reset();
 					MySW.start();
+				break;
+				
+				case 5:
+					test_functions();
 				break;
 				
 				

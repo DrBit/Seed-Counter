@@ -7,6 +7,7 @@
 **  V2.1.17 - 08/10/2011
 **  * Added  statistics + pause menu
 **  * Batch number selection ready to be implemented in network side
+**  * Code rediability 
 **
 **  V2.1.16 - 05/10/2011
 **  * Added functions to record positions in internal EEPROM
@@ -126,8 +127,8 @@ TODO
 (FIXED) INIT X somtimes fails, recheck that
 
 Config menu with:
-	Network configuration (Dynnamic addresses ports,...)
-	*Network Batch ID selector (TO MODIFY IN NETWORK CODE)
+	(Implemented)Network configuration (Dynnamic addresses ports,...)
+	(implemented)Network Batch ID selector (TO MODIFY IN NETWORK CODE)
 	(DONE!) Positions Configurations (Re-set any position)
 	Change the handling of movements in manual mode. (Diff speeds depending on how long you press the button)
 
