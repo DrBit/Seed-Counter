@@ -5,7 +5,7 @@
 //SS
 #define server_script	"/labelgenerator/generate.php?batch_id="		// Parameters to generat label
 //IP
-#define printer_IP		"10.10.249.105"  	// Printer server IP (subjetc to change)
+char printer_IP[]="10.10.249.125";  	// Printer server IP (subjetc to change)
 //PP
 #define printer_port	"8000"				// Printer server port 		
 
@@ -18,6 +18,8 @@ SS: /index.php
 IP: 10.10.249.105:8000
 */
 
+#define number_of_commands 20
+#define number_of_errors 20
 /*
 //////////////////////////
 // LIST OF COMMANDS
@@ -50,10 +52,13 @@ C14 - End of data stream
 //////////////////////////
 
 E00 - Failed to open connection. Network down or website not available
-E01 - Time out receiving and aswer of the server 
+E01 - Time out receiving and aswer from the server 
 E02 - We didnt get any tag equal of what we where expecting
+E03 - Expected command (C03) to configure printer before anything else
+E04 - Configuration command not supported (when inside configuration)
 E10 - Not expected command  // When we sended a command that receiver wasn't expecting
 							// Normalli means receiver expects a concrete command and opnly will react to that
+	
 */
 	
 #define endOfLine '*'
@@ -77,6 +82,7 @@ void init_printer () {
 		}
 	}
 	select_batch_number ();
+	send_petition_to_configure_network ();
 	update_network_configuration ();
 }
 
@@ -85,12 +91,12 @@ void init_printer () {
 int select_batch_number () {
 	boolean inNumber = true;
 	while (inNumber) {
-		Serial.print (" Type in batch number: ");
+		Serial.print (" Type in batch number (290 test): ");
 		seeds_batch = get_number(3);
 		Serial.println (seeds_batch);
 		inNumber = false;
 		
-		Serial.print (" Correct? Y/N ");
+		Serial.println (" Correct? Y/N ");
 		if (YN_question()) {
 			// if YES do nothing and quit
 		}else{
@@ -100,6 +106,23 @@ int select_batch_number () {
 	}
 }
 
+void send_petition_to_configure_network () {
+	
+	boolean command_sended = false;
+	while (!command_sended) {
+		Serial.print   ("Update network module: ");
+		send_command (3);			// Print one label
+		
+		if (receive_next_answer(01) == 01) { 	// Command accepted
+			command_sended = true;
+		}else{
+			print_fail();
+			Serial.println (" * Command send (C03) Failed");
+			Serial.println(" * Press button 1 to try again");
+			press_button_to_continue (1);
+		}
+	}
+}
 
 // TODO
 void update_network_configuration () {
@@ -111,23 +134,27 @@ C10 - Send IP (printer_IP)
 C11 - Send PS (password)
 C12 - Send PP (printer_port)
 */
-	Serial.print   ("Update network module: ");
+	// Serial.print   ("Update network module: ");
 	// Here the network module needs to be listening to the command C03 update network configuration
+	// send_petition_to_configure_network ();
+	// won't continue if we dont send a 03 command and is accepted.
+	delay(100);
 	send_command (7);
 	send_data (server_address);
-	delay (400);	
+	delay (40);	
 	send_command (8);
 	send_data (server_script);
-	delay (400);	
+	delay (40);	
 	send_command (9);
 	send_data (seeds_batch);
-	delay (400);	
+	delay (40);	
 	send_command (10);
+	serial.println (printer_IP);
 	send_data (printer_IP);
-	delay (400);	
+	delay (40);	
 	send_command (11);
 	send_data (password);
-	delay (400);	
+	delay (40);	
 	send_command (12);
 	send_data (printer_port);
 
@@ -136,7 +163,7 @@ C12 - Send PP (printer_port)
 		print_ok();
 	}else{
 		print_fail();
-		Serial.println (" * Command (C03) Failed");
+		Serial.println (" * Configuration of network module Failed");
 		Serial.println(" * Press button 1 to try again");
 		press_button_to_continue (1);
 	}
@@ -173,7 +200,7 @@ void prepare_printer() {
 void print_one_label () {
 	// Print one label 
 	Serial.print ("Generate label (C04): ");						
-	send_command (04);			// Print one label
+	send_command (4);			// Print one label
 	
 	if (receive_next_answer(01) == 01) { 	// Command accepted
 		// Wait for answer (command 06 indicates sucsesful printing
@@ -371,11 +398,13 @@ void send_command (unsigned int command) {
 	//delay (300);
 	Serial1.print(endOfLine);	// Print begining command
 	Serial1.print("C");
+	
 	// We need to send in form of two digits like (01)
 	if (command < 10) {
 		Serial1.print('0');
 	}
 	Serial1.print(command);
+	//Serial.print("SendC:");Serial.println(command);
 	Serial1.print(endOfLine);	// Print end command
 	//delay(300);
 }
@@ -395,13 +424,13 @@ void send_error (unsigned int command) {
 
 
 void send_data (char* data_to_send) {
-
-
+	Serial1.print (data_to_send);
+	send_command (14);		// END of data
 }
 
 void send_data (unsigned int data_to_send) {
-
-
+	Serial1.print (data_to_send);
+	send_command (14);		// END of data
 }
 
 

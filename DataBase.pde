@@ -24,11 +24,11 @@ struct MyRec {
 void init_DB () {
 	db.create(MY_TBL,sizeof(mposition),number_of_positions);
 	db.open(MY_TBL);
-	Serial.print("Number of records in DB: ");Serial.println(db.nRecs(),DEC);
 }
 
 void Show_all_records()
 {
+	Serial.print("Number of records in DB: ");Serial.println(db.nRecs(),DEC);
 	show_pos_list ();
 	if (db.nRecs()) Serial.println("\nDATA RECORDED IN INTERNAL MEMORY:");
 	for (int i = 1; i <= db.nRecs(); i++)

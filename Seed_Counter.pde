@@ -2,7 +2,7 @@
 #include <avr/pgmspace.h>
 #include <StopWatch.h>
 
-#define version_prog "TEST V2.1.16"
+#define version_prog "TEST V2.1.17"
 #define lib_version 13
 
 
@@ -31,7 +31,6 @@
 #define button1 23
 #define button2 25
 #define button3 27
-#define Vibration 13
 
 #define stepA 8
 #define stepB 10
@@ -119,11 +118,7 @@ void setup() {
 	pinMode (button1, INPUT);
 	pinMode (button2, INPUT);
 	pinMode (button3, INPUT);
-	pinMode (Vibration, OUTPUT);
-	
-	//analogWrite(Vibration, 224);
-	//delay (1000);
-	//analogWrite(Vibration, 0);
+
 	
 	// Check Version
 	if ((Xaxis.get_version()) != lib_version) {
@@ -141,10 +136,10 @@ void setup() {
 	delay (10);  // Delay to be safe
 
 	init_DB ();				// Init database
-	Show_all_records();
+
 	
 	//**** ENTER MAIN MENU
-	enter_main_menu();
+	//enter_main_menu();
 	
 	//**** CONTINUE with normal process
 	Serial.println("\n*****************");

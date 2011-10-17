@@ -383,7 +383,7 @@ boolean inTestMenu = true;
 					}
 					
 					Serial.println("Press a key when done.");
-					while (inMenuTemp) {
+					while (InMenuTemp) {
 						manual_modeXY();					// Manual mode, adjust position
 						if (Serial.available()) {			// If a key is pressed
 							Serial.flush();					// Remove all data from serial
@@ -482,9 +482,9 @@ boolean YN_question () {
 	while (true) {
 		if (Serial.available ()) {
 			char C = Serial.read ();
-			if (C == "y" || C == "Y") {
+			if (C == 'y' || C == 'Y') {
 				return true;
-			}else if (C == "n" || C == "N") {
+			}else if (C == 'n' || C == 'N') {
 				return false;
 			}
 		}
@@ -512,7 +512,7 @@ int get_number(int buffer) {
 		num = atoi(&PositionN[i]);
 	}
 	//Serial.println (num);
-	return (byte) num;
+	return (int) num;
 }
 
 
@@ -682,8 +682,8 @@ void check_pause () {
 				break;
 				
 				case 2:
-					// change_barch_code ();
 					select_batch_number ();
+					send_petition_to_configure_network ();
 					update_network_configuration ();
 				break;
 				
@@ -726,10 +726,12 @@ void pause_if_any_key_pressed () {
 	Serial.flush();
 }
 
+unsigned int hours;
+unsigned int minutes;
+unsigned int seconds;
+
 void statistics () {
-	unsigned int hours;
-	unsigned int minutes;
-	unsigned int seconds;
+
 	
 	Serial.print ("\nCounter picked ");
 	Serial.print (counter_s);
@@ -748,7 +750,7 @@ void statistics () {
 	Serial.print ("\ntranscurred time from start: ");
 	
 	unsigned long total_ms = MySW.value();
-	print_time(total_ms, hours, minutes, seconds);
+	print_time(total_ms);
 
 	Serial.print ("Seed rate: ");
 	
@@ -767,7 +769,7 @@ void statistics () {
 	//}
 }
 
-void print_time (unsigned long total_milliseconds, unsigned int hours, unsigned int minutes, unsigned int seconds) {
+void print_time (unsigned long total_milliseconds) {
 	seconds = total_milliseconds / 1000;
 	minutes = seconds / 60;
 	hours = minutes / 60;
@@ -775,9 +777,9 @@ void print_time (unsigned long total_milliseconds, unsigned int hours, unsigned 
 	minutes = minutes - (hours*60);
 	seconds = seconds - (hours*60*60) - (minutes * 60);
 	
-	Serial.print(hours,2);
+	Serial.print(hours);
 	Serial.print(":");
-	Serial.print(minutes,2);
+	Serial.print(minutes);
 	Serial.print(":");
-	Serial.println(seconds,2);
+	Serial.println(seconds);
 }
