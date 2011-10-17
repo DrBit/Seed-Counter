@@ -2,7 +2,7 @@
 #include <avr/pgmspace.h>
 #include <StopWatch.h>
 
-#define version_prog "TEST V2.1.17"
+#define version_prog "TEST V2.1.18"
 #define lib_version 13
 
 
