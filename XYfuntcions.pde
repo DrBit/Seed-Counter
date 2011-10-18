@@ -8,9 +8,17 @@
 
 boolean XYaxes_init () {
 
+	// few previous calculations for the different speeds profiles
+	int speed1 = motor_speed_XY;						// Main speed is always the slowest and safer
+	int speed2 = speed1 - (motor_speed_XY/4);
+	int speed3 = speed2 - (motor_speed_XY/5);
+	int speed4 = speed3 - (motor_speed_XY/6);
+	unsigned long vIncrement = 2000;			// Amount f time in ms that motors will increase speed
+
 	// IMPLEMENT THE FOLLOWING:
 
 	// There are two scenarios in which we can find our X axis and Y axis motors:
+	
 	// 1: We are hitting the sensor, means we are in a place we shouldn't be, so we go back in mode 1
 	// and when we are out of sensor we go forward again in mode 8 till we touch it again. Then we are at position 0
 	
@@ -20,9 +28,140 @@ boolean XYaxes_init () {
 	// This way the motors will be very accurate.
 
 	// We should move the motors at this point in mode 1 for top speed
-	boolean both_sensors = false; 		// Falg for sensor checking
-	unsigned long temp_counter=0;		// Counter for error checking
-	while (!both_sensors) {					// While we are htting the sensor we gou outside the reach of it
+	
+	/////////////////// LOGICS
+	/*
+	one or both sensors are outside the sensor
+		both or one go inside at max speed
+	delay to stop inertia
+	when both inside
+		they go outside at min speed till we release the sensor
+	done!
+	*/
+	
+	boolean both_sensors = false;				// Falg for sensor checking
+	unsigned long temp_counter=0;				// Counter for error checking
+	
+	Xaxis.set_direction (true);		// Goes back till we find the sensor
+	Yaxis.set_direction (true);		// Goes back till we find the sensor
+	// set speed max
+	Xaxis.change_step_mode(2);		// Set stepper mode to 1 (Max speed)
+	Yaxis.change_step_mode(2); 		// Set stepper mode to 1 (Max speed)
+	
+	unsigned long start_time = millis ();
+	
+	// We should move the motors at this point in mode 1 for top speed
+	while (!both_sensors) {			// While we dont hit the sensor...
+		if (!Xaxis.sensor_check()) {
+			Xaxis.do_step();
+		}else{
+			delayMicroseconds(19);
+		}
+
+		if (!Yaxis.sensor_check()) {
+			Yaxis.do_step();
+		}else{
+			delayMicroseconds(19);
+		}
+
+		if (Xaxis.sensor_check() && Yaxis.sensor_check()) {
+			// When both sensors are activated means we reached both init points
+			both_sensors = true;
+		}
+		
+		// Speed handeling
+		unsigned long now = millis();
+		
+		if ((now - start_time) < vIncrement) {
+			delayMicroseconds(speed1);
+			// Serial.print("s1");
+		}else if ((now - start_time) < (2*vIncrement)) {
+			delayMicroseconds(speed2);
+			// Serial.print("s2");
+		}else if ((now - start_time) < (3*vIncrement)) {
+			delayMicroseconds(speed3);
+			// Serial.print("s3");
+		}else {
+			delayMicroseconds(speed4);
+			// Serial.print("s4");
+		}
+		
+		// Error checking, if we cannot reach a point where we hit the sensor means that there is a problem
+		temp_counter++;
+		if (temp_counter > max_outsensor_stepsError) {			// recheck the limit of revolutions
+			if (!Xaxis.sensor_check()) {
+				// send_error("i3");				//still to implement an error message system
+				// error in axis X off sensor range
+			}
+			if (!Yaxis.sensor_check()) {
+				// send_error("i4");				//still to implement an error message system
+				// error in axis Y off sensor range
+			}
+		// sensor error, might be broquen, out of its place, disconected or failing
+		return false;
+		}
+	}
+	// we can stop at maximum speed as we didnt init motors yet, so we dont care if we lose steps.
+	
+	delay (500);							// Enough for the motor to completely stop the inertia
+	
+	temp_counter = 0;						// Reset the temop counter for error checking next step
+	both_sensors = false;					// Reset sensors variable
+	Xaxis.set_direction (false);			// Goes forth till we are not hitting the sensor
+	Yaxis.set_direction (false);			// Goes forth till we are not hitting the sensor
+	
+	// set speed max
+	Xaxis.change_step_mode(8);				// Set stepper mode to 8 (Max speed)
+	Yaxis.change_step_mode(8); 				// Set stepper mode to 8 (Max speed)
+	
+	while (!both_sensors) {					// While we are hitting the sensor 
+
+		// change mode to hi speed
+		
+		if (Xaxis.sensor_check()) {
+			Xaxis.do_step();
+		}else{
+			delayMicroseconds(19);
+		}
+		if (Yaxis.sensor_check()) {
+			Yaxis.do_step();
+		}else{
+			delayMicroseconds(19);
+		}
+		if (!Xaxis.sensor_check() && !Yaxis.sensor_check()) {
+			// When both sensors are NOT activated means we are inside the safe zone, now we can correctly init the axes
+			both_sensors = true;
+		}
+		delayMicroseconds(motor_speed_XY);		// here we go at minimum speed so we asure we wont lose any step and we will achieve maximum acuracy
+		// Error checking, if we cannot reach a point where we dont hit the sensor meands that there is a problem
+		temp_counter++;
+		if (temp_counter > max_insensor_stepsError) {			// More than 3200 steps will generate an error (3200 steps = to 2 complete turns in step mode 8)
+			if (Xaxis.sensor_check()) {
+				// send_error("i3");					//still to implemetn an error message system
+				// error in axis X off sensor range
+			}
+			if (Yaxis.sensor_check()) {
+				// send_error("i4");					//still to implemetn an error message system
+				// error in axis Y off sensor range
+			}
+			//send_error("i1");							//still to implemetn an error message system
+			// Sensor error,  might be obstructed or disconnected.
+			return false;
+		}
+	}
+	delay (500);										// Enough for the motor to completely stop the inertia
+
+	// we set init ponts for both sensors
+	Xaxis.set_init_position();
+	Yaxis.set_init_position();
+	// All correct , return true
+	return true;
+	
+	
+	/* OLD version
+	boolean both_sensors = false;				// Falg for sensor checking
+	unsigned long temp_counter=0;				// Counter for error checking
+	while (!both_sensors) {						// While we are htting the sensor we go outside the reach of it
 		Xaxis.set_direction (false);			// Goes forth till we are not hitting the sensor
 		Yaxis.set_direction (false);			// Goes forth till we are not hitting the sensor
 		if (Xaxis.sensor_check()) {
@@ -101,6 +240,7 @@ boolean XYaxes_init () {
 	Yaxis.set_init_position();
 	// All correct , return true
 	return true;
+	*/
 }
 
 
@@ -226,23 +366,6 @@ Yc1,Ys1		// 8- Position Hole 4
 
 
 // advice: change names to Coarse & fine
-/*
-int get_cycle_Xpos_from_index(int index) {
-	return pgm_read_word_near(x_axis_set + (2*index) - 2);
-}
-
-int get_step_Xpos_from_index(int index) {
-	return pgm_read_word_near(x_axis_set + (2*index) - 1);
-}
-
-int get_cycle_Ypos_from_index(int index) {
-	return pgm_read_word_near(y_axis_set + (2*index) - 2);
-}
-
-int get_step_Ypos_from_index(int index) {
-	return pgm_read_word_near(y_axis_set + (2*index) - 1);
-}*/
-
 // READ
 
 int get_cycle_Xpos_from_index(int index) {

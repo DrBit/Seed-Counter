@@ -6,6 +6,7 @@
 **
 **  V2.1.19 - 18/10/2011
 **	* Added automatic reset of network module (Uses pin 39 in arduino mega)
+**  * Fixed bug init and changed init procedure 
 **
 **  V2.1.18 - 17/10/2011
 **	* In field testing of all new features

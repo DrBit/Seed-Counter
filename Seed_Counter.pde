@@ -89,7 +89,7 @@ long old_ypos=0;
 int motor_select=0;
 int situation=0;
 const int motor_speed_counter=1200;
-const int motor_speed_XY=450;
+const int motor_speed_XY=500;
 const int motor_speed_blisters=2500;
 
 

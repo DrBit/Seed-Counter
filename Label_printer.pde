@@ -5,7 +5,7 @@
 //SS
 #define server_script	"/labelgenerator/generate.php?batch_id="		// Parameters to generat label
 //IP
-#define printer_IP"10.10.249.125"		  	// Printer server IP (subjetc to change)
+#define printer_IP		"10.10.249.125"		  	// Printer server IP (subjetc to change)
 //PP
 #define printer_port	"8000"				// Printer server port 		
 
@@ -139,7 +139,7 @@ C12 - Send PP (printer_port)
 	// Here the network module needs to be listening to the command C03 update network configuration
 	// send_petition_to_configure_network ();
 	// won't continue if we dont send a 03 command and is accepted.
-	delay(100);
+	delay(40);
 	send_command (7);
 	send_data (server_address);
 	delay (40);	
