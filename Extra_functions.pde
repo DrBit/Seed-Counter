@@ -597,11 +597,11 @@ int init_blocks(int block) {
 			int error = 0;
 			if (!init_blisters_menu ()) error++;
 				// Security Check
-				Serial.println(" * Check the seed counter for any blister that may be left in the X axel");
-				Serial.println(" * When ready press button 1 to continue set-up process");
-				delay (150);
+				// Serial.println(" * Check the seed counter for any blister that may be left in the X axel");
+				// Serial.println(" * When ready press button 1 to continue set-up process");
+				// delay (150);
 				// Press button 1 to continue
-				press_button_to_continue (1);
+				// press_button_to_continue (1);
 			if (!init_XY_menu()) error++;
 			if (!init_counter_menu ()) error++;
 			mem_check ();
@@ -742,12 +742,12 @@ void statistics () {
 	Serial.print (count_total_turns);
 	Serial.println (" turns");
 
-	Serial.print ("Turns rate: ");
-	int turns_per_seed = count_total_turns / counter_s;
+	Serial.print ("Turn rate: ");
+	float turns_per_seed = (float)count_total_turns / (float)counter_s;
 	Serial.print (turns_per_seed);
-	Serial.println (" turns / seed");
+	Serial.println (" turns/seed");
 
-	Serial.print ("\ntranscurred time from start: ");
+	Serial.print ("Transcurred time from start: ");
 	
 	unsigned long total_ms = MySW.value();
 	print_time(total_ms);
@@ -755,18 +755,26 @@ void statistics () {
 	Serial.print ("Seed rate: ");
 	
 	float seeds_per_minute = 0;
-	float temp_minutes = (seconds/60) + minutes ;
-	seeds_per_minute = counter_s / temp_minutes;
+	float temp_minutes = ((float)seconds/60.0) + (float)minutes ;
+	seeds_per_minute = (float)counter_s/temp_minutes;
 	Serial.print(seeds_per_minute);
-	Serial.print (" seeds per minute - ");
+	Serial.print (" seeds/minute - ");
 	
-	//if (hours > 0) {
-	float seeds_per_hour = 0;
-	float temp_hours = (((seconds/60) + minutes)/60) + hours ;
-	seeds_per_hour = counter_s / temp_hours;
-	Serial.print(seeds_per_hour);
-	Serial.println (" seeds per hour");
-	//}
+	if (hours > 0) {
+		float seeds_per_hour = 0;
+		float temp_hours = ((((float)seconds/60.0) + (float)minutes)/60.0) + (float)hours ;
+		seeds_per_hour = (float)counter_s/temp_hours;
+		Serial.print(seeds_per_hour);
+		Serial.println (" seeds/hour");
+	}else{
+		// aproximation
+		Serial.print (" aprox. ");
+		float seeds_per_hour = 0;
+		float temp_hours = (((float)seconds/60.0) + (float)minutes)/60.0;
+		seeds_per_hour = (float)counter_s/temp_hours;
+		Serial.print(seeds_per_hour);
+		Serial.println (" seeds/hour.");
+	}
 }
 
 void print_time (unsigned long total_milliseconds) {
@@ -777,9 +785,12 @@ void print_time (unsigned long total_milliseconds) {
 	minutes = minutes - (hours*60);
 	seconds = seconds - (hours*60*60) - (minutes * 60);
 	
+	if (hours < 10) Serial.print('0');
 	Serial.print(hours);
 	Serial.print(":");
+	if (minutes < 10) Serial.print('0');
 	Serial.print(minutes);
 	Serial.print(":");
+	if (seconds < 10) Serial.print('0');
 	Serial.println(seconds);
 }

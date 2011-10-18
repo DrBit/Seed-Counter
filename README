@@ -4,10 +4,18 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V2.2 - 18/10/2011
+**  * Network comunication WORKING
+**  * Changed some parameters to improve speed
+**  * Fixed minor errors in statistics calculations (added aproximation if hour is < 1)
+**  * Fixed bug in counter statistics & improved speed
+**  * Improved starting time of the check process
+**  * Fixed bug in counter where would use total turns for error checking
+**
 **  V2.1.19 - 18/10/2011
 **	* Added automatic reset of network module (Uses pin 39 in arduino mega)
 **  * Fixed bug init and changed init procedure 
-**  * Added function receive and princ configuration from Ethernet module
+**  * Added function receive and print configuration from Ethernet module
 **
 **  V2.1.18 - 17/10/2011
 **	* In field testing of all new features

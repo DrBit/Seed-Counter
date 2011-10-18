@@ -93,20 +93,22 @@ void init_printer () {
 // Types in a batch nomber for update it
 int select_batch_number () {
 	boolean inNumber = true;
-	while (inNumber) {
+	//while (inNumber) {
 		Serial.print (" Type in batch number (290 test): ");
 		seeds_batch = get_number(3);
 		Serial.println (seeds_batch);
-		inNumber = false;
 		
+		/*		// We remove this since is a waste of time at the begining and can be done via the menu
+		inNumber = false;
 		Serial.println (" Correct? Y/N ");
 		if (YN_question()) {
 			// if YES do nothing and quit
 		}else{
 			// if no...
 			inNumber = true;	// Ask number again
-		}
-	}
+		}*/
+
+	//}
 }
 
 void send_petition_to_configure_network () {

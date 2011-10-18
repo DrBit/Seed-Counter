@@ -10,10 +10,10 @@ boolean XYaxes_init () {
 
 	// few previous calculations for the different speeds profiles
 	int speed1 = motor_speed_XY;						// Main speed is always the slowest and safer
-	int speed2 = speed1 - (motor_speed_XY/4);
+	int speed2 = speed1 - (motor_speed_XY/5);
 	int speed3 = speed2 - (motor_speed_XY/5);
-	int speed4 = speed3 - (motor_speed_XY/6);
-	unsigned long vIncrement = 2000;			// Amount f time in ms that motors will increase speed
+	int speed4 = speed3 - (motor_speed_XY/5);
+	unsigned long vIncrement = 1000;			// Amount f time in ms that motors will increase speed
 
 	// IMPLEMENT THE FOLLOWING:
 
