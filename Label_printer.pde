@@ -5,12 +5,13 @@
 //SS
 #define server_script	"/labelgenerator/generate.php?batch_id="		// Parameters to generat label
 //IP
-char printer_IP[]="10.10.249.125";  	// Printer server IP (subjetc to change)
+#define printer_IP"10.10.249.125"		  	// Printer server IP (subjetc to change)
 //PP
 #define printer_port	"8000"				// Printer server port 		
 
 #define password		"YXJkdWlubzpQQXBhWXViQTMzd3I="
 unsigned int seeds_batch = 290;
+
 
 /*  test
 SA: drbit.nl
@@ -149,7 +150,7 @@ C12 - Send PP (printer_port)
 	send_data (seeds_batch);
 	delay (40);	
 	send_command (10);
-	serial.println (printer_IP);
+	Serial.println (printer_IP);
 	send_data (printer_IP);
 	delay (40);	
 	send_command (11);
@@ -170,7 +171,11 @@ C12 - Send PP (printer_port)
 }
 
 void EthernetModuleReset () {
-	Serial.println (" * Press reset button of the network module to continue");
+	// Serial.println (" * Reseting network module...");
+	// Reset ethernet
+	digitalWrite (ethReset, LOW);
+	delay (1000);
+	digitalWrite (ethReset, HIGH);
 }
 
 

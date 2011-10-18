@@ -2,7 +2,7 @@
 #include <avr/pgmspace.h>
 #include <StopWatch.h>
 
-#define version_prog "TEST V2.1.18"
+#define version_prog "TEST V2.1.19"
 #define lib_version 13
 
 
@@ -53,6 +53,8 @@
 #define ms2C 45
 #define ms1D 51
 #define ms2D 50
+
+#define ethReset 39
 
 // ***********************
 // ** Physical limits of the motors
@@ -118,7 +120,9 @@ void setup() {
 	pinMode (button1, INPUT);
 	pinMode (button2, INPUT);
 	pinMode (button3, INPUT);
-
+	// Controls ethernet reset
+	pinMode (ethReset, OUTPUT);
+	digitalWrite (ethReset, HIGH);
 	
 	// Check Version
 	if ((Xaxis.get_version()) != lib_version) {
