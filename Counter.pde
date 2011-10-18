@@ -5,11 +5,11 @@
 
 // #define steps_from_sensor_to_init 1200  	// Number of steps (based in mode 8) to go backward from the sensor to the init position (not used)
 #define steps_from_sensor_to_init_clockwise 1220  	// Number of steps (based in mode 8) to go forward from the sensor to the init position
-#define margin_steps_to_detect_seed 30		// Its the steps margin in wich the sensor will check if we have a seed
+#define margin_steps_to_detect_seed 38		// Its the steps margin in wich the sensor will check if we have a seed
 
 #define fails_max_normal 400			// Max number of tries to pick a seed before software will create an error
 #define fails_max_end 100				// Max number of fails before 100 seeds to reach the complet batch to create an error (since we are close to the end we dont need to go to 1000)
-#define init_turns_till_error 10   		// Number of times the counter will try to get a seed at INITIATION before giving an error
+#define init_turns_till_error 40   		// Number of times the counter will try to get a seed at INITIATION before giving an error
 
 boolean first_time_drop = true;		// Used only to acomodate positionafter INIT. Once hase been used we won't used anymore.
 
@@ -75,49 +75,63 @@ boolean Seedcounter_init() {
 void pickup_seed() {
 	motor_select = 0;
 	boolean seed_detected = false;
-	unsigned int error_counter = 0;
 #if defined DEBUG
 	Serial.print ("Init position: ");
 	Serial.print (counter.get_steps_cycles());
 	Serial.print (" - ");
 	Serial.println (counter.get_steps());
 #endif
+	unsigned int previous_counted_turns = count_total_turns;				// Avoid giving more than 1 order to turn at the same time
+	// Values of the motor acceleration and speed
+	int accel = 10000;
+	int speed = 4200;
+	
 	while (!seed_detected) {
 		
-		if (error_counter > fails_max_normal) {
+		if (count_total_turns > fails_max_normal) {
 			Serial.println ("Error, no more seeds. Empty? Bottleneck?");
 			pause = true;
 			check_pause ();				// Enters menu if a button is pressed
-		}else if ((error_counter > fails_max_end) && (counter_s > (max_batch_count - 100))) {
+		}else if ((count_total_turns > fails_max_end) && (counter_s > (max_batch_count - 200))) {
 			Serial.println ("We might have reached the end");
 			pause = true;
 			check_pause ();				// Enters menu if a button is pressed
 		}
 		check_pause ();				// Enters menu if a button is pressed
 		
-		if (counter.get_steps() == steps_from_sensor_to_init_clockwise){			// If we are at the starting position means we are ready to continue
-			delay (200);   // Wait for the interruption to reset itself   // CHEK WHY IS THIS HAPPENING --
-			speed_cntr_Move(1600/counter.get_step_accuracy(),5500,9000,5500);	// We do a full turn, NOTICE that the acceleration in this case is lower
+		if ((counter.get_steps() == steps_from_sensor_to_init_clockwise) && (count_total_turns == previous_counted_turns)){			// If we are at the starting position means we are ready to continue
+			wait_time(50);
+			speed_cntr_Move(1600/counter.get_step_accuracy(),accel,speed,accel);	// We do a full turn, NOTICE that the acceleration in this case is lower
 			count_total_turns ++;		// for statistics pourpous
-			error_counter++;			// for error pourpouses
-			// Thats to avoid trowing seeds and to achieve a better grip on the seed
-		}else if (first_time_drop) {				// If its the first time we wont be at the starting position so instead of a full turn we move less toa rrive at the default pos.
+										// Thats to avoid trowing seeds and to achieve a better grip on the seed
+		}else if (first_time_drop && (count_total_turns == previous_counted_turns)) {				// If its the first time we wont be at the starting position so instead of a full turn we move less toa rrive at the default pos.
 			first_time_drop = false;
-			delay (200);   // Wait for the interruption to reset itself   // CHEK WHY IS THIS HAPPENING --
-			speed_cntr_Move(steps_from_sensor_to_init_clockwise/counter.get_step_accuracy(),5500,9000,5500);	// We do a full turn, NOTICE that the acceleration in this case is lower
+			wait_time(50);
+			speed_cntr_Move(steps_from_sensor_to_init_clockwise/counter.get_step_accuracy(),accel,speed,accel);	// We do a full turn, NOTICE that the acceleration in this case is lower
 			count_total_turns ++;		// for statistics pourpous
-			error_counter++;			// for error pourpouses
 		}
+		// Check if we are at sensor position
 		if ((counter.get_steps() >= (1600-margin_steps_to_detect_seed)) || (counter.get_steps() <= margin_steps_to_detect_seed)) {				// We check the sensor only when we are in the range of the sensor
+			// Check if we got seed
 			if (counter.sensor_check()){			// We got a seed!!!
 				seed_detected = true; 
 				counter_s ++;						// For statistics pourpouse
-				while (!(counter.get_steps() == steps_from_sensor_to_init_clockwise))	// If we are not finished moving...
+				while (!(counter.get_steps() == (steps_from_sensor_to_init_clockwise-400)))	// If we are not finished moving...
 				{
 					// Do nothing and wait
 				}
 			}
+			// Each time we are here is because we already started moving
+			previous_counted_turns = count_total_turns;			// Avoid giving more than 1 order to turn at the same time
 		}
+	}
+}
+
+void wait_time (unsigned long milliseconds) {
+	unsigned long now =0;
+	now = millis();
+	while (millis() < (now + milliseconds)) {
+		// Just wait
 	}
 }
 

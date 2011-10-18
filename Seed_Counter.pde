@@ -2,7 +2,7 @@
 #include <avr/pgmspace.h>
 #include <StopWatch.h>
 
-#define version_prog "TEST V2.1.19"
+#define version_prog "V2.2"
 #define lib_version 13
 
 
@@ -88,9 +88,9 @@ long old_xpos=0;
 long old_ypos=0;
 int motor_select=0;
 int situation=0;
-const int motor_speed_counter=1200;
-const int motor_speed_XY=500;
-const int motor_speed_blisters=2500;
+const int motor_speed_counter=1000;
+const int motor_speed_XY=450;
+const int motor_speed_blisters=1000;
 
 
 // ***********************
@@ -153,6 +153,7 @@ void setup() {
 	// Init network module
 
 	init_printer ();		// Init printer
+	prepare_printer();		// Prepares the printer to be ready for blisters
 	// Init rest of modules
 	int temp_err = 0;   // flag for found errors
 
@@ -185,13 +186,17 @@ void setup() {
 	// press_button_to_continue (1);
 	
 	// some motor adjustments ( This configurations have been proved to work well, but there is still room for adjustments )
-	Xaxis.set_speed_in_slow_mode (200);
-	Xaxis.set_accel_profile(700, 14, 10, 50);
-	Yaxis.set_speed_in_slow_mode (220);
-	Yaxis.set_accel_profile(700, 14, 10, 50);
+	// Xaxis.set_speed_in_slow_mode (200);
+	// Xaxis.set_accel_profile(700, 14, 10, 50);		// Proven to be working really good
+	// Yaxis.set_speed_in_slow_mode (220);
+	// Yaxis.set_accel_profile(700, 14, 10, 50);		// Proven to be working really good
 	
+	// set_accel_profile(init_timing, int ramp_inclination, n_slopes_per_mode, n_steps_per_slope)
+	Xaxis.set_speed_in_slow_mode (180);
+	Xaxis.set_accel_profile(650, 14, 10, 40);
+	Yaxis.set_speed_in_slow_mode (200);
+	Yaxis.set_accel_profile(740, 14, 10, 30);
 	
-	prepare_printer();
 	
 	MySW.start();			// Start timer for statistics
 	// END of setup
@@ -271,6 +276,11 @@ void loop() {
 	
 	Serial.print ("Counted seeds: ");
 	Serial.println (counter_s);
+	
+	Serial.print ("Elapsed time: ");
+	unsigned long total_ms = MySW.value();
+	print_time(total_ms);
+	
 	check_pause ();
 	
 
