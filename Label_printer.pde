@@ -48,6 +48,7 @@ C12 - Send PP (printer_port)
 C13 - Begining of data stream
 C14 - End of data stream
 ------------
+C15 - Ask for data of network configuration
 //////////////////////////
 // LIST OF POSSIBLE ERRORS
 //////////////////////////
@@ -82,9 +83,10 @@ void init_printer () {
 			cReceived = true;
 		}
 	}
-	select_batch_number ();
-	send_petition_to_configure_network ();
-	update_network_configuration ();
+	select_batch_number ();						// Ask for a batch number
+	send_petition_to_configure_network ();		// Sends petition to conifgure
+	update_network_configuration ();			// If accepted pettition send configuration
+	// print_network_config ();					// Once sended configuration ask it again and also print other info from module
 }
 
 
@@ -135,10 +137,6 @@ C10 - Send IP (printer_IP)
 C11 - Send PS (password)
 C12 - Send PP (printer_port)
 */
-	// Serial.print   ("Update network module: ");
-	// Here the network module needs to be listening to the command C03 update network configuration
-	// send_petition_to_configure_network ();
-	// won't continue if we dont send a 03 command and is accepted.
 	delay(40);
 	send_command (7);
 	send_data (server_address);
@@ -150,7 +148,6 @@ C12 - Send PP (printer_port)
 	send_data (seeds_batch);
 	delay (40);	
 	send_command (10);
-	Serial.println (printer_IP);
 	send_data (printer_IP);
 	delay (40);	
 	send_command (11);
@@ -169,6 +166,27 @@ C12 - Send PP (printer_port)
 		press_button_to_continue (1);
 	}
 }
+
+void print_network_config () {
+	boolean command_sended = false;
+	while (!command_sended) {
+		Serial.print   ("Retrieve network configuration: ");
+		send_command (15);			// Print one label
+		
+		if (receive_next_answer(01) == 01) { 	// Command accepted
+			command_sended = true;
+			print_ok();
+		}else{
+			print_fail();
+			Serial.println (" * Command send (C03) Failed");
+			Serial.println(" * Press button 1 to try again");
+			press_button_to_continue (1);
+		}
+	}
+	Serial.println("");
+	recevie_data_and_print ();
+}
+
 
 void EthernetModuleReset () {
 	// Serial.println (" * Reseting network module...");
@@ -387,12 +405,124 @@ void reset_command () {				// whenever data validation fails we reset all
 }
 
 
-bool recevie_data () {
+boolean recevie_data (char* parameter_container,int buffer) {
+	
+	// first clean data
+	int len = buffer;
+	for (int c = 0; c < len; c++) {
+		parameter_container[c] = 0;
+	}
 
-// receive
-// print
-// until C4 is received
+	while (true) {
+		while (Serial.available()) {
+			char c = (char) Serial.read();
+			
+			//Serial.print (Serial.read());	// JUST for debug
+			
+			if (c == endOfLine) { 		// begining or end of command
+				//Serial.print ("-End of line detected-");
+				// In this case we check if we had previous data in the buffer and process it if necessary
+				// restart all and ready to receive a commmand
+				if (lookForNumber) {
+					lookForNumber = false;
+					if (processCommand()) {	// we got a valid command!
+						//Serial.print ("-Process command-");						
+						if (incomingCommand) {
+							reset_command ();
+							if (commandNumberInt == 14) {
+								parameter_container[strlen(parameter_container)] = '\0';
+								return true;
+								// End of data stream
+							}else{
+								return false;
+							}
+						}
+					}else{
+						// failed to process comand
+					}
+				}
+				lookForLetter = true;
+				numberIndex = 0;
+			}else{
+			
+				if (lookForLetter && (c == 'C')) {
+					//Serial.print ("-C detected-");
+					// we got an incoming comand, start receive command number
+					lookForNumber = true;
+					incomingCommand = true;
+					lookForLetter = false;
+				}else if (lookForNumber) {
+					//Serial.print ("-Number-");
+					// We look for the command number
+					commandNumber[numberIndex] = c;
+					if (numberIndex == command_digits) { 
+						reset_command ();	// Command invalid too many characters
+					}
+					numberIndex++;
+				}else if (strlen(parameter_container) == buffer ) {
+					// Serial.println (" Reached the data max lengh, we reset the tag" );
+					// Error!! buffer overload
+					return false;
+				}else{
+					// DATA comes here
+					//Serial.print (c);
+					parameter_container[strlen(parameter_container)]=c;
+					// DEBUG IP
+				}
+			}
+			
 
+			//delay (100);		// just give enough time to receive another character if 
+		}
+	}
+}
+
+boolean recevie_data_and_print () {
+	//boolean recevie_data (char* parameter_container,int buffer) 
+	while (true) {
+		while (Serial.available()) {
+			char c = (char) Serial1.read();
+			Serial.print (c);	// JUST for debug
+			
+			if (c == endOfLine) { 		// begining or end of command
+				// In this case we check if we had previous data in the buffer and process it if necessary
+				// restart all and ready to receive a commmand
+				if (lookForNumber) {
+					lookForNumber = false;
+					if (processCommand()) {	// we got a valid command!						
+						if (incomingCommand) {
+							reset_command ();
+							if (commandNumberInt == 14) {
+								return true;
+								// End of data stream
+							}else{
+								return false;
+							}
+						}
+					}else{
+						// failed to process comand
+					}
+				}
+				lookForLetter = true;
+				numberIndex = 0;
+			}else{
+			
+				if (lookForLetter && (c == 'C')) {
+					// we got an incoming comand, start receive command number
+					lookForNumber = true;
+					incomingCommand = true;
+					lookForLetter = false;
+				}else if (lookForNumber) {
+					// We look for the command number
+					commandNumber[numberIndex] = c;
+					if (numberIndex == command_digits) { 
+						reset_command ();	// Command invalid too many characters
+					}
+					numberIndex++;
+				}
+			}
+		}
+	}
 }
 
 //////////////////////////
