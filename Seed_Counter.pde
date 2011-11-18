@@ -2,7 +2,7 @@
 #include <avr/pgmspace.h>
 #include <StopWatch.h>
 
-#define version_prog "V2.2"
+#define version_prog "V3.0"
 #define lib_version 13
 
 
@@ -68,7 +68,7 @@
 // ** CONFIG MOTOR PINS
 // ***********************
 // Setting up motor A, step pin, direction pin, sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for eighth step(mode of the stepper driver)
-Stepper_ac Xaxis(stepA,dirA,sensA,ms1A,ms2A,200,2);
+Stepper_ac Xaxis(stepA,dirA,sensA,ms1A,ms2A,200,8);
 // Setting up motor B, step pin, direction pin, sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for wighth step(mode of the stepper driver)
 Stepper_ac Yaxis(stepB,dirB,sensB,ms1B,ms2B,200,4);
 // Setting up motor C, step pin, direction pin, NO sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for wighth step(mode of the stepper driver)
@@ -89,7 +89,7 @@ long old_ypos=0;
 int motor_select=0;
 int situation=0;
 const int motor_speed_counter=1000;
-const int motor_speed_XY=450;
+const int motor_speed_XY=700;
 const int motor_speed_blisters=1000;
 
 
@@ -111,8 +111,6 @@ unsigned int max_batch_count = 1100;
 
 
 void setup() {
-
-	//*** BASIC SETUP
 	
 	// INIT Serial
 	init_serial();	
@@ -140,23 +138,29 @@ void setup() {
 	delay (10);  // Delay to be safe
 
 	init_DB ();				// Init database
-
+	// manual_data_write();		// UPDATE manually all EEPROOM MEMORY (positions)
 	
-	//**** ENTER MAIN MENU
-	//enter_main_menu();
-	
-	//**** CONTINUE with normal process
 	Serial.println("\n*****************");
 	Serial.println("** SETTING UP  **");
 	Serial.println("*****************");
-	// INIT SISTEM, and CHECK for ERRORS
+	
 	// Init network module
-
 	init_printer ();		// Init printer
-	prepare_printer();		// Prepares the printer to be ready for blisters
-	// Init rest of modules
+	prepare_printer();		// Prepares the printer to be ready for blisters 
+	
+	
+	#define default_directionX true
+	#define default_directionY false
+	#define default_directionB true
+	#define default_directionC false
+	// Set default direction
+	Xaxis.set_default_direcction (default_directionX);
+	Yaxis.set_default_direcction (default_directionY);
+	blisters.set_default_direcction (default_directionB);
+	counter.set_default_direcction (default_directionC);
+	
+	// INIT SYSTEM, and CHECK for ERRORS
 	int temp_err = 0;   // flag for found errors
-
 	if (!init_blocks(ALL)) temp_err = 1;
 	
 	while (temp_err > 0) { // We found an error, we chek ALL errors and try to initiate correctly
@@ -181,22 +185,19 @@ void setup() {
 			break;
 		}
 	}
-	// Serial.println("\nReady! Press button 1 to start");
-	// Press button 1 to start
-	// press_button_to_continue (1);
 	
 	// some motor adjustments ( This configurations have been proved to work well, but there is still room for adjustments )
-	// Xaxis.set_speed_in_slow_mode (200);
-	// Xaxis.set_accel_profile(700, 14, 10, 50);		// Proven to be working really good
-	// Yaxis.set_speed_in_slow_mode (220);
-	// Yaxis.set_accel_profile(700, 14, 10, 50);		// Proven to be working really good
+	Xaxis.set_speed_in_slow_mode (350);
+	Xaxis.set_accel_profile(900, 16, 9, 20);		// Proven to be working really good
+	Yaxis.set_speed_in_slow_mode (550);
+	Yaxis.set_accel_profile(1200, 17, 8, 30);		// Proven to be working really good
 	
 	// set_accel_profile(init_timing, int ramp_inclination, n_slopes_per_mode, n_steps_per_slope)
-	Xaxis.set_speed_in_slow_mode (180);
-	Xaxis.set_accel_profile(650, 14, 10, 40);
-	Yaxis.set_speed_in_slow_mode (200);
-	Yaxis.set_accel_profile(740, 14, 10, 30);
-	
+	// MAX speed!
+	//Xaxis.set_speed_in_slow_mode (180);
+	//Xaxis.set_accel_profile(650, 14, 10, 40);
+	//Yaxis.set_speed_in_slow_mode (200);
+	//Yaxis.set_accel_profile(740, 14, 10, 30);
 	
 	MySW.start();			// Start timer for statistics
 	// END of setup
@@ -217,7 +218,7 @@ void loop() {
 	Serial.println("\n ************ ");
 	
 	Serial.println("go to Blister Position");
-	go_to_memory_position (1);			// blister
+	go_to_memory_position (2);			// blister
 	
 	Serial.println("Get blister");
 	release_blister ();

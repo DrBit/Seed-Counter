@@ -30,13 +30,13 @@ void manual_modeXY() {
   if (digitalRead(button2) == HIGH) {
     if (Xaxis_enabled) {
       if ((Xaxis.get_steps_cycles() >= 0) && (Xaxis.get_steps() > 0)) {// If the position is bigger than 0 then we can move backwards
-        Xaxis.set_direction (true);   // Goes backward towards the sensor
+        Xaxis.set_direction (!default_directionX);   // Goes backward towards the sensor
         Xaxis.do_step();
       }
       holdX1 = true;
     }else{
       if ((Yaxis.get_steps_cycles() >= 0) && (Yaxis.get_steps() > 0)) {// If the position is bigger than 0 then we can move backwards
-        Yaxis.set_direction (true);   // Goes backward towards the sensor
+        Yaxis.set_direction (!default_directionY);   // Goes backward towards the sensor
         Yaxis.do_step();
       }
       holdY1 = true;
@@ -55,13 +55,13 @@ void manual_modeXY() {
   if (digitalRead(button3) == HIGH) {
     if (Xaxis_enabled) {
       if (Xaxis.get_steps_cycles() < Xaxis_cycles_limit)  { // If the position is lesser than defined in Yaxis_cycles_limit then we can move forwards
-        Xaxis.set_direction (false);   // Goes forward
+        Xaxis.set_direction (default_directionX);   // Goes forward
         Xaxis.do_step();
       }
       holdX2 = true;
     }else{
       if (Yaxis.get_steps_cycles() < Yaxis_cycles_limit)  { // If the position is lesser than defined in Yaxis_cycles_limit then we can move forwards
-        Yaxis.set_direction (false);   // Goes forward 
+        Yaxis.set_direction (default_directionY);   // Goes forward 
         Yaxis.do_step();
       }
       holdY2 = true;
@@ -365,29 +365,28 @@ boolean inTestMenu = true;
 					Serial.print("Selected position: ");
 					Serial.print(position_n);
 					
-					Serial.println(" - Go to this position before adjust? 1-yes:2-no");
-					switch (return_pressed_button ()) { 
-						case 1:
-							// Go to selected position
-							Serial.println ("Going to position: ");
-							Serial.print ("Xc: "); Serial.print (get_cycle_Xpos_from_index(position_n));
-							Serial.print (" Xf: "); Serial.println (get_step_Xpos_from_index(position_n));
-							Serial.print ("Yc: "); Serial.print (get_cycle_Ypos_from_index(position_n));
-							Serial.print (" Yf: "); Serial.println (get_step_Ypos_from_index(position_n));
-							Serial.println ("moving...");
-							go_to_memory_position (position_n);
-						break;
-						case 2:
-							// Just skip
-						break;
+					Serial.println(" - Go to position before adjust? Y/N");
+					
+					if (YN_question()) {
+						// Go to selected position
+						Serial.println ("Going to position: ");
+						Serial.print ("Xc: "); Serial.print (get_cycle_Xpos_from_index(position_n));
+						Serial.print (" Xf: "); Serial.println (get_step_Xpos_from_index(position_n));
+						Serial.print ("Yc: "); Serial.print (get_cycle_Ypos_from_index(position_n));
+						Serial.print (" Yf: "); Serial.println (get_step_Ypos_from_index(position_n));
+						Serial.print ("moving...   ");
+						go_to_memory_position (position_n);
+						Serial.println ("Done!");
 					}
 					
-					Serial.println("Press a key when done.");
+					Serial.println("Adjust position and press a key when ready.");
 					while (InMenuTemp) {
 						manual_modeXY();					// Manual mode, adjust position
 						if (Serial.available()) {			// If a key is pressed
 							Serial.flush();					// Remove all data from serial
-							Serial.println("Save changes? Y/N");
+							Serial.print("Save changes into postion: ");
+							Serial.print(position_n);
+							Serial.println(" ? Y/N");
 							if (YN_question()) {
 								// record the position in memory
 								// WRITE

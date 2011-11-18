@@ -42,11 +42,11 @@ boolean XYaxes_init () {
 	boolean both_sensors = false;				// Falg for sensor checking
 	unsigned long temp_counter=0;				// Counter for error checking
 	
-	Xaxis.set_direction (true);		// Goes back till we find the sensor
+	Xaxis.set_direction (true);		// Goes back till we find the sensor 
 	Yaxis.set_direction (true);		// Goes back till we find the sensor
 	// set speed max
-	Xaxis.change_step_mode(2);		// Set stepper mode to 1 (Max speed)
-	Yaxis.change_step_mode(2); 		// Set stepper mode to 1 (Max speed)
+	Xaxis.change_step_mode(4);		// Set stepper mode to 1 (Max speed)
+	Yaxis.change_step_mode(4); 		// Set stepper mode to 1 (Max speed)
 	
 	unsigned long start_time = millis ();
 	
@@ -156,91 +156,6 @@ boolean XYaxes_init () {
 	Yaxis.set_init_position();
 	// All correct , return true
 	return true;
-	
-	
-	/* OLD version
-	boolean both_sensors = false;				// Falg for sensor checking
-	unsigned long temp_counter=0;				// Counter for error checking
-	while (!both_sensors) {						// While we are htting the sensor we go outside the reach of it
-		Xaxis.set_direction (false);			// Goes forth till we are not hitting the sensor
-		Yaxis.set_direction (false);			// Goes forth till we are not hitting the sensor
-		if (Xaxis.sensor_check()) {
-			Xaxis.do_step();
-		}else{
-			delayMicroseconds(18);
-		}
-		if (Yaxis.sensor_check()) {
-			Yaxis.do_step();
-		}else{
-			delayMicroseconds(18);
-		}
-		if (!Xaxis.sensor_check() && !Yaxis.sensor_check()) {
-			// When both sensors are NOT activated means we are inside the safe zone, now we can correctly init the axes
-			both_sensors = true;
-		}
-		delayMicroseconds(motor_speed_XY);
-		// Error checking, if we cannot reach a point where we dont hit the sensor meands that there is a problem
-		temp_counter++;
-		if (temp_counter > max_insensor_stepsError) {			// More than 3200 steps will generate an error (3200 steps = to 2 complete turns in step mode 8)
-			if (Xaxis.sensor_check()) {
-				// send_error("i3");				//still to implemetn an error message system
-				// error in axis X off sensor range
-			}
-			if (Yaxis.sensor_check()) {
-				// send_error("i4");				//still to implemetn an error message system
-				// error in axis Y off sensor range
-			}
-			//send_error("i1");					//still to implemetn an error message system
-			// Sensor error,  might be obstructed or disconnected.
-			return false;
-		}
-	}
-	temp_counter = 0;					// Reset the temop counter for error checking next step
-	both_sensors = false;				// Reset sensors variable
-	Xaxis.set_direction (true);		// Goes back till we find the sensor
-	Yaxis.set_direction (true);		// Goes back till we find the sensor
-
-	// We should move the motors at this point in mode 1 for top speed
-	while (!both_sensors) {			// While we dont hit the sensor...
-		if (!Xaxis.sensor_check()) {
-			Xaxis.do_step();
-		}else{
-			delayMicroseconds(18);
-		}
-
-		if (!Yaxis.sensor_check()) {
-			Yaxis.do_step();
-		}else{
-			delayMicroseconds(18);
-		}
-
-		if (Xaxis.sensor_check() && Yaxis.sensor_check()) {
-			// When both sensors are activated means we reached both init points
-			both_sensors = true;
-		}
-		delayMicroseconds(motor_speed_XY);
-		// Error checking, if we cannot reach a point where we hit the sensor means that ther is a problem
-		temp_counter++;
-		if (temp_counter > max_outsensor_stepsError) {			// recheck the limit of revolutions
-			if (!Xaxis.sensor_check()) {
-				// send_error("i3");				//still to implemetn an error message system
-				// error in axis X off sensor range
-			}
-			if (!Yaxis.sensor_check()) {
-				// send_error("i4");				//still to implemetn an error message system
-				// error in axis Y off sensor range
-			}
-		// sensor error, might be broquen, out of its place, disconected or failing
-		return false;
-		}
-	}
-
-	// we set init ponts for both sensors
-	Xaxis.set_init_position();
-	Yaxis.set_init_position();
-	// All correct , return true
-	return true;
-	*/
 }
 
 
@@ -285,7 +200,7 @@ boolean XYaxes_init () {
 ** 19. X - Hole 5								Y - Row 1
 **
 ********************************************************/
-/*
+/*  values 2nd prototype
 // Y
 #define Yc1 0
 #define Ys1 0
@@ -387,8 +302,6 @@ int get_step_Ypos_from_index(int index) {
 	db.read(index, DB_REC mposition);
 	return mposition.Yf;
 }
-
-
 
 void go_to_memory_position (int position_index_to_go) {
 

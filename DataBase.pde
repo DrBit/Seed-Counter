@@ -72,3 +72,129 @@ void show_pos_list ()  {
 	Serial.println("*     19.    * Hole 5");
 	Serial.println("********************************************");
 }
+
+
+void manual_data_write () {
+	// MANUAL WRITE OF EEPROM WITH ALL POSITIONS
+
+	int position_n = 5;			// Hole number
+	mposition.Xc = 7;		// Xcycles
+	mposition.Xf = 14;  	// Csteps
+	mposition.Yc = 1;		// Ycycles
+	mposition.Yf = 1306;	// Ysteps
+	
+	db.write(position_n, DB_REC mposition);
+	Serial.print("Position ");
+	Serial.print (position_n);
+	Serial.println ("recorded!");
+	//=========================================================
+	
+	position_n = 6;			// Hole number
+	mposition.Xc = 7;		// Xcycles
+	mposition.Xf = 14;  	// Csteps
+	mposition.Yc = 9;		// Ycycles
+	mposition.Yf = 1257;	// Ysteps
+	
+	db.write(position_n, DB_REC mposition);
+	Serial.print("Position ");
+	Serial.print (position_n);
+	Serial.println ("recorded!");
+	//=========================================================
+
+	position_n = 7;			// Hole number
+	mposition.Xc = 7;		// Xcycles
+	mposition.Xf = 299;  	// Csteps
+	mposition.Yc = 9;		// Ycycles
+	mposition.Yf = 1257;	// Ysteps
+	
+	db.write(position_n, DB_REC mposition);
+	Serial.print("Position ");
+	Serial.print (position_n);
+	Serial.println ("recorded!");
+	//=========================================================
+	
+	position_n = 8;			// Hole number
+	mposition.Xc = 7;		// Xcycles
+	mposition.Xf = 299;  	// Csteps
+	mposition.Yc = 1;		// Ycycles
+	mposition.Yf = 1306;	// Ysteps
+	
+	db.write(position_n, DB_REC mposition);
+	Serial.print("Position ");
+	Serial.print (position_n);
+	Serial.println ("recorded!");
+	//=========================================================
+	
+	position_n = 9;			// Hole number
+	mposition.Xc = 7;		// Xcycles
+	mposition.Xf = 542;  	// Csteps
+	mposition.Yc = 1;		// Ycycles
+	mposition.Yf = 1306;	// Ysteps
+	
+	db.write(position_n, DB_REC mposition);
+	Serial.print("Position ");
+	Serial.print (position_n);
+	Serial.println ("recorded!");
+	//=========================================================
+	
+	position_n = 10;			// Hole number
+	mposition.Xc = 7;		// Xcycles
+	mposition.Xf = 542;  	// Csteps
+	mposition.Yc = 9;		// Ycycles
+	mposition.Yf = 1257;	// Ysteps
+	
+	db.write(position_n, DB_REC mposition);
+	Serial.print("Position ");
+	Serial.print (position_n);
+	Serial.println ("recorded!");
+	//=========================================================
+	
+	position_n = 11;		// Hole number
+	mposition.Xc = 7;		// Xcycles
+	mposition.Xf = 921;  	// Csteps
+	mposition.Yc = 9;		// Ycycles
+	mposition.Yf = 1257;	// Ysteps
+	
+	db.write(position_n, DB_REC mposition);
+	Serial.print("Position ");
+	Serial.print (position_n);
+	Serial.println ("recorded!");
+	//=========================================================
+	
+	position_n = 12;		// Hole number
+	mposition.Xc = 7;		// Xcycles
+	mposition.Xf = 921;  	// Csteps
+	mposition.Yc = 1;		// Ycycles
+	mposition.Yf = 1306;	// Ysteps
+	
+	db.write(position_n, DB_REC mposition);
+	Serial.print("Position ");
+	Serial.print (position_n);
+	Serial.println ("recorded!");
+	//=========================================================
+	
+	position_n = 13;		// Hole number
+	mposition.Xc = 7;		// Xcycles
+	mposition.Xf = 1243;  	// Csteps
+	mposition.Yc = 1;		// Ycycles
+	mposition.Yf = 1306;	// Ysteps
+	
+	db.write(position_n, DB_REC mposition);
+	Serial.print("Position ");
+	Serial.print (position_n);
+	Serial.println ("recorded!");
+	//=========================================================
+	
+	position_n = 14;		// Hole number
+	mposition.Xc = 7;		// Xcycles
+	mposition.Xf = 1243;  	// Csteps
+	mposition.Yc = 9;		// Ycycles
+	mposition.Yf = 1257;	// Ysteps
+	
+	db.write(position_n, DB_REC mposition);
+	Serial.print("Position ");
+	Serial.print (position_n);
+	Serial.println ("recorded!");
+	//=========================================================
+	
+}

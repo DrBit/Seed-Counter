@@ -27,7 +27,7 @@ boolean Seedcounter_init() {
 	} */
 
 	count =0;
-	counter.set_direction (false);   // Set direction
+	counter.set_direction (!default_directionC);   // Set direction
 	while (!seed_sensor) {
 		// If the vacuum is not on, this would be cheking for the 0 position foreve
 		// so we count ten times and if there is no sense of a seed we pause

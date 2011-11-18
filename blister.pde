@@ -31,11 +31,16 @@ void release_blister () {
 		blisters.do_step();
 		delayMicroseconds (motor_speed_blisters);
 	} 
+
+	// SHAKE to fit the blister (2 is blister position)
+	int tempYcycles = get_cycle_Ypos_from_index(2);
+	int tempYsteps = get_step_Ypos_from_index(2); 
 	
-	// shake    // under testing
-	Yaxis.got_to_position (1,50) ;
-	delay (300);
-	Yaxis.got_to_position (0,0) ;
+	Yaxis.got_to_position (tempYcycles, tempYsteps+500);
+	delay (100);
+	Yaxis.got_to_position (tempYcycles, tempYsteps-500);
+	delay (100);
+	Yaxis.got_to_position (tempYcycles, tempYsteps);
 
 	
 	blisters.set_direction (true);

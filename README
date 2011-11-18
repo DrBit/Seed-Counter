@@ -4,6 +4,14 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V3.0 - 18/11/2011
+**
+**  * NEW PROTOTYPE V3
+**  * Added fucntion to change the default direction of the motors without changin anything on the code
+**  * All positions updated
+**  * Created fucntion to update EEPROM positions at once (Manual)
+**  * Improved functionupdate position of the menu
+**
 **  V2.2 - 18/10/2011
 **  * Network comunication WORKING
 **  * Changed some parameters to improve speed
@@ -142,23 +150,23 @@
 
 TODO
 
-(FIXED) INIT X somtimes fails, recheck that
+INIT X somtimes fails, recheck that
+
+Fix menus overlaping each other...
 
 Config menu with:
-	(Implemented)Network configuration (Dynnamic addresses ports,...)
-	(implemented)Network Batch ID selector (TO MODIFY IN NETWORK CODE)
-	(DONE!) Positions Configurations (Re-set any position)
-	Change the handling of movements in manual mode. (Diff speeds depending on how long you press the button)
+	Network configuration (Dynnamic addresses ports,...)
+
+Change the handling of movements in manual mode. (Diff speeds depending on how long you press the button)
 
 New sensors 
 	Sense when the blisters are empty
 	Sense if a blister correctly placed in the X axis conveier
-	
-Automatic reset of network module
+
 
 Speed up the counter wheel
 
-(DONE) Statistics
+Fix Statistics (fails at more than one hour)
 
 Relay board for on off
 
