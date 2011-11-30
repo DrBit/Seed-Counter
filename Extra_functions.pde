@@ -375,7 +375,9 @@ boolean inTestMenu = true;
 						Serial.print ("Yc: "); Serial.print (get_cycle_Ypos_from_index(position_n));
 						Serial.print (" Yf: "); Serial.println (get_step_Ypos_from_index(position_n));
 						Serial.print ("moving...   ");
-						go_to_memory_position (position_n);
+						manual_enabled = true;				// overwrite flag pause so we dont enter pause menu again
+						go_to_memory_position (position_n);		
+						manual_enabled = false;				// restore flag pause so we dont enter pause menu again
 						Serial.println ("Done!");
 					}
 					
@@ -662,7 +664,7 @@ int init_blisters_menu () {
 
 
 void check_pause () {
-	if (Serial.available() || pause) {
+	if ((Serial.available() || pause) && !manual_enabled) {
 		pause = true;
 		MySW.stop();
 		Serial.flush();

@@ -3,6 +3,7 @@
 // ***********************
 #define blisters_steps_limit 300
 #define blisters_steps_absoulut_limit 1000
+#define steps_to_move_when_blister_falls 800
 
 
 // ************************************************************
@@ -36,9 +37,9 @@ void release_blister () {
 	int tempYcycles = get_cycle_Ypos_from_index(2);
 	int tempYsteps = get_step_Ypos_from_index(2); 
 	
-	Yaxis.got_to_position (tempYcycles, tempYsteps+500);
+	Yaxis.got_to_position (tempYcycles, tempYsteps+steps_to_move_when_blister_falls);
 	delay (100);
-	Yaxis.got_to_position (tempYcycles, tempYsteps-500);
+	Yaxis.got_to_position (tempYcycles, tempYsteps-steps_to_move_when_blister_falls);
 	delay (100);
 	Yaxis.got_to_position (tempYcycles, tempYsteps);
 

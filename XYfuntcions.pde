@@ -13,7 +13,7 @@ boolean XYaxes_init () {
 	int speed2 = speed1 - (motor_speed_XY/5);
 	int speed3 = speed2 - (motor_speed_XY/5);
 	int speed4 = speed3 - (motor_speed_XY/5);
-	unsigned long vIncrement = 1000;			// Amount f time in ms that motors will increase speed
+	unsigned long vIncrement = 900;			// Amount f time in ms that motors will increase speed
 
 	// IMPLEMENT THE FOLLOWING:
 
@@ -42,8 +42,8 @@ boolean XYaxes_init () {
 	boolean both_sensors = false;				// Falg for sensor checking
 	unsigned long temp_counter=0;				// Counter for error checking
 	
-	Xaxis.set_direction (true);		// Goes back till we find the sensor 
-	Yaxis.set_direction (true);		// Goes back till we find the sensor
+	Xaxis.set_direction (!default_directionX);		// Goes back till we find the sensor 
+	Yaxis.set_direction (!default_directionY);		// Goes back till we find the sensor
 	// set speed max
 	Xaxis.change_step_mode(4);		// Set stepper mode to 1 (Max speed)
 	Yaxis.change_step_mode(4); 		// Set stepper mode to 1 (Max speed)
@@ -107,8 +107,8 @@ boolean XYaxes_init () {
 	
 	temp_counter = 0;						// Reset the temop counter for error checking next step
 	both_sensors = false;					// Reset sensors variable
-	Xaxis.set_direction (false);			// Goes forth till we are not hitting the sensor
-	Yaxis.set_direction (false);			// Goes forth till we are not hitting the sensor
+	Xaxis.set_direction (!default_directionX);			// Goes forth till we are not hitting the sensor
+	Yaxis.set_direction (default_directionY);			// Goes forth till we are not hitting the sensor
 	
 	// set speed max
 	Xaxis.change_step_mode(8);				// Set stepper mode to 8 (Max speed)

@@ -76,12 +76,19 @@ void show_pos_list ()  {
 
 void manual_data_write () {
 	// MANUAL WRITE OF EEPROM WITH ALL POSITIONS
-
+	
+	int _1RowYc = 2;
+	int _1RowYf = 25;
+	
+	int _2RowYc = 10;
+	int _2RowYf = 630;
+	
+	
 	int position_n = 5;			// Hole number
-	mposition.Xc = 7;		// Xcycles
-	mposition.Xf = 14;  	// Csteps
-	mposition.Yc = 1;		// Ycycles
-	mposition.Yf = 1306;	// Ysteps
+	mposition.Xc = 6;		// Xcycles
+	mposition.Xf = 1558;  	// Csteps
+	mposition.Yc = _1RowYc;		// Ycycles
+	mposition.Yf = _1RowYf;	// Ysteps
 	
 	db.write(position_n, DB_REC mposition);
 	Serial.print("Position ");
@@ -90,10 +97,10 @@ void manual_data_write () {
 	//=========================================================
 	
 	position_n = 6;			// Hole number
-	mposition.Xc = 7;		// Xcycles
-	mposition.Xf = 14;  	// Csteps
-	mposition.Yc = 9;		// Ycycles
-	mposition.Yf = 1257;	// Ysteps
+	mposition.Xc = 6;		// Xcycles
+	mposition.Xf = 1558;  	// Csteps
+	mposition.Yc = _2RowYc;		// Ycycles
+	mposition.Yf = _2RowYf;	// Ysteps
 	
 	db.write(position_n, DB_REC mposition);
 	Serial.print("Position ");
@@ -103,9 +110,9 @@ void manual_data_write () {
 
 	position_n = 7;			// Hole number
 	mposition.Xc = 7;		// Xcycles
-	mposition.Xf = 299;  	// Csteps
-	mposition.Yc = 9;		// Ycycles
-	mposition.Yf = 1257;	// Ysteps
+	mposition.Xf = 250;  	// Csteps
+	mposition.Yc = _2RowYc;		// Ycycles
+	mposition.Yf = _2RowYf;	// Ysteps
 	
 	db.write(position_n, DB_REC mposition);
 	Serial.print("Position ");
@@ -115,9 +122,9 @@ void manual_data_write () {
 	
 	position_n = 8;			// Hole number
 	mposition.Xc = 7;		// Xcycles
-	mposition.Xf = 299;  	// Csteps
-	mposition.Yc = 1;		// Ycycles
-	mposition.Yf = 1306;	// Ysteps
+	mposition.Xf = 250;  	// Csteps
+	mposition.Yc = _1RowYc;		// Ycycles
+	mposition.Yf = _1RowYf;	// Ysteps
 	
 	db.write(position_n, DB_REC mposition);
 	Serial.print("Position ");
@@ -127,9 +134,9 @@ void manual_data_write () {
 	
 	position_n = 9;			// Hole number
 	mposition.Xc = 7;		// Xcycles
-	mposition.Xf = 542;  	// Csteps
-	mposition.Yc = 1;		// Ycycles
-	mposition.Yf = 1306;	// Ysteps
+	mposition.Xf = 590;  	// Csteps
+	mposition.Yc = _1RowYc;		// Ycycles
+	mposition.Yf = _1RowYf;	// Ysteps
 	
 	db.write(position_n, DB_REC mposition);
 	Serial.print("Position ");
@@ -139,9 +146,9 @@ void manual_data_write () {
 	
 	position_n = 10;			// Hole number
 	mposition.Xc = 7;		// Xcycles
-	mposition.Xf = 542;  	// Csteps
-	mposition.Yc = 9;		// Ycycles
-	mposition.Yf = 1257;	// Ysteps
+	mposition.Xf = 590;  	// Csteps
+	mposition.Yc = _2RowYc;		// Ycycles
+	mposition.Yf = _2RowYf;	// Ysteps
 	
 	db.write(position_n, DB_REC mposition);
 	Serial.print("Position ");
@@ -151,9 +158,9 @@ void manual_data_write () {
 	
 	position_n = 11;		// Hole number
 	mposition.Xc = 7;		// Xcycles
-	mposition.Xf = 921;  	// Csteps
-	mposition.Yc = 9;		// Ycycles
-	mposition.Yf = 1257;	// Ysteps
+	mposition.Xf = 920;  	// Csteps
+	mposition.Yc = _2RowYc;		// Ycycles
+	mposition.Yf = _2RowYf;	// Ysteps
 	
 	db.write(position_n, DB_REC mposition);
 	Serial.print("Position ");
@@ -163,9 +170,9 @@ void manual_data_write () {
 	
 	position_n = 12;		// Hole number
 	mposition.Xc = 7;		// Xcycles
-	mposition.Xf = 921;  	// Csteps
-	mposition.Yc = 1;		// Ycycles
-	mposition.Yf = 1306;	// Ysteps
+	mposition.Xf = 920;  	// Csteps
+	mposition.Yc = _1RowYc;		// Ycycles
+	mposition.Yf = _1RowYf;	// Ysteps
 	
 	db.write(position_n, DB_REC mposition);
 	Serial.print("Position ");
@@ -175,9 +182,9 @@ void manual_data_write () {
 	
 	position_n = 13;		// Hole number
 	mposition.Xc = 7;		// Xcycles
-	mposition.Xf = 1243;  	// Csteps
-	mposition.Yc = 1;		// Ycycles
-	mposition.Yf = 1306;	// Ysteps
+	mposition.Xf = 1235;  	// Csteps
+	mposition.Yc = _1RowYc;		// Ycycles
+	mposition.Yf = _1RowYf;	// Ysteps
 	
 	db.write(position_n, DB_REC mposition);
 	Serial.print("Position ");
@@ -187,9 +194,9 @@ void manual_data_write () {
 	
 	position_n = 14;		// Hole number
 	mposition.Xc = 7;		// Xcycles
-	mposition.Xf = 1243;  	// Csteps
-	mposition.Yc = 9;		// Ycycles
-	mposition.Yf = 1257;	// Ysteps
+	mposition.Xf = 1235;  	// Csteps
+	mposition.Yc = _2RowYc;		// Ycycles
+	mposition.Yf = _2RowYf;	// Ysteps
 	
 	db.write(position_n, DB_REC mposition);
 	Serial.print("Position ");

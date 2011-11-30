@@ -4,8 +4,11 @@
 *********************************************
 **  REVISIONS from:
 **
-**  V3.0 - 18/11/2011
+**  V3.1 - 30/11/2011
+**  * Adjustments to all parameters
+**	* Fix bug in menus
 **
+**  V3.0 - 18/11/2011
 **  * NEW PROTOTYPE V3
 **  * Added fucntion to change the default direction of the motors without changin anything on the code
 **  * All positions updated

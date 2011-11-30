@@ -4,8 +4,9 @@
 // Inits the seedcounter using the sensor as a starting point
 
 // #define steps_from_sensor_to_init 1200  	// Number of steps (based in mode 8) to go backward from the sensor to the init position (not used)
-#define steps_from_sensor_to_init_clockwise 1220  	// Number of steps (based in mode 8) to go forward from the sensor to the init position
-#define margin_steps_to_detect_seed 38		// Its the steps margin in wich the sensor will check if we have a seed
+#define steps_from_sensor_to_init_clockwise 1150  			// Number of steps (based in mode 8) to go forward from the sensor to the init position
+#define steps_from_sensor_to_start_moving_when_seed 150		// Number of steps (based in mode 8) away form the pick a seed point to start moving the axis when we got a seed.
+#define margin_steps_to_detect_seed 42		// Its the steps margin in wich the sensor will check if we have a seed
 
 #define fails_max_normal 400			// Max number of tries to pick a seed before software will create an error
 #define fails_max_end 100				// Max number of fails before 100 seeds to reach the complet batch to create an error (since we are close to the end we dont need to go to 1000)
@@ -27,7 +28,7 @@ boolean Seedcounter_init() {
 	} */
 
 	count =0;
-	counter.set_direction (!default_directionC);   // Set direction
+	counter.set_direction (default_directionC);   // Set direction
 	while (!seed_sensor) {
 		// If the vacuum is not on, this would be cheking for the 0 position foreve
 		// so we count ten times and if there is no sense of a seed we pause
@@ -118,9 +119,11 @@ void pickup_seed() {
 			if (counter.sensor_check()){			// We got a seed!!!
 				seed_detected = true; 
 				counter_s ++;						// For statistics pourpouse
-				while (!(counter.get_steps() == (steps_from_sensor_to_init_clockwise-400)))	// If we are not finished moving...
+				while (!(counter.get_steps() == (steps_from_sensor_to_init_clockwise-steps_from_sensor_to_start_moving_when_seed)))	// If we are not finished moving...
 				{
 					// Do nothing and wait
+					// We are waiting to reach a position where the seed is about to fall. At that speed the motor will start acelerating while the seeds
+					// lower the steps_from_sensor_to_start_moving_when_seed in order to wait more to start moving the X or Y motors before the seed falls.
 				}
 			}
 			// Each time we are here is because we already started moving

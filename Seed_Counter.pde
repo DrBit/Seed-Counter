@@ -2,7 +2,7 @@
 #include <avr/pgmspace.h>
 #include <StopWatch.h>
 
-#define version_prog "V3.0"
+#define version_prog "V3.1"
 #define lib_version 13
 
 
@@ -89,8 +89,8 @@ long old_ypos=0;
 int motor_select=0;
 int situation=0;
 const int motor_speed_counter=1000;
-const int motor_speed_XY=700;
-const int motor_speed_blisters=1000;
+const int motor_speed_XY=900;
+const int motor_speed_blisters=1500;
 
 
 // ***********************
@@ -107,6 +107,7 @@ boolean error_blister = true;
 unsigned long count_total_turns = 0;
 unsigned long counter_s = 0;
 boolean pause = false;
+boolean manual_enabled = false;				// Flag to overwrite the pause flag
 unsigned int max_batch_count = 1100;
 
 
@@ -187,17 +188,17 @@ void setup() {
 	}
 	
 	// some motor adjustments ( This configurations have been proved to work well, but there is still room for adjustments )
-	Xaxis.set_speed_in_slow_mode (350);
-	Xaxis.set_accel_profile(900, 16, 9, 20);		// Proven to be working really good
-	Yaxis.set_speed_in_slow_mode (550);
-	Yaxis.set_accel_profile(1200, 17, 8, 30);		// Proven to be working really good
+	// Xaxis.set_speed_in_slow_mode (350);
+	// Xaxis.set_accel_profile(900, 17, 9, 20);			// Proven to be working really good
+	// Yaxis.set_speed_in_slow_mode (550);
+	// Yaxis.set_accel_profile(1100, 14, 9, 20);		// Proven to be working really good
 	
 	// set_accel_profile(init_timing, int ramp_inclination, n_slopes_per_mode, n_steps_per_slope)
 	// MAX speed!
-	//Xaxis.set_speed_in_slow_mode (180);
-	//Xaxis.set_accel_profile(650, 14, 10, 40);
-	//Yaxis.set_speed_in_slow_mode (200);
-	//Yaxis.set_accel_profile(740, 14, 10, 30);
+	Xaxis.set_speed_in_slow_mode (350);
+	Xaxis.set_accel_profile(900, 17, 9, 20);
+	Yaxis.set_speed_in_slow_mode (400);
+	Yaxis.set_accel_profile(1000, 13, 8, 20);
 	
 	MySW.start();			// Start timer for statistics
 	// END of setup
