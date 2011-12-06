@@ -5,7 +5,7 @@
 
 // #define steps_from_sensor_to_init 1200  	// Number of steps (based in mode 8) to go backward from the sensor to the init position (not used)
 #define steps_from_sensor_to_init_clockwise 1150  			// Number of steps (based in mode 8) to go forward from the sensor to the init position
-#define steps_from_sensor_to_start_moving_when_seed 150		// Number of steps (based in mode 8) away form the pick a seed point to start moving the axis when we got a seed.
+#define steps_from_sensor_to_start_moving_when_seed 0		// Number of steps (based in mode 8) away form the pick a seed point to start moving the axis when we got a seed.
 #define margin_steps_to_detect_seed 42		// Its the steps margin in wich the sensor will check if we have a seed
 
 #define fails_max_normal 400			// Max number of tries to pick a seed before software will create an error

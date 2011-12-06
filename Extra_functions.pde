@@ -756,7 +756,7 @@ void statistics () {
 	Serial.print ("Seed rate: ");
 	
 	float seeds_per_minute = 0;
-	float temp_minutes = ((float)seconds/60.0) + (float)minutes ;
+	float temp_minutes = ((float)seconds/60.0) + (float)minutes + ((float)hours * 60);
 	seeds_per_minute = (float)counter_s/temp_minutes;
 	Serial.print(seeds_per_minute);
 	Serial.print (" seeds/minute - ");
@@ -780,11 +780,12 @@ void statistics () {
 
 void print_time (unsigned long total_milliseconds) {
 	seconds = total_milliseconds / 1000;
+	
 	minutes = seconds / 60;
+	seconds = seconds % 60;
+	
 	hours = minutes / 60;
-
-	minutes = minutes - (hours*60);
-	seconds = seconds - (hours*60*60) - (minutes * 60);
+	minutes =  minutes % 60;
 	
 	if (hours < 10) Serial.print('0');
 	Serial.print(hours);

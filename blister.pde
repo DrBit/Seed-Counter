@@ -12,7 +12,7 @@
 
 boolean blisters_init () {
 	int steps_to_do = (blisters_steps_absoulut_limit+100) / blisters.get_step_accuracy();		// The absolut limit would be 1000, but we add an extra 100 to be sure that we hit the maximum point so we init correctly
-	blisters.set_direction (true);
+	blisters.set_direction (default_directionB);
 	for (int i = 0 ; i< steps_to_do; i++) {
 		blisters.do_step();
 		delayMicroseconds (motor_speed_blisters);
@@ -27,7 +27,7 @@ boolean blisters_init () {
 
 void release_blister () {
 	int steps_to_do = blisters_steps_limit / blisters.get_step_accuracy();
-	blisters.set_direction (false);
+	blisters.set_direction (!default_directionB);
 	for (int i = 0 ; i< steps_to_do; i++) {
 		blisters.do_step();
 		delayMicroseconds (motor_speed_blisters);
@@ -44,8 +44,8 @@ void release_blister () {
 	Yaxis.got_to_position (tempYcycles, tempYsteps);
 
 	
-	blisters.set_direction (true);
-	for (int i = 0 ; i< steps_to_do; i++) {
+	blisters.set_direction (default_directionB);
+	for (int i = 0 ; i< steps_to_do + 50; i++) {
 		blisters.do_step();
 		delayMicroseconds (motor_speed_blisters);
 	}

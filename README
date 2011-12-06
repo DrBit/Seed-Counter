@@ -4,6 +4,13 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V3.2 - 06/12/2011
+**  * Set default direction for blister motors
+**  * Added extra steps on blisters motors in case we lose some at a certain moment.
+**  * Fixed statistics for longer than one hour
+**  * Fixed bug in menu statistics
+**  * Increased speed of Y axis, decreased X axis
+**
 **  V3.1 - 30/11/2011
 **  * Adjustments to all parameters
 **	* Fix bug in menus
@@ -153,23 +160,18 @@
 
 TODO
 
-INIT X somtimes fails, recheck that
-
 Fix menus overlaping each other...
 
 Config menu with:
-	Network configuration (Dynnamic addresses ports,...)
+	Network configuration (Dynamic addresses ports,...)
 
 Change the handling of movements in manual mode. (Diff speeds depending on how long you press the button)
 
 New sensors 
-	Sense when the blisters are empty
-	Sense if a blister correctly placed in the X axis conveier
-
-
-Speed up the counter wheel
-
-Fix Statistics (fails at more than one hour)
+	Sense if a blister correctly placed in the X axis conveier (Also works for empty blisters)
+	Sensor need to be positioned in a way that will also sense when the blister is offset
+	
+	Sensor for printer, lable printed and placed correctly
 
 Relay board for on off
 
@@ -177,6 +179,5 @@ Handle motors sleep / reset and enable
 	Create functions sleep
 	Emergency stop
 
-Send a mail
 
 */

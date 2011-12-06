@@ -2,7 +2,7 @@
 #include <avr/pgmspace.h>
 #include <StopWatch.h>
 
-#define version_prog "V3.1"
+#define version_prog "V3.2"
 #define lib_version 13
 
 
@@ -154,6 +154,7 @@ void setup() {
 	#define default_directionY false
 	#define default_directionB true
 	#define default_directionC false
+
 	// Set default direction
 	Xaxis.set_default_direcction (default_directionX);
 	Yaxis.set_default_direcction (default_directionY);
@@ -195,10 +196,10 @@ void setup() {
 	
 	// set_accel_profile(init_timing, int ramp_inclination, n_slopes_per_mode, n_steps_per_slope)
 	// MAX speed!
-	Xaxis.set_speed_in_slow_mode (350);
+	Xaxis.set_speed_in_slow_mode (400);
 	Xaxis.set_accel_profile(900, 17, 9, 20);
-	Yaxis.set_speed_in_slow_mode (400);
-	Yaxis.set_accel_profile(1000, 13, 8, 20);
+	Yaxis.set_speed_in_slow_mode (350);
+	Yaxis.set_accel_profile(950, 13, 7, 15);
 	
 	MySW.start();			// Start timer for statistics
 	// END of setup
