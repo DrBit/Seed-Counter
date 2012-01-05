@@ -277,7 +277,7 @@ void loop() {
 	delay (3800);
 	
 	Serial.println("Go to brush position");
-	go_to_memory_position ()
+	go_to_memory_position (20);
 	
 	Serial.println("Go to exit");
 	go_to_memory_position (4);			// Exit
