@@ -199,80 +199,13 @@ boolean XYaxes_init () {
 ** 18. X - Hole 4								Y - Row 1
 ** 19. X - Hole 5								Y - Row 1
 **
+**
+** Extra positions
+**
+** 20. X - Brush position					Y - Brush position
+**
 ********************************************************/
-/*  values 2nd prototype
-// Y
-#define Yc1 0
-#define Ys1 0
-#define Yc2 7
-#define Ys2 368
-// X
-#define Xc1 70
-#define Xs1 1472
-#define Xc2 79
-#define Xs2 132
-#define Xc3 87
-#define Xs3 964
-#define Xc4 95
-#define Xs4 944
-#define Xc5 103
-#define Xs5 956
 
-#define number_of_positions 20
-// PROGMEM  prog_uchar name_of_array
-// prog_uchar is an unsigned char (1 byte) 0 to 255
-// prog_uint is an unsigned int (2 byte) 0 to 65,535
-PROGMEM  const prog_uint16_t x_axis_set[number_of_positions*2] = {
-// Basic positions
-0,0,			// 1- INIT position
-6,0,			// 2- Blister position
-213,1400,		// 3- Printer position
-280,1,			// 4- Exit position
-// 2 rows blisters
-Xc1,Xs1,		// 5- Position Hole 1
-Xc1,Xs1,		// 6- Position Hole 2
-Xc2,Xs2,		// 7- Position Hole 3
-Xc2,Xs2,		// 8- Position Hole 4
-Xc3,Xs3,		// 9- Position Hole 5
-Xc3,Xs3,		// 10- Position Hole 6
-Xc4,Xs4,		// 11- Position Hole 7
-Xc4,Xs4,		// 12- Position Hole 8
-Xc5,Xs5,		// 13- Position Hole 9
-Xc5,Xs5,			// 14- Position Hole 10
-// 1row blisters
-Xc1,Xs1,		// 5- Position Hole 1
-Xc1,Xs1,		// 6- Position Hole 2
-Xc2,Xs2,		// 7- Position Hole 3
-Xc2,Xs2,		// 8- Position Hole 4
-Xc3,Xs3		// 9- Position Hole 5
-};
-
-
-PROGMEM  const prog_uint16_t y_axis_set[number_of_positions*2] = {
-// Basic positions
-0,0,			// 1- INIT position
-0,0,			// 2- Blister position
-3,834,			// 3- Printer position
-0,0,			// 4- Exit position
-// 2 rows blisters
-Yc1,Ys1,		// 5- Position Hole 1
-Yc2,Ys2,		// 6- Position Hole 2
-Yc2,Ys2,		// 7- Position Hole 3
-Yc1,Ys1,		// 8- Position Hole 4
-Yc1,Ys1,		// 9- Position Hole 5
-Yc2,Ys2,		// 10- Position Hole 6
-Yc2,Ys2,		// 11- Position Hole 7
-Yc1,Ys1,		// 12- Position Hole 8
-Yc1,Ys1,		// 13- Position Hole 9
-Yc2,Ys2,			// 14- Position Hole 10
-// 1row blisters
-Yc1,Ys1,		// 5- Position Hole 1
-Yc2,Ys2,		// 6- Position Hole 2
-Yc2,Ys2,		// 7- Position Hole 3
-Yc1,Ys1		// 8- Position Hole 4
-};
-
-*/
 
 // read back a 2-byte int example:
 // pgm_read_word_near(y_axis_set + N)

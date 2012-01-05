@@ -139,7 +139,9 @@ void setup() {
 	delay (10);  // Delay to be safe
 
 	init_DB ();				// Init database
-	// manual_data_write();		// UPDATE manually all EEPROOM MEMORY (positions)
+	Show_all_records();
+	manual_data_write();		// UPDATE manually all EEPROOM MEMORY (positions)
+	press_button_to_continue (1);
 	
 	Serial.println("\n*****************");
 	Serial.println("** SETTING UP  **");
@@ -273,6 +275,9 @@ void loop() {
 	
 	// Wait for the printer to print a label
 	delay (3800);
+	
+	Serial.println("Go to brush position");
+	go_to_memory_position ()
 	
 	Serial.println("Go to exit");
 	go_to_memory_position (4);			// Exit

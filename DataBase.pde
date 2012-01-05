@@ -9,7 +9,7 @@
 DB db;
 
 #define MY_TBL 1
-#define number_of_positions 20
+#define number_of_positions 21
 
 struct MyRec {
 // Containig
@@ -70,11 +70,28 @@ void show_pos_list ()  {
 	Serial.println("*     17.    * Hole 3");
 	Serial.println("*     18.    * Hole 4");
 	Serial.println("*     19.    * Hole 5");
+	Serial.println("********************************************Extra Positions");
+	Serial.println("*     20.    * Brush position");
 	Serial.println("********************************************");
 }
 
 
 void manual_data_write () {
+
+	
+	// MANUAL WRITE OF Position 20 (Brush)
+	int position_n = 20;			// Hole number
+	mposition.Xc = 0;				// Xcycles
+	mposition.Xf = 0;  			// Csteps
+	mposition.Yc = 0;			// Ycycles
+	mposition.Yf = 0;			// Ysteps
+	
+	db.write(position_n, DB_REC mposition);
+	Serial.print("Position ");
+	Serial.print (position_n);
+	Serial.println ("recorded!");
+
+	/*
 	// MANUAL WRITE OF EEPROM WITH ALL POSITIONS
 	
 	int _1RowYc = 2;
@@ -203,5 +220,6 @@ void manual_data_write () {
 	Serial.print (position_n);
 	Serial.println ("recorded!");
 	//=========================================================
+	*/
 	
 }
