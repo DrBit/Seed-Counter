@@ -4,6 +4,10 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V3.3 - 06/01/2012
+**  * Added new brush position
+**  * Added new errors and commands for serial com.
+**
 **  V3.2 - 06/12/2011
 **  * Set default direction for blister motors
 **  * Added extra steps on blisters motors in case we lose some at a certain moment.

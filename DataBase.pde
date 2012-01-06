@@ -37,7 +37,7 @@ void Show_all_records()
 		Serial.print("Memory position: "); Serial.print(i); 
 		Serial.print(" * Xc: "); Serial.print(mposition.Xc);
 		Serial.print(" * Xf: "); Serial.print(mposition.Xf);
-		Serial.print(" ** Yc: "); Serial.print(mposition.Yc);
+		Serial.print(" * Yc: "); Serial.print(mposition.Yc);
 		Serial.print(" * Yf: "); Serial.println(mposition.Yf);  
 	} 
 	Serial.println("-----");
@@ -83,7 +83,7 @@ void manual_data_write () {
 	int position_n = 20;			// Hole number
 	mposition.Xc = 8;				// Xcycles
 	mposition.Xf = 589;  			// Csteps
-	mposition.Yc = 6;			// Ycycles
+	mposition.Yc = 7;				// Ycycles
 	mposition.Yf = 1520;			// Ysteps
 	
 	db.write(position_n, DB_REC mposition);

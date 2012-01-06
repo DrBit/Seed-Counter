@@ -26,14 +26,14 @@ IP: 10.10.249.105:8000
 // LIST OF COMMANDS
 //////////////////////////
 
-// All commands are begined and ended with a carriage '/0'
-// any received data failling to have '/0' at the begining anb at the end will be descarted.
+// All commands are begined and ended with a '*'
+// any received data failling to have '*' at the begining anb at the end will be descarted.
 -------------
 C00 - FALSE 
 C01 - TRUE
 C02 - ERROR
 -------------
-C03 - Update network configuration
+C03 - Arduino Mega ready for operation (Normally after a C05 command)
 C04 - Print label
 C05 - Network module ready for operation (normally after reset)
 C06 - Label printed correctly
@@ -49,6 +49,10 @@ C13 - Begining of data stream
 C14 - End of data stream
 ------------
 C15 - Ask for data of network configuration
+------------
+C16 - Send US (ui_server)
+C17 - Send MI (Machine ID)
+
 //////////////////////////
 // LIST OF POSSIBLE ERRORS
 //////////////////////////
@@ -58,6 +62,7 @@ E01 - Time out receiving and aswer from the server
 E02 - We didnt get any tag equal of what we where expecting
 E03 - Expected command (C03) to configure printer before anything else
 E04 - Configuration command not supported (when inside configuration)
+E05 - Can NOT connect to the User Interface Server. Check connectrions, Check server is alive
 E10 - Not expected command  // When we sended a command that receiver wasn't expecting
 							// Normalli means receiver expects a concrete command and opnly will react to that
 	
@@ -83,6 +88,7 @@ void init_printer () {
 			cReceived = true;
 		}
 	}
+	// The module now just had a reset and is ready
 	select_batch_number ();						// Ask for a batch number
 	send_petition_to_configure_network ();		// Sends petition to conifgure
 	update_network_configuration ();			// If accepted pettition send configuration
