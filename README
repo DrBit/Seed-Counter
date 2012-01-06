@@ -4,6 +4,9 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V3.4 - 06/01/2012
+**  Changed few functions to adapt to new UI
+**
 **  V3.3 - 06/01/2012
 **  * Added new brush position
 **  * Added new errors and commands for serial com.

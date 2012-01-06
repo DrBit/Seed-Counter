@@ -2,7 +2,7 @@
 #include <avr/pgmspace.h>
 #include <StopWatch.h>
 
-#define version_prog "V3.3"
+#define version_prog "V3.4"
 #define lib_version 13
 
 
@@ -147,9 +147,10 @@ void setup() {
 	Serial.println("** SETTING UP  **");
 	Serial.println("*****************");
 	
-	// Init network module
-	init_printer ();		// Init printer
-	prepare_printer();		// Prepares the printer to be ready for blisters 
+	
+	init_network ();					// Init printer
+	prepare_printer();					// Prepares the printer to be ready for blisters 
+	// select_batch_number ();			// Ask for a batch number
 	
 	
 	#define default_directionX true
@@ -218,6 +219,10 @@ void setup() {
 // * 09 * 07 * 05 * 03 * 01 * Y1
 // * X5 * X4 * X3 * X2 * X1 *
 void loop() {
+
+	petition_to_get_positions_data ();	// Sends petition to get postions data
+	// receive position data from ethernet module
+	// Check if its correct and update if necessary
 
 	Serial.println("\n ************ ");
 	

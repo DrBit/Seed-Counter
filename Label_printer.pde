@@ -33,7 +33,7 @@ C00 - FALSE
 C01 - TRUE
 C02 - ERROR
 -------------
-C03 - Arduino Mega ready for operation (Normally after a C05 command)
+C03 - Petition to get positions configuration from server UI 
 C04 - Print label
 C05 - Network module ready for operation (normally after reset)
 C06 - Label printed correctly
@@ -60,7 +60,7 @@ C17 - Send MI (Machine ID)
 E00 - Failed to open connection. Network down or website not available
 E01 - Time out receiving and aswer from the server 
 E02 - We didnt get any tag equal of what we where expecting
-E03 - Expected command (C03) to configure printer before anything else
+E03 - Expected command (C03) to get positions configuration from the server UI
 E04 - Configuration command not supported (when inside configuration)
 E05 - Can NOT connect to the User Interface Server. Check connectrions, Check server is alive
 E10 - Not expected command  // When we sended a command that receiver wasn't expecting
@@ -75,7 +75,7 @@ E10 - Not expected command  // When we sended a command that receiver wasn't exp
 // Main Functions
 //////////////////////////
 
-void init_printer () {
+void init_network () {
 	// Reset arduino (TODO connect reset cable)
 	EthernetModuleReset ();
 	Serial1.begin (9600);
@@ -84,17 +84,35 @@ void init_printer () {
 	boolean cReceived = false;
 	while (!cReceived) {
 		if (receive_next_answer(05) == 05) {
-			print_ok();
 			cReceived = true;
 		}
 	}
+	send_command (1);		// Send confirmation
 	// The module now just had a reset and is ready
-	select_batch_number ();						// Ask for a batch number
-	send_petition_to_configure_network ();		// Sends petition to conifgure
-	update_network_configuration ();			// If accepted pettition send configuration
-	// print_network_config ();					// Once sended configuration ask it again and also print other info from module
-}
+	
+	// Right now the module will configure itsef and send us a confirmation or an error
+	// Whait for it...
+	
+	boolean cReceived = false;
+	while (!cReceived) {
+		int last_com = receive_next_answer(01)
+		if ( last_com == 01) {
+			print_ok();
+			cReceived = true;
+		}else if (last_com == 01) {
+		
+		}
+	}
+	// if configured succesfully -> print_ok();
+	// else
+	// first ask to USER if the DNS name is ok
+	// get name from the ethernet module and show it to the user
+	// is correct? 
+		// yes try again
+		// NO ask for a new name
+	// If has changed get the name and send it back to ethernet module
 
+}
 
 // Types in a batch nomber for update it
 int select_batch_number () {
@@ -117,11 +135,12 @@ int select_batch_number () {
 	//}
 }
 
-void send_petition_to_configure_network () {
+
+void petition_to_get_positions_data () {
 	
 	boolean command_sended = false;
 	while (!command_sended) {
-		Serial.print   ("Update network module: ");
+		Serial.print   ("Receiving Positions Data: ");
 		send_command (3);			// Print one label
 		
 		if (receive_next_answer(01) == 01) { 	// Command accepted
@@ -135,16 +154,17 @@ void send_petition_to_configure_network () {
 	}
 } 
 
-// TODO
+// not needed
+/*
 void update_network_configuration () {
-/* 
-C07 - Send SA (server_address)
-C08 - Send SS (server_script)
-C09 - Send SB (seeds_batch)
-C10 - Send IP (printer_IP)
-C11 - Send PS (password)
-C12 - Send PP (printer_port)
-*/
+ 
+//C07 - Send SA (server_address)
+//C08 - Send SS (server_script)
+//C09 - Send SB (seeds_batch)
+//C10 - Send IP (printer_IP)
+//C11 - Send PS (password)
+//C12 - Send PP (printer_port)
+
 	delay(40);
 	send_command (7);
 	send_data (server_address);
@@ -174,7 +194,9 @@ C12 - Send PP (printer_port)
 		press_button_to_continue (1);
 	}
 }
+*/
 
+/*  NOT NEEDED
 void print_network_config () {
 	boolean command_sended = false;
 	while (!command_sended) {
@@ -193,7 +215,7 @@ void print_network_config () {
 	}
 	Serial.println("");
 	recevie_data_and_print ();
-}
+}*/
 
 
 void EthernetModuleReset () {
