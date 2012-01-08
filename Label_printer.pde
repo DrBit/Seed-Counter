@@ -1,15 +1,4 @@
-// Some predefined info
 
-//SA
-#define server_address	"office.pygmalion.nl"		// Host name of the public server to request a label 
-//SS
-#define server_script	"/labelgenerator/generate.php?batch_id="		// Parameters to generat label
-//IP
-#define printer_IP		"10.250.1.8"		  	// Printer server IP (subjetc to change)
-//PP
-#define printer_port	"8000"				// Printer server port 		
-
-#define password		"YXJkdWlubzpQQXBhWXViQTMzd3I="
 unsigned int seeds_batch = 290;
 
 
@@ -93,10 +82,10 @@ void init_network () {
 	// Right now the module will configure itsef and send us a confirmation or an error
 	// Whait for it...
 	
-	boolean cReceived = false;
+	cReceived = false;
 	while (!cReceived) {
-		int last_com = receive_next_answer(01)
-		if ( last_com == 01) {
+		int last_com = receive_next_answer(01);
+		if (last_com == 01) {
 			print_ok();
 			cReceived = true;
 		}else if (last_com == 01) {
@@ -113,28 +102,6 @@ void init_network () {
 	// If has changed get the name and send it back to ethernet module
 
 }
-
-// Types in a batch nomber for update it
-int select_batch_number () {
-	boolean inNumber = true;
-	//while (inNumber) {
-		Serial.print (" Type in batch number (290 test): ");
-		seeds_batch = get_number(3);
-		Serial.println (seeds_batch);
-		
-		/*		// We remove this since is a waste of time at the begining and can be done via the menu
-		inNumber = false;
-		Serial.println (" Correct? Y/N ");
-		if (YN_question()) {
-			// if YES do nothing and quit
-		}else{
-			// if no...
-			inNumber = true;	// Ask number again
-		}*/
-
-	//}
-}
-
 
 void petition_to_get_positions_data () {
 	
@@ -153,69 +120,6 @@ void petition_to_get_positions_data () {
 		}
 	}
 } 
-
-// not needed
-/*
-void update_network_configuration () {
- 
-//C07 - Send SA (server_address)
-//C08 - Send SS (server_script)
-//C09 - Send SB (seeds_batch)
-//C10 - Send IP (printer_IP)
-//C11 - Send PS (password)
-//C12 - Send PP (printer_port)
-
-	delay(40);
-	send_command (7);
-	send_data (server_address);
-	delay (40);	
-	send_command (8);
-	send_data (server_script);
-	delay (40);	
-	send_command (9);
-	send_data (seeds_batch);
-	delay (40);	
-	send_command (10);
-	send_data (printer_IP);
-	delay (40);	
-	send_command (11);
-	send_data (password);
-	delay (40);	
-	send_command (12);
-	send_data (printer_port);
-
-	if (receive_next_answer(01) == 01) { 	// Command accepted
-		// All correct , continue
-		print_ok();
-	}else{
-		print_fail();
-		Serial.println (" * Configuration of network module Failed");
-		Serial.println(" * Press button 1 to try again");
-		press_button_to_continue (1);
-	}
-}
-*/
-
-/*  NOT NEEDED
-void print_network_config () {
-	boolean command_sended = false;
-	while (!command_sended) {
-		Serial.print   ("Retrieve network configuration: ");
-		send_command (15);			// Print one label
-		
-		if (receive_next_answer(01) == 01) { 	// Command accepted
-			command_sended = true;
-			print_ok();
-		}else{
-			print_fail();
-			Serial.println (" * Command send (C03) Failed");
-			Serial.println(" * Press button 1 to try again");
-			press_button_to_continue (1);
-		}
-	}
-	Serial.println("");
-	recevie_data_and_print ();
-}*/
 
 
 void EthernetModuleReset () {
@@ -637,3 +541,92 @@ int receive_next_answer (int default_answer) {
 		}
 	}
 }
+
+
+// not needed
+/*
+void update_network_configuration () {
+ 
+//C07 - Send SA (server_address)
+//C08 - Send SS (server_script)
+//C09 - Send SB (seeds_batch)
+//C10 - Send IP (printer_IP)
+//C11 - Send PS (password)
+//C12 - Send PP (printer_port)
+
+	delay(40);
+	send_command (7);
+	send_data (server_address);
+	delay (40);	
+	send_command (8);
+	send_data (server_script);
+	delay (40);	
+	send_command (9);
+	send_data (seeds_batch);
+	delay (40);	
+	send_command (10);
+	send_data (printer_IP);
+	delay (40);	
+	send_command (11);
+	send_data (password);
+	delay (40);	
+	send_command (12);
+	send_data (printer_port);
+
+	if (receive_next_answer(01) == 01) { 	// Command accepted
+		// All correct , continue
+		print_ok();
+	}else{
+		print_fail();
+		Serial.println (" * Configuration of network module Failed");
+		Serial.println(" * Press button 1 to try again");
+		press_button_to_continue (1);
+	}
+}
+*/
+
+/*  NOT NEEDED
+void print_network_config () {
+	boolean command_sended = false;
+	while (!command_sended) {
+		Serial.print   ("Retrieve network configuration: ");
+		send_command (15);			// Print one label
+		
+		if (receive_next_answer(01) == 01) { 	// Command accepted
+			command_sended = true;
+			print_ok();
+		}else{
+			print_fail();
+			Serial.println (" * Command send (C03) Failed");
+			Serial.println(" * Press button 1 to try again");
+			press_button_to_continue (1);
+		}
+	}
+	Serial.println("");
+	recevie_data_and_print ();
+}*/
+
+
+//  Wont be needed with the new UI
+/*
+// Types in a batch nomber for update it
+int select_batch_number () {
+	boolean inNumber = true;
+	//while (inNumber) {
+		Serial.print (" Type in batch number (290 test): ");
+		seeds_batch = get_number(3);
+		Serial.println (seeds_batch);
+		
+		/*		// We remove this since is a waste of time at the begining and can be done via the menu
+		inNumber = false;
+		Serial.println (" Correct? Y/N ");
+		if (YN_question()) {
+			// if YES do nothing and quit
+		}else{
+			// if no...
+			inNumber = true;	// Ask number again
+		}*/ /*
+
+	//}
+}
+*/

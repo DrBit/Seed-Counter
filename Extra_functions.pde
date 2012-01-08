@@ -683,9 +683,9 @@ void check_pause () {
 				break;
 				
 				case 2:
-					select_batch_number ();
-					send_petition_to_configure_network ();
-					update_network_configuration ();
+					// select_batch_number ();
+					// send_petition_to_configure_network ();
+					// update_network_configuration ();
 				break;
 				
 				case 3:
