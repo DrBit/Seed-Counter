@@ -5,7 +5,7 @@
 //SS
 #define server_script	"/labelgenerator/generate.php?batch_id="		// Parameters to generat label
 //IP
-#define printer_IP		"10.250.1.8"		  	// Printer server IP (subjetc to change)
+#define printer_IP		"10.250.1.3"		  	// Printer server IP (subjetc to change)
 //PP
 #define printer_port	"8000"				// Printer server port 		
 
