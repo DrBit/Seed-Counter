@@ -796,3 +796,45 @@ void print_time (unsigned long total_milliseconds) {
 	if (seconds < 10) Serial.print('0');
 	Serial.println(seconds);
 }
+
+
+void check_library_version () {
+	if ((Xaxis.get_version()) != lib_version) {
+		Serial.println("Library version mismatch");
+		Serial.print(" This code is designed to work with library V");
+		Serial.println(lib_version);
+		Serial.print(" And the library installed is version V");
+		Serial.println(Xaxis.get_version());
+		Serial.println (" Program stoped!");
+		while (true) {}
+	}
+}
+
+void init_all_motors () {
+	// INIT SYSTEM, and CHECK for ERRORS
+	int temp_err = 0;   // flag for found errors
+	if (!init_blocks(ALL)) temp_err = 1;
+	
+	while (temp_err > 0) { // We found an error, we chek ALL errors and try to initiate correctly
+		temp_err = 0;
+		Serial.println("\nErrors found, press 1 when ready to check again, 2 to bypas the errors");
+		switch (return_pressed_button ()) {
+			//Init XY 
+			case 1:
+				if (error_XY) {
+					if (!init_blocks(2)) temp_err++;
+				}
+				if (error_counter) {
+					if (!init_blocks(3)) temp_err++;
+				}
+				if (error_blister) {
+					if (!init_blocks(1)) temp_err++;
+				}
+			break;
+			
+			case 2:
+				// do nothing so we wond detect any error and we will continue
+			break;
+		}
+	}
+}

@@ -4,6 +4,10 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V3.3.3 - 18/01/2010
+**  * Setup process cleaned, create several sub-functions
+**	* New sensor pins definend, also Emergency button.
+**
 **  V3.3.2 - 17/01/2010
 **  * Configuration migrated to the server 10.250.1.3
 **

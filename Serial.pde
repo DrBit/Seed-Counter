@@ -21,4 +21,9 @@ void print_fail() {
 	Serial.println("[FAIL]");
 }
 
+void print_set_up () {
+	Serial.println("\n*****************");
+	Serial.println("** SETTING UP  **");
+	Serial.println("*****************");
+}
 
