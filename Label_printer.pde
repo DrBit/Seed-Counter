@@ -22,7 +22,7 @@ C00 - FALSE
 C01 - TRUE
 C02 - ERROR
 -------------
-C03 - Petition to get positions configuration from server UI 
+C03 - Fetch All positions 
 C04 - Print label
 C05 - Network module ready for operation (normally after reset)
 C06 - Label printed correctly
@@ -41,6 +41,8 @@ C15 - Ask for data of network configuration
 ------------
 C16 - Send US (ui_server)
 C17 - Send MI (Machine ID)
+C19 - Send action to server
+C20 - Send status to the server (on hold, pending,...)
 
 //////////////////////////
 // LIST OF POSSIBLE ERRORS
@@ -76,11 +78,24 @@ void init_network () {
 			cReceived = true;
 		}
 	}
-	send_command (1);		// Send confirmation
-	// The module now just had a reset and is ready
 	
+	// The module is now ready
+	
+	// 	It is waiting for a *C01* command confirmation to continue
+}
+
+void configure_network () {
+
+	// First we tell the module to get ready to configure itself (after a hard reset)
+	send_command (1);		// Send confirmation
+
 	// Right now the module will configure itsef and send us a confirmation or an error
 	// Whait for it...
+	
+	// The module will contact the main server and retrieve all configuration data
+	// If the data is new it will update its eeprom memory with the new configuration
+	// In case the connection fails or server is down, arduino has previous 
+	// config information stored in the memory.
 	
 	cReceived = false;
 	while (!cReceived) {
@@ -92,6 +107,7 @@ void init_network () {
 		
 		}
 	}
+	
 	// if configured succesfully -> print_ok();
 	// else
 	// first ask to USER if the DNS name is ok
@@ -100,27 +116,8 @@ void init_network () {
 		// yes try again
 		// NO ask for a new name
 	// If has changed get the name and send it back to ethernet module
-
+	// If configuration still fail offer option to continue with previous configuration
 }
-
-void petition_to_get_positions_data () {
-	
-	boolean command_sended = false;
-	while (!command_sended) {
-		Serial.print   ("Receiving Positions Data: ");
-		send_command (3);			// Print one label
-		
-		if (receive_next_answer(01) == 01) { 	// Command accepted
-			command_sended = true;
-		}else{
-			print_fail();
-			Serial.println (" * Command send (C03) Failed");
-			Serial.println(" * Press button 1 to try again");
-			press_button_to_continue (1);
-		}
-	}
-} 
-
 
 void EthernetModuleReset () {
 	// Serial.println (" * Reseting network module...");

@@ -252,3 +252,32 @@ void go_to_posXY (int Xcy,int Xst,int Ycy,int Yst) {
 	check_pause ();			// Check for any pause button
 	Yaxis.got_to_position (Ycy,Yst) ;
 }
+
+void update_positions_information () {
+	// The process of updating the positions information will be every cycle.
+	// Ideally the server will return us just a flag telling if it has been changed or not
+	// The last configuration
+	
+	// This will speed up the process
+	
+	boolean command_sended = false;
+	while (!command_sended) {
+		// First send a command to update position information
+		send_command (3);			// Update pos information
+		// Now The ethernet module is checking if we need to update
+		
+		if (receive_next_answer(00) == 00) { 	// False , we dont need to update
+			command_sended = true;
+			Serial.println ("No need to update positions... ");
+		}else if (receive_next_answer(01) == 01) {	// True , we need to update
+			Serial.println ("Updating positions: ");
+			// Now we have to receive all positions and check them.
+		}else{
+			print_fail();
+			Serial.println (" * Command send (C03) Failed");
+			Serial.println(" * Press button 1 to try again");
+			press_button_to_continue (1);
+		}
+	}	
+}
+
