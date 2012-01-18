@@ -188,6 +188,10 @@ void loop() {
 	
 	Serial.println("Get blister");
 	release_blister ();
+	
+	// Go to check blister position.
+	// Check blister sensor.
+	// If OK continue, if not send error
 
 	Serial.print("1rst hole");
 	go_to_memory_position (5);			// first hole
@@ -239,6 +243,9 @@ void loop() {
 	// Or in the future get answer from the server
 	delay (3800);
 	
+	// Check sensor
+	// Is the lable printed correctly?
+	// Continue or send error
 	
 	Serial.println("Go to brush position");
 	go_to_memory_position (20);

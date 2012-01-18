@@ -49,4 +49,13 @@ void release_blister () {
 		blisters.do_step();
 		delayMicroseconds (motor_speed_blisters);
 	}
+	
+	int sensor_state = analogRead (sensC); 
+	if (sensor_state) {
+		// We got emty blisters
+		// Now we know that we have just a few left
+		// We start counting
+		// How can we reset this count when blisters are refilled? Database?
+			// In database case. Check database, if refilled reset state.
+	}
 }
