@@ -2,7 +2,7 @@
 #include <avr/pgmspace.h>
 #include <StopWatch.h>
 
-#define version_prog "V3.3.3"
+#define version_prog "V3.4"
 #define lib_version 13
 
 
@@ -122,6 +122,10 @@ void setup() {
 	pinMode (button1, INPUT);
 	pinMode (button2, INPUT);
 	pinMode (button3, INPUT);
+	
+	pinMode (sensF, INPUT); 
+	pinMode (sensE, INPUT);
+	pinMode (sensC, INPUT); 
 	// Controls ethernet reset
 	pinMode (ethReset, OUTPUT);
 	digitalWrite (ethReset, HIGH);
@@ -165,6 +169,8 @@ void setup() {
 	Yaxis.set_speed_in_slow_mode (350);
 	Yaxis.set_accel_profile(950, 13, 7, 15);
 	
+	
+	//chec_sensorF();
 	MySW.start();			// Start timer for statistics
 	// END of setup
 }
@@ -183,16 +189,22 @@ void loop() {
 
 	Serial.println("\n ************ ");
 	
-	Serial.println("go to Blister Position");
-	go_to_memory_position (2);			// blister
-	
 	Serial.println("Get blister");
 	release_blister ();
 	
-	// Go to check blister position.
-	// Check blister sensor.
-	// If OK continue, if not send error
-
+	boolean released = check_blister_realeased ();
+	while (!released) {
+		Serial.println("Blister malfunction, remove any blister on the belt and press number 1 to try again.");
+		press_button_to_continue (1);
+		
+		Serial.println("Get blister");
+		release_blister ();
+		released = check_blister_realeased ();
+	}
+	// Check if blister has been released correctly
+	
+	
+	// START FILLING BLISTER
 	Serial.print("1rst hole");
 	go_to_memory_position (5);			// first hole
 	pickup_seed ();
@@ -253,6 +265,7 @@ void loop() {
 	Serial.println("Go to exit");
 	go_to_memory_position (4);			// Exit
 	
+	
 	Serial.print ("Counted seeds: ");
 	Serial.println (counter_s);
 	
@@ -278,3 +291,23 @@ void loop() {
 	*/
 }
 
+
+void chec_sensorF () {
+	while (true) {
+		int sensor_state = digitalRead (sensF); 
+		if (sensor_state) {
+			// We got the begining of the blister
+			print_ok();
+			// We got a blisters
+			// Now we know that we have just a few left
+			// We start counting
+			// How can we reset this count when blisters are refilled? Database?
+				// In database case. Check database, if refilled reset state.
+		}else{
+			print_fail ();
+			// lister not detected, send error
+			// press_button_to_continue (1);
+		}
+		delay (700);
+	}
+}

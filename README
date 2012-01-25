@@ -4,6 +4,10 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V3.4 - 25/01/2010
+**  * Added function to check sensors out ob listers and sensor blister not releasd correctly
+**  * Changed a bit all loop distribution
+**
 **  V3.3.3 - 18/01/2010
 **  * Setup process cleaned, create several sub-functions
 **	* New sensor pins definend, also Emergency button.

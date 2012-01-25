@@ -9,7 +9,7 @@
 DB db;
 
 #define MY_TBL 1
-#define number_of_positions 21
+#define number_of_positions 23
 
 struct MyRec {
 // Containig
