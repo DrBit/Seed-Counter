@@ -41,7 +41,7 @@
 #define init_Y2_fail  15	// Error initializing Y axis. Could not go out of sensor. The axis might be stuck, or the sensor disconnected or broken. Keeps reading ON even if we move it.
 #define init_X2_fail  16	// Error initializing X axis. Could not go out of sensor. The axis might be stuck, or the sensor disconnected or broken. Keeps reading ON even if we move it.
 #define counter_fail  17    // Counter error, pump might be off, seeds deposits might be empty, sensor might be disconnected or broken
-
+#define blister_release_fail 18 // Blister not released correctly, remove any blister on the belt and press number 1 to try again. Check the sensor if error persist.
 
 send_error_to_server
 send_command_to_server
