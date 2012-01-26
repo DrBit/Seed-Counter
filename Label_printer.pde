@@ -10,11 +10,11 @@ IP: 10.10.249.105:8000
 
 #define number_of_commands 20
 #define number_of_errors 20
+
 /*
 //////////////////////////
-// LIST OF COMMANDS
+// LIST OF INTERNAL ACTIONS/COMMANDS
 //////////////////////////
-
 // All commands are begined and ended with a '*'
 // any received data failling to have '*' at the begining anb at the end will be descarted.
 -------------
@@ -34,6 +34,10 @@ C10 - Send IP (printer_IP)
 C11 - Send PS (password)
 C12 - Send PP (printer_port)
 ------------
+EXTRA DATA
+------------
+// Extra data will be used to transfer further data. Like in order go to position
+// in go to position extradata will indicate the position itself
 C13 - Begining of data stream
 C14 - End of data stream
 ------------
@@ -41,22 +45,6 @@ C15 - Ask for data of network configuration
 ------------
 C16 - Send US (ui_server)
 C17 - Send MI (Machine ID)
-C19 - Send action to server
-C20 - Send status to the server (on hold, pending,...)
-
-//////////////////////////
-// LIST OF POSSIBLE ERRORS
-//////////////////////////
-
-E00 - Failed to open connection. Network down or website not available
-E01 - Time out receiving and aswer from the server 
-E02 - We didnt get any tag equal of what we where expecting
-E03 - Expected command (C03) to get positions configuration from the server UI
-E04 - Configuration command not supported (when inside configuration)
-E05 - Can NOT connect to the User Interface Server. Check connectrions, Check server is alive
-E10 - Not expected command  // When we sended a command that receiver wasn't expecting
-							// Normalli means receiver expects a concrete command and opnly will react to that
-	
 */
 	
 #define endOfLine '*'
@@ -66,8 +54,8 @@ E10 - Not expected command  // When we sended a command that receiver wasn't exp
 // Main Functions
 //////////////////////////
 
-void init_network () {
-	// Reset arduino (TODO connect reset cable)
+void init_ethernet () {
+	// Reset arduino
 	EthernetModuleReset ();
 	Serial1.begin (9600);
 	Serial.print   ("Init Ethernet module: ");
@@ -75,6 +63,7 @@ void init_network () {
 	boolean cReceived = false;
 	while (!cReceived) {
 		if (receive_next_answer(05) == 05) {
+			print_ok();
 			cReceived = true;
 		}
 	}
@@ -128,6 +117,7 @@ void EthernetModuleReset () {
 }
 
 
+/*
 void prepare_printer() {
 	// Print 2 stickers at the begining
 	Serial.println ("Label printer should have 2 labels printed before packaging can start");
@@ -148,7 +138,7 @@ void prepare_printer() {
 		}
 	}
 	
-}
+}*/
 
 
 void print_one_label () {
@@ -538,92 +528,3 @@ int receive_next_answer (int default_answer) {
 		}
 	}
 }
-
-
-// not needed
-/*
-void update_network_configuration () {
- 
-//C07 - Send SA (server_address)
-//C08 - Send SS (server_script)
-//C09 - Send SB (seeds_batch)
-//C10 - Send IP (printer_IP)
-//C11 - Send PS (password)
-//C12 - Send PP (printer_port)
-
-	delay(40);
-	send_command (7);
-	send_data (server_address);
-	delay (40);	
-	send_command (8);
-	send_data (server_script);
-	delay (40);	
-	send_command (9);
-	send_data (seeds_batch);
-	delay (40);	
-	send_command (10);
-	send_data (printer_IP);
-	delay (40);	
-	send_command (11);
-	send_data (password);
-	delay (40);	
-	send_command (12);
-	send_data (printer_port);
-
-	if (receive_next_answer(01) == 01) { 	// Command accepted
-		// All correct , continue
-		print_ok();
-	}else{
-		print_fail();
-		Serial.println (" * Configuration of network module Failed");
-		Serial.println(" * Press button 1 to try again");
-		press_button_to_continue (1);
-	}
-}
-*/
-
-/*  NOT NEEDED
-void print_network_config () {
-	boolean command_sended = false;
-	while (!command_sended) {
-		Serial.print   ("Retrieve network configuration: ");
-		send_command (15);			// Print one label
-		
-		if (receive_next_answer(01) == 01) { 	// Command accepted
-			command_sended = true;
-			print_ok();
-		}else{
-			print_fail();
-			Serial.println (" * Command send (C03) Failed");
-			Serial.println(" * Press button 1 to try again");
-			press_button_to_continue (1);
-		}
-	}
-	Serial.println("");
-	recevie_data_and_print ();
-}*/
-
-
-//  Wont be needed with the new UI
-/*
-// Types in a batch nomber for update it
-int select_batch_number () {
-	boolean inNumber = true;
-	//while (inNumber) {
-		Serial.print (" Type in batch number (290 test): ");
-		seeds_batch = get_number(3);
-		Serial.println (seeds_batch);
-		
-		/*		// We remove this since is a waste of time at the begining and can be done via the menu
-		inNumber = false;
-		Serial.println (" Correct? Y/N ");
-		if (YN_question()) {
-			// if YES do nothing and quit
-		}else{
-			// if no...
-			inNumber = true;	// Ask number again
-		}*/ /*
-
-	//}
-}
-*/

@@ -597,12 +597,6 @@ int init_blocks(int block) {
 		default:
 			int error = 0;
 			if (!init_blisters_menu ()) error++;
-				// Security Check
-				// Serial.println(" * Check the seed counter for any blister that may be left in the X axel");
-				// Serial.println(" * When ready press button 1 to continue set-up process");
-				// delay (150);
-				// Press button 1 to continue
-				// press_button_to_continue (1);
 			if (!init_XY_menu()) error++;
 			if (!init_counter_menu ()) error++;
 			mem_check ();
@@ -683,9 +677,9 @@ void check_pause () {
 				break;
 				
 				case 2:
-					// select_batch_number ();
-					// send_petition_to_configure_network ();
-					// update_network_configuration ();
+					select_batch_number ();
+					send_petition_to_configure_network ();
+					update_network_configuration ();
 				break;
 				
 				case 3:
@@ -795,4 +789,47 @@ void print_time (unsigned long total_milliseconds) {
 	Serial.print(":");
 	if (seconds < 10) Serial.print('0');
 	Serial.println(seconds);
+}
+
+
+void check_library_version () {
+	if ((Xaxis.get_version()) != lib_version) {
+		Serial.println("Library version mismatch");
+		Serial.print(" This code is designed to work with library V");
+		Serial.println(lib_version);
+		Serial.print(" And the library installed is version V");
+		Serial.println(Xaxis.get_version());
+		Serial.println (" Program stoped!");
+		send_error_to_server (library_error)
+		while (true) {}
+	}
+}
+
+void init_all_motors () {
+	// INIT SYSTEM, and CHECK for ERRORS
+	int temp_err = 0;   // flag for found errors
+	if (!init_blocks(ALL)) temp_err = 1;
+	
+	while (temp_err > 0) { // We found an error, we chek ALL errors and try to initiate correctly
+		temp_err = 0;
+		Serial.println("\nErrors found, press 1 when ready to check again, 2 to bypas the errors");
+		switch (return_pressed_button ()) {
+			//Init XY 
+			case 1:
+				if (error_XY) {
+					if (!init_blocks(2)) temp_err++;
+				}
+				if (error_counter) {
+					if (!init_blocks(3)) temp_err++;
+				}
+				if (error_blister) {
+					if (!init_blocks(1)) temp_err++;
+				}
+			break;
+			
+			case 2:
+				// do nothing so we wond detect any error and we will continue
+			break;
+		}
+	}
 }

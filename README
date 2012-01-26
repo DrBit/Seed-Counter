@@ -4,6 +4,13 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V3.5.1 - 26/01/2010
+**  * Splited list of actions and errors into a new file. Added Status
+**
+**  V3.5 - 25/01/2010
+**  * Added function to check sensors out of listers and sensor blister not releasd correctly
+**  * Changed a bit all loop distribution
+**
 **  V3.4.2 - 18/01/2012
 **  * Added actions and errors to the list 
 **
@@ -12,6 +19,17 @@
 **
 **  V3.4 - 06/01/2012
 **  Changed few functions to adapt to new UI
+**
+**  V3.3.3 - 18/01/2010
+**  * Setup process cleaned, create several sub-functions
+**	* New sensor pins definend, also Emergency button.
+**  * Added pre-functions of new sensors
+**
+**  V3.3.2 - 17/01/2010
+**  * Configuration migrated to the server 10.250.1.3
+**
+**  V3.3.1 - 11/01/2012
+**  * Adjusted positions
 **
 **  V3.3 - 06/01/2012
 **  * Added new brush position

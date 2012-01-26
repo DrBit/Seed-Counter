@@ -9,7 +9,7 @@
 DB db;
 
 #define MY_TBL 1
-#define number_of_positions 21
+#define number_of_positions 23
 
 struct MyRec {
 // Containig
@@ -83,7 +83,7 @@ void manual_data_write () {
 	int position_n = 20;			// Hole number
 	mposition.Xc = 8;				// Xcycles
 	mposition.Xf = 589;  			// Csteps
-	mposition.Yc = 7;				// Ycycles
+	mposition.Yc = 13;				// Ycycles
 	mposition.Yf = 1520;			// Ysteps
 	
 	db.write(position_n, DB_REC mposition);

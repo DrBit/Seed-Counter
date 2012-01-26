@@ -2,7 +2,7 @@
 #include <avr/pgmspace.h>
 #include <StopWatch.h>
 
-#define version_prog "V3.4.2"
+#define version_prog "V3.5.1"
 #define lib_version 13
 
 
@@ -42,8 +42,10 @@
 #define dirD 53
 #define sensA 12
 #define sensB 4
-#define sensC "not_used"
+#define sensC 48
 #define sensD 7
+#define sensE 46
+#define sensF 47
 
 #define ms1A 43
 #define ms2A 42
@@ -55,13 +57,7 @@
 #define ms2D 50
 
 #define ethReset 39
-
-// ***********************
-// ** Physical limits of the motors
-// ***********************
-
-#define Xaxis_cycles_limit 280
-#define Yaxis_cycles_limit 12
+#define emergency 13
 
 
 // ***********************
@@ -113,26 +109,24 @@ unsigned int max_batch_count = 1100;
 
 void setup() {
 	
+	send_status_to_server (starting__machine);
+	
 	// INIT Serial
 	init_serial();	
 	//Configure 3 Input Buttons
 	pinMode (button1, INPUT);
 	pinMode (button2, INPUT);
 	pinMode (button3, INPUT);
+	
+	pinMode (sensF, INPUT); 
+	pinMode (sensE, INPUT);
+	pinMode (sensC, INPUT); 
 	// Controls ethernet reset
 	pinMode (ethReset, OUTPUT);
 	digitalWrite (ethReset, HIGH);
 	
-	// Check Version
-	if ((Xaxis.get_version()) != lib_version) {
-		Serial.println("Library version mismatch");
-		Serial.print(" This code is designed to work with library V");
-		Serial.println(lib_version);
-		Serial.print(" And the library installed is version V");
-		Serial.println(Xaxis.get_version());
-		Serial.println (" Program stoped!");
-		while (true) {}
-	}
+	// Check library Version
+	check_library_version ();		//If different STOP
 	
 	// Initiate the Timer1 config function in order to prepare the timing functions of motor acceleration
 	speed_cntr_Init_Timer1();
@@ -141,19 +135,15 @@ void setup() {
 	init_DB ();				// Init database
 	// Show_all_records();
 	// manual_data_write();		// UPDATE manually all EEPROOM MEMORY (positions)
-	// press_button_to_continue (1);
 	
-	Serial.println("\n*****************");
-	Serial.println("** SETTING UP  **");
-	Serial.println("*****************");
+	print_set_up ();		// Begin SET-UP process
 	
+	// Init network module
+	init_ethernet ();		// Init printer
+	// Needed? Not anymore this is from the server
+	// prepare_printer();		// Prepares the printer to be ready for blisters 
 	
-	init_network ();					// Init network
-	configure_network ();				// Self configure network
-	prepare_printer();					// Prepares the printer to be ready for blisters 
-	// select_batch_number ();			// Ask for a batch number
-	
-	
+	// Defining default directions of motors (in case we change the wiring or the position of motors)
 	#define default_directionX true
 	#define default_directionY false
 	#define default_directionB true
@@ -166,37 +156,7 @@ void setup() {
 	counter.set_default_direcction (default_directionC);
 	
 	// INIT SYSTEM, and CHECK for ERRORS
-	int temp_err = 0;   // flag for found errors
-	if (!init_blocks(ALL)) temp_err = 1;
-	
-	while (temp_err > 0) { // We found an error, we chek ALL errors and try to initiate correctly
-		temp_err = 0;
-		Serial.println("\nErrors found, press 1 when ready to check again, 2 to bypas the errors");
-		switch (return_pressed_button ()) {
-			//Init XY 
-			case 1:
-				if (error_XY) {
-					if (!init_blocks(2)) temp_err++;
-				}
-				if (error_counter) {
-					if (!init_blocks(3)) temp_err++;
-				}
-				if (error_blister) {
-					if (!init_blocks(1)) temp_err++;
-				}
-			break;
-			
-			case 2:
-				// do nothing so we wond detect any error and we will continue
-			break;
-		}
-	}
-	
-	// some motor adjustments ( This configurations have been proved to work well, but there is still room for adjustments )
-	// Xaxis.set_speed_in_slow_mode (350);
-	// Xaxis.set_accel_profile(900, 17, 9, 20);			// Proven to be working really good
-	// Yaxis.set_speed_in_slow_mode (550);
-	// Yaxis.set_accel_profile(1100, 14, 9, 20);		// Proven to be working really good
+	init_all_motors ();
 	
 	// set_accel_profile(init_timing, int ramp_inclination, n_slopes_per_mode, n_steps_per_slope)
 	// MAX speed!
@@ -205,7 +165,14 @@ void setup() {
 	Yaxis.set_speed_in_slow_mode (350);
 	Yaxis.set_accel_profile(950, 13, 7, 15);
 	
+	
+	// chec_sensorF();
+	// To be removed in the future
 	MySW.start();			// Start timer for statistics
+	
+	
+	send_status (waiting);	// here we wait for the server to send orders
+	
 	// END of setup
 }
 
@@ -227,12 +194,23 @@ void loop() {
 
 	Serial.println("\n ************ ");
 	
-	Serial.println("go to Blister Position");
-	go_to_memory_position (2);			// blister
+	Serial.println("Get blister");
+	release_blister ();
+	
+	boolean released = check_blister_realeased ();
+	while (!released) {
+		send_error_to_server(blister_release_fail);
+		Serial.println("Blister malfunction, remove any blister on the belt and press number 1 to try again.");
+		press_button_to_continue (1);
 	
 	Serial.println("Get blister");
 	release_blister ();
+		released = check_blister_realeased ();
+	}
+	// Check if blister has been released correctly
 
+	
+	// START FILLING BLISTER
 	Serial.print("1rst hole");
 	go_to_memory_position (5);			// first hole
 	pickup_seed ();
@@ -280,13 +258,19 @@ void loop() {
 	print_one_label ();
 	
 	// Wait for the printer to print a label
+	// Or in the future get answer from the server
 	delay (3800);
+	
+	// Check sensor
+	// Is the lable printed correctly?
+	// Continue or send error
 	
 	Serial.println("Go to brush position");
 	go_to_memory_position (20);
 	
 	Serial.println("Go to exit");
 	go_to_memory_position (4);			// Exit
+	
 	
 	Serial.print ("Counted seeds: ");
 	Serial.println (counter_s);
@@ -313,3 +297,23 @@ void loop() {
 	*/
 }
 
+
+void chec_sensorF () {
+	while (true) {
+		int sensor_state = digitalRead (sensF); 
+		if (sensor_state) {
+			// We got the begining of the blister
+			print_ok();
+			// We got a blisters
+			// Now we know that we have just a few left
+			// We start counting
+			// How can we reset this count when blisters are refilled? Database?
+				// In database case. Check database, if refilled reset state.
+		}else{
+			print_fail ();
+			// lister not detected, send error
+			// press_button_to_continue (1);
+		}
+		delay (700);
+	}
+}

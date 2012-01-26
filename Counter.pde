@@ -19,22 +19,13 @@ boolean Seedcounter_init() {
 	boolean seed_sensor = false; 
 	int count = 0;
 
-	/*
-	// First time we init we just go back one complete cycle in case we have seeds atached and we bring them into the deposit
-	counter.set_direction (true);   // Set direction
-	for (count = (counter.get_steps_per_cycle()); count > 0; count--) {
-		counter.do_step();
-		delayMicroseconds(motor_speed_counter);
-	} */
-
-	count =0;
 	counter.set_direction (default_directionC);   // Set direction
 	while (!seed_sensor) {
 		// If the vacuum is not on, this would be cheking for the 0 position foreve
 		// so we count ten times and if there is no sense of a seed we pause
 		count++;
 		if (count == (counter.get_steps_per_cycle() * init_turns_till_error)) {  
-			//send_error("c1");     still to implemetn an error message system
+			send_error_to_server(counter_fail);
 			// Counter error, pump might be off, seeds deposits might be empty, sensor might be disconnected or broken
 			return false;  // Failed to initiate seed counter, retunr false
 		}  
@@ -56,14 +47,6 @@ boolean Seedcounter_init() {
 		delayMicroseconds(motor_speed_counter);
 	}
 	counter.set_init_position();  
-	/*
-	counter.set_direction (true);   // Set direction
-	for (int i=0;i<(steps_from_sensor_to_init/counter.get_step_accuracy()); i++) {   // we go back at the position we should be for starting point
-		counter.do_step();
-		delayMicroseconds(motor_speed_counter);
-	}
-	counter.set_direction (true);   // Set direction
-	*/
 	first_time_drop = true;		// State that the first time we drop a seed has to be different because we just INIT and the wheel is in a different posuition than by default
 	return true;
 }

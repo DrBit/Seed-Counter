@@ -1,9 +1,15 @@
 // ************************************************************
 // ** INIT FUNCTIONS
 // ************************************************************
+
+
+// ***********************
+// ** Physical limits of the motors
+// ***********************
 // Init the both axes at the same time to save time.
-#define max_insensor_stepsError 3000
-#define max_outsensor_stepsError (long) 528000
+#define max_insensor_stepsError 700
+#define Xaxis_cycles_limit 280
+#define Yaxis_cycles_limit 12
 
 
 boolean XYaxes_init () {
@@ -50,7 +56,7 @@ boolean XYaxes_init () {
 	
 	unsigned long start_time = millis ();
 	
-	// We should move the motors at this point in mode 1 for top speed
+	// We should move the motors at this point in mode 1 at top speed
 	while (!both_sensors) {			// While we dont hit the sensor...
 		if (!Xaxis.sensor_check()) {
 			Xaxis.do_step();
@@ -88,16 +94,13 @@ boolean XYaxes_init () {
 		
 		// Error checking, if we cannot reach a point where we hit the sensor means that there is a problem
 		temp_counter++;
-		if (temp_counter > max_outsensor_stepsError) {			// recheck the limit of revolutions
-			if (!Xaxis.sensor_check()) {
-				// send_error("i3");				//still to implement an error message system
-				// error in axis X off sensor range
+		if ((temp_counter/1600) > Yaxis_cycles_limit) {			// recheck the limit of revolutions
+			send_error_to_server (init_Y1_fail);				//still to implement an error message system
+			return false;
 			}
-			if (!Yaxis.sensor_check()) {
-				// send_error("i4");				//still to implement an error message system
-				// error in axis Y off sensor range
-			}
-		// sensor error, might be broquen, out of its place, disconected or failing
+		
+		if ((temp_counter/1600) > Xaxis_cycles_limit) {			// recheck the limit of revolutions
+			send_error_to_server (init_X1_fail);				//still to implement an error message system
 		return false;
 		}
 	}
@@ -133,19 +136,16 @@ boolean XYaxes_init () {
 			both_sensors = true;
 		}
 		delayMicroseconds(motor_speed_XY);		// here we go at minimum speed so we asure we wont lose any step and we will achieve maximum acuracy
+		
 		// Error checking, if we cannot reach a point where we dont hit the sensor meands that there is a problem
 		temp_counter++;
-		if (temp_counter > max_insensor_stepsError) {			// More than 3200 steps will generate an error (3200 steps = to 2 complete turns in step mode 8)
-			if (Xaxis.sensor_check()) {
-				// send_error("i3");					//still to implemetn an error message system
-				// error in axis X off sensor range
+		if (max_insensor_stepsError > Yaxis_cycles_limit) {			// recheck the limit of revolutions
+			send_error_to_server (init_Y2_fail);				//still to implement an error message system
+			return false;
 			}
-			if (Yaxis.sensor_check()) {
-				// send_error("i4");					//still to implemetn an error message system
-				// error in axis Y off sensor range
-			}
-			//send_error("i1");							//still to implemetn an error message system
-			// Sensor error,  might be obstructed or disconnected.
+		
+		if (max_insensor_stepsError > Xaxis_cycles_limit) {			// recheck the limit of revolutions
+			send_error_to_server (init_X2_fail);				//still to implement an error message system
 			return false;
 		}
 	}
