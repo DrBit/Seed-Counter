@@ -2,7 +2,7 @@
 #include <avr/pgmspace.h>
 #include <StopWatch.h>
 
-#define version_prog "V3.4"
+#define version_prog "V3.5"
 #define lib_version 13
 
 
@@ -170,7 +170,7 @@ void setup() {
 	Yaxis.set_accel_profile(950, 13, 7, 15);
 	
 	
-	//chec_sensorF();
+	// chec_sensorF();
 	MySW.start();			// Start timer for statistics
 	// END of setup
 }
@@ -194,8 +194,12 @@ void loop() {
 	
 	boolean released = check_blister_realeased ();
 	while (!released) {
-		Serial.println("Blister malfunction, remove any blister on the belt and press number 1 to try again.");
+		Serial.println("Blister malfunction, blister will be removed and we will try again. Check for any potencial problem before continuing.");
+		Serial.println("Press 1 to continue");
 		press_button_to_continue (1);
+		
+		Serial.println("Go to exit");
+		go_to_memory_position (4);			// Exit
 		
 		Serial.println("Get blister");
 		release_blister ();
@@ -252,15 +256,17 @@ void loop() {
 	print_one_label ();
 	
 	// Wait for the printer to print a label
-	// Or in the future get answer from the server
-	delay (3800);
-	
-	// Check sensor
-	// Is the lable printed correctly?
-	// Continue or send error
-	
-	Serial.println("Go to brush position");
-	go_to_memory_position (20);
+	released = check_label_realeased (true);
+	while (!released) {
+		Serial.println("Lable error, remove any label that might be left and press number 1 to try again or 2 to continue.");
+		int button_pressed = return_pressed_button ();
+		if (button_pressed == 2) break;
+		
+		Serial.println("Goto print position");
+		go_to_memory_position (3);			// Print position
+		print_one_label ();
+		released = check_label_realeased (true);
+	}
 	
 	Serial.println("Go to exit");
 	go_to_memory_position (4);			// Exit
@@ -294,7 +300,7 @@ void loop() {
 
 void chec_sensorF () {
 	while (true) {
-		int sensor_state = digitalRead (sensF); 
+		int sensor_state = digitalRead (sensE); 
 		if (sensor_state) {
 			// We got the begining of the blister
 			print_ok();

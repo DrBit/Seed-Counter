@@ -253,6 +253,37 @@ void print_one_label () {
 }
 
 
+boolean check_label_realeased (boolean print) {
+	
+	boolean label = false;
+	boolean timeout_label = false;
+	int count = 0;
+	if (print) Serial.print("Label released: ");
+	
+	// Check if we got a label, or we timeout
+	while (!label && !timeout_label) {
+		label = digitalRead (sensE); 
+		count ++;
+		if (count == 200) timeout_label = true;
+		delay (50);
+	}
+	
+	
+	if (label) {
+		if (print) print_ok();
+		delay (500);		// Just give sometime to the printer to finsh the job before we move
+		Serial.println("Go to brush position");
+		go_to_memory_position (20);
+		label = digitalRead (sensE);		// After moving we check the label again, could be that wasn't completely stiked and moved on the way.
+		if (!label) return false;
+		return true;
+	}
+
+	if (print) print_fail ();
+	return false;
+}
+
+
 //////////////////////////
 // Receive Command
 //////////////////////////

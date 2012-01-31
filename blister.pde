@@ -109,12 +109,12 @@ void check_out_of_blisters () {
 		// Check whether the sensor changes state
 		while (sensorC_state) {
 			sensorC_state = digitalRead (sensC);
-			delay (4000);
+			delay (2000);
 		}
 		
 		// Comunicate the user to continue
-		Serial.println("Sensor has changed, press 1 to continue.");
-		press_button_to_continue (1);
+		Serial.println("Sensor has changed, autostarting in 10 seconds.");
+		delay (10000);
 		
 		// Recheck the sensor if not enabled proceed to continue
 		sensorC_state = digitalRead (sensC); 
