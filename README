@@ -9,6 +9,7 @@
 **  * Added autostart after blisters are refilled (during refilling)
 **  * Added error checking in the counter. If seed is detected where it shouldnt. (avoids constant seed picking)
 **  * Added functionality in blisters errors (in sensor position)
+**  * Added autofix when error in coutner wheel losing steps.
 **
 **  V3.4 - 25/01/2010
 **  * Added function to check sensors out of listers and sensor blister not releasd correctly

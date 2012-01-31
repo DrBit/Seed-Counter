@@ -135,8 +135,11 @@ void pickup_seed() {
 				// Something whent wrong!!!!
 				Serial.println ("\n\n **** Something whent wrong. Detected seed where it shouldn't");
 				Serial.println (" Probably counter motor missed some steps");
-				Serial.println ("\n ***Reset machine, contact Admin");
-				while (true) {}
+				Serial.println ("\n ***Press 1 to try auto-fix or reset the machine.");
+				int button_pressed = return_pressed_button ();
+				if (button_pressed == 1) {
+					counter_autofix ();
+				}
 			}
 			
 		}
@@ -149,5 +152,50 @@ void wait_time (unsigned long milliseconds) {
 	while (millis() < (now + milliseconds)) {
 		// Just wait
 	}
+}
+
+
+
+
+boolean counter_autofix() {
+    
+	// Goes back till senses and then senses nothing again or just turns back little but more than half a turn
+	counter.set_direction (!default_directionC);   // Set direction
+	
+	int steps_limit = ((counter.get_steps_per_cycle() / 4)*3) * counter.get_step_accuracy();
+	
+	boolean pre_init_position = false;
+	int count = 0;
+	boolean seed_sensor = false; 
+	
+	while (!pre_init_position) {
+		
+		counter.do_step();
+		count++;
+		delayMicroseconds(motor_speed_counter*5);		// we do it 5 times slower to avoid breaking anything
+		
+		if (counter.sensor_check()) {
+			// We have detected the sensor, we go further till going out, and little further to be in a safe place
+			seed_sensor = true;
+			while (seed_sensor) {
+				seed_sensor = counter.sensor_check();
+				counter.do_step();
+				delayMicroseconds(motor_speed_counter*5);		// we do it 5 times slower to avoid breaking anything
+			}
+			
+			for (int a = 0; a < margin_steps_to_detect_seed; a++) {\
+				counter.do_step();
+				delayMicroseconds(motor_speed_counter*5);		// we do it 5 times slower to avoid breaking anything
+			}
+			
+			pre_init_position = true;
+		} else {
+			if (count == steps_limit) {
+				pre_init_position = true;
+			}
+		}
+	}
+
+	Seedcounter_init();
 }
 
