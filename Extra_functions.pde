@@ -664,6 +664,21 @@ int init_blisters_menu () {
 
 
 void check_pause () {
+	
+	// Emergency button handler
+	int button_emergency = digitalRead (emergency); 
+	// if (button_emergency) {		// Bypas for now,, re-enable when connected
+	if (false) {
+		Serial.println ("Emergency Enabled");
+		// Send error
+		while (button_emergency) {
+			button_emergency = digitalRead (emergency); 
+			delay (1000);
+		}
+		Serial.println ("Emergency disabled");
+	}
+	
+	
 	if ((Serial.available() || pause) && !manual_enabled) {
 		pause = true;
 		MySW.stop();

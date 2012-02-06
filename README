@@ -4,6 +4,9 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V3.6 - 06/02/2010
+**  * Added emergency button function
+**
 **  V3.5 - 31/01/2010
 **  * Added function to check sensors at printer label position
 **  * Added autostart after blisters are refilled (during refilling)

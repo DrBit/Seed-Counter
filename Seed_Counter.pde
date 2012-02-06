@@ -2,7 +2,7 @@
 #include <avr/pgmspace.h>
 #include <StopWatch.h>
 
-#define version_prog "V3.5"
+#define version_prog "V3.6"
 #define lib_version 13
 
 
@@ -126,6 +126,10 @@ void setup() {
 	pinMode (sensF, INPUT); 
 	pinMode (sensE, INPUT);
 	pinMode (sensC, INPUT); 
+	
+	// Setup emergency pin 
+	pinMode (emergency, INPUT);           // set pin to input
+
 	// Controls ethernet reset
 	pinMode (ethReset, OUTPUT);
 	digitalWrite (ethReset, HIGH);
