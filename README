@@ -6,6 +6,7 @@
 **
 **  V3.6 - 06/02/2010
 **  * Added emergency button function
+**	* Added Pump functions (Relay to be implemented)
 **
 **  V3.5 - 31/01/2010
 **  * Added function to check sensors at printer label position
