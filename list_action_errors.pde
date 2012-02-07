@@ -8,7 +8,7 @@
 #define 4 // Pause
 #define 5 // finished batch IDLE
 #define 6 // Error
-#define starting__machine 7 // Starting machine
+#define starting_machine 7 // Starting machine
 
 //////////////////////////
 // LIST OF ACTIONS
@@ -56,3 +56,4 @@ User needs first to be sure machine is clean of blisters on the combeier and wit
 blister in the deposit
 
 Printer must have one label ready with the selected batch before start
+*/

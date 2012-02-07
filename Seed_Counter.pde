@@ -2,6 +2,8 @@
 #include <avr/pgmspace.h>
 #include <StopWatch.h>
 
+#include <network_config.h>
+
 #define version_prog "V3.5.1"
 #define lib_version 13
 
@@ -109,7 +111,7 @@ unsigned int max_batch_count = 1100;
 
 void setup() {
 	
-	send_status_to_server (starting__machine);
+	send_status_to_server (starting_machine);
 	
 	// INIT Serial
 	init_serial();	
