@@ -146,7 +146,8 @@ void manual_modeCounter() {
 			print_counter_pos();
 		}
 	}
-  delayMicroseconds(motor_speed_counter);
+  //delayMicroseconds(motor_speed_counter*10);
+  delay(100);
 }
 
 

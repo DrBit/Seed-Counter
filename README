@@ -7,6 +7,7 @@
 **  V3.7 - 07/02/2010
 **	* Added pin to Pump functions (Relay to be implemented)
 **  * Relocated network configuration file
+**  * Incremented safe distance in counter sensor (avoids triggering errors)
 **
 **  V3.6 - 06/02/2010
 **  * Added emergency button function
