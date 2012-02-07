@@ -1,12 +1,5 @@
-#include <network_config.h>
+
 unsigned int seeds_batch = 290;
-
-
-/*  test
-SA: drbit.nl
-SS: /index.php
-IP: 10.10.249.105:8000
-*/
 
 #define number_of_commands 20
 #define number_of_errors 20

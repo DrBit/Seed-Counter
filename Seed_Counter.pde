@@ -2,6 +2,8 @@
 #include <avr/pgmspace.h>
 #include <StopWatch.h>
 
+#include <network_config.h>
+
 #define version_prog "V3.6"
 #define lib_version 13
 
