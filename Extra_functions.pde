@@ -635,7 +635,7 @@ int init_XY_menu() {
 /***** Init Counter from menu *****/
 int init_counter_menu () {
 	// Init Counter
-	enable_pump ();
+	pump_enable ();
     Serial.print("Init Seed counter roll: ");
     if (Seedcounter_init()) {  // Initiates seed counters
 	print_ok();
@@ -644,7 +644,7 @@ int init_counter_menu () {
     }else{
 	print_fail();
         error_counter = true;
-		disable_pump ();
+		pump_disable ();
         return 0;
     }
 }
@@ -681,7 +681,7 @@ void check_pause () {
 			// If we are paused for more than 1 minute we stop the pump
 			count++;
 			if (count > 60) {
-				disable_pump ();
+				pump_disable ();
 			}
 		}
 		
@@ -870,29 +870,28 @@ void init_all_motors () {
 
 
 // PUMP functions
-// (NOT ENABLED YET)
 
 void set_pump_state (boolean pump_state) {
 
 	if (pump_state) {
-		//digitalWrite (pump, HIGH);
+		digitalWrite (pump, HIGH);
 	}else{ 
-		//digitalWrite (pump, LOW);
+		digitalWrite (pump, LOW);
 	}
 }
 
-boolean get_pumpt_state () {
-	//return digitalRead (pump);
-	return true
+boolean get_pump_state () {
+	return digitalRead (pump);
+	return true;
 }
 
-void enable_pump () {
+void pump_enable () {
 	Serial.println ("Enable Pump");
 	set_pump_state (true);
 	delay (4000);		// Wait 4 seconds to build up some pressure
 }
 
-void disable_pump () {
+void pump_disable () {
 	Serial.println ("Disable Pump");
 	set_pump_state (false);
 }

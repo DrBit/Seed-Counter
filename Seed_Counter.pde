@@ -58,6 +58,7 @@
 
 #define ethReset 39
 #define emergency 13
+#define pump 49
 
 // ***********************
 // ** Physical limits of the motors
@@ -133,6 +134,9 @@ void setup() {
 	// Controls ethernet reset
 	pinMode (ethReset, OUTPUT);
 	digitalWrite (ethReset, HIGH);
+	
+	// Controls Pump relay
+	pinMode (pump, OUTPUT);
 	
 	// Check library Version
 	check_library_version ();		//If different STOP

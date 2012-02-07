@@ -4,6 +4,9 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V3.7 - 07/02/2010
+**	* Added pin to Pump functions (Relay to be implemented)
+**
 **  V3.6 - 06/02/2010
 **  * Added emergency button function
 **	* Added Pump functions (Relay to be implemented)
