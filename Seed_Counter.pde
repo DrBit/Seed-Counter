@@ -114,7 +114,7 @@ unsigned long count_total_turns = 0;
 unsigned long counter_s = 0;
 boolean pause = false;
 boolean manual_enabled = false;				// Flag to overwrite the pause flag
-unsigned int max_batch_count = 1100;
+
 
 
 void setup() {

@@ -8,9 +8,10 @@
 #define steps_from_sensor_to_start_moving_when_seed 0		// Number of steps (based in mode 8) away form the pick a seed point to start moving the axis when we got a seed.
 #define margin_steps_to_detect_seed 80		// Its the steps margin in wich the sensor will check if we have a seed
 
-#define fails_max_normal 300			// Max number of tries to pick a seed before software will create an error
-#define fails_max_end 70				// Max number of fails before 100 seeds to reach the complet batch to create an error (since we are close to the end we dont need to go to 1000)
+#define fails_max_normal 40			// Max number of tries to pick a seed before software will create an error
+#define fails_max_end 20				// Max number of fails before 100 seeds to reach the complet batch to create an error (since we are close to the end we dont need to go to 1000)
 #define init_turns_till_error 40   		// Number of times the counter will try to get a seed at INITIATION before giving an error
+unsigned int max_batch_count = 1100;	// Tipical number of seeds in a batch
 
 boolean first_time_drop = true;		// Used only to acomodate positionafter INIT. Once hase been used we won't used anymore.
 
@@ -92,13 +93,17 @@ void pickup_seed() {
 		
 		// First some error checking.
 		if (count_error_turns > fails_max_normal) {
-			Serial.println ("Error, no more seeds. Empty? Bottleneck?");
-			pause = true;
-			check_pause ();				// Enters menu if a button is pressed
+			Serial.println ("Error, no more seeds? Empty? Bottleneck? did the world end?");
+			Serial.println ("Press 1 to continue, press 2 to finish batch");
+			int button_pressed = return_pressed_button ();
+			if (button_pressed == 1) count_error_turns = 0;
+			if (button_pressed == 2) end_of_batch ();
 		}else if ((count_error_turns > fails_max_end) && (counter_s > (max_batch_count - 200))) {
-			Serial.println ("We might have reached the end");
-			pause = true;
-			check_pause ();				// Enters menu if a button is pressed
+			Serial.println ("We might have reached the end, is it?");
+			Serial.println ("Press 1 to continue, press 2 to finilize batch");
+			int button_pressed = return_pressed_button ();
+			if (button_pressed == 1) count_error_turns = 0;
+			if (button_pressed == 2) end_of_batch ();
 		}
 		check_pause ();				// Enters menu if a button is pressed
 		
@@ -199,3 +204,6 @@ boolean counter_autofix() {
 	Seedcounter_init();
 }
 
+void end_of_batch () {
+	Serial.println ("Here code for ending the batch");
+}
