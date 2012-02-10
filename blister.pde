@@ -123,3 +123,26 @@ void check_out_of_blisters () {
 		}
 	}
 }
+
+
+void pick_blister_mode() {
+	boolean correct_mode = false;
+	while (!correct_mode) {
+		Serial.println ("* Select blister mode:");
+		Serial.println ("[1] - 10 seeds mode");
+		Serial.println ("[2] - 5  seeds mode");
+		
+		int button_pressed = return_pressed_button ();
+		if (button_pressed == 1) {
+			blister_mode = seeds10;
+			correct_mode = true;
+		} else if (button_pressed == 2) {
+			blister_mode = seeds5;
+			correct_mode = true;
+		}else{
+			Serial.print (" Mode ");
+			Serial.print (button_pressed);
+			Serial.println (" not avaialble, try again");
+		}
+	}	
+}

@@ -4,7 +4,7 @@
 
 #include <network_config.h>
 
-#define version_prog "V3.6"
+#define version_prog "V3.8"
 #define lib_version 13
 
 
@@ -98,6 +98,10 @@ const int motor_speed_counter=1000;
 const int motor_speed_XY=900;
 const int motor_speed_blisters=1500;
 
+// Blister mode
+#define seeds5 1
+#define seeds10 2
+int blister_mode = 0;
 
 // ***********************
 // ** Error FLAGS
@@ -180,6 +184,9 @@ void setup() {
 	Yaxis.set_accel_profile(950, 13, 7, 15);
 	
 	
+	// Pick bl;ister mode to start filling
+	pick_blister_mode();
+	
 	// chec_sensorF();
 	MySW.start();			// Start timer for statistics
 	// END of setup
@@ -217,47 +224,74 @@ void loop() {
 	}
 	// Check if blister has been released correctly
 	
+	// 10 Seeds mode
+	if (blister_mode == seeds10) {
 	
-	// START FILLING BLISTER
-	Serial.print("1rst hole");
-	go_to_memory_position (5);			// first hole
-	pickup_seed ();
-	
-	Serial.print(" - 2nd hole");
-	go_to_memory_position (6);			// 2nd hole
-	pickup_seed ();
-	
-	Serial.print(" - 3th hole");
-	go_to_memory_position (7);			//4th hole
-	pickup_seed ();
-	
-	Serial.print(" - 4rd hole");
-	go_to_memory_position (8);			// 3d hole
-	pickup_seed ();
+		// START FILLING BLISTER
+		Serial.print("1rst hole");
+		go_to_memory_position (5);			// first hole
+		pickup_seed ();
+		
+		Serial.print(" - 2nd hole");
+		go_to_memory_position (6);			// 2nd hole
+		pickup_seed ();
+		
+		Serial.print(" - 3th hole");
+		go_to_memory_position (7);			//4th hole
+		pickup_seed ();
+		
+		Serial.print(" - 4rd hole");
+		go_to_memory_position (8);			// 3d hole
+		pickup_seed ();
 
-	Serial.println(" - 5th hole");
-	go_to_memory_position (9);			// 5th hole
-	pickup_seed ();
+		Serial.println(" - 5th hole");
+		go_to_memory_position (9);			// 5th hole
+		pickup_seed ();
+		
+		Serial.print("6th hole");
+		go_to_memory_position (10);			// 6th hole
+		pickup_seed ();
+		
+		Serial.print(" - 7th hole");
+		go_to_memory_position (11);			// 8th hole
+		pickup_seed ();
+		
+		Serial.print(" - 8th hole");
+		go_to_memory_position (12);			// 7th hole
+		pickup_seed ();
+		
+		Serial.print(" - 9th hole");
+		go_to_memory_position (13);			// 9th hole
+		pickup_seed ();
+		
+		Serial.println(" - 10th hole");
+		go_to_memory_position (14);			// 10th hole
+		pickup_seed ();
 	
-	Serial.print("6th hole");
-	go_to_memory_position (10);			// 6th hole
-	pickup_seed ();
-	
-	Serial.print(" - 7th hole");
-	go_to_memory_position (11);			// 8th hole
-	pickup_seed ();
-	
-	Serial.print(" - 8th hole");
-	go_to_memory_position (12);			// 7th hole
-	pickup_seed ();
-	
-	Serial.print(" - 9th hole");
-	go_to_memory_position (13);			// 9th hole
-	pickup_seed ();
-	
-	Serial.println(" - 10th hole");
-	go_to_memory_position (14);			// 10th hole
-	pickup_seed ();
+	} else if (blister_mode == seeds5) {		// 5 Seeds mode
+
+		// START FILLING BLISTER
+		Serial.print("1rst hole");
+		go_to_memory_position (5);			// first hole
+		pickup_seed ();
+		
+		Serial.print(" - 2nd hole");
+		go_to_memory_position (7);			//4th hole
+		pickup_seed ();
+
+		Serial.println(" - 3th hole");
+		go_to_memory_position (9);			// 5th hole
+		pickup_seed ();
+		
+		Serial.print(" - 4th hole");
+		go_to_memory_position (11);			// 8th hole
+		pickup_seed ();
+		
+		Serial.print(" - 5th hole");
+		go_to_memory_position (13);			// 9th hole
+		pickup_seed ();
+		
+	}
 
 	
 	Serial.println("Goto print position");

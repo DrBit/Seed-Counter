@@ -4,6 +4,9 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V3.8 - 10/02/2012
+**  * Added 5/10 mode blisters selector
+**
 **  V3.7 - 07/02/2010
 **	* Added pin to Pump functions (Relay to be implemented)
 **  * Relocated network configuration file
