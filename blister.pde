@@ -75,6 +75,7 @@ boolean check_blister_realeased () {
 	boolean sensor_state = digitalRead (sensF); 
 	if (!sensor_state) {
 		p21_correct = true;
+		Serial.print(" pos21 correct ");
 	}
 		
 	// Now we go right ON the blister at the begining.
@@ -84,6 +85,7 @@ boolean check_blister_realeased () {
 	sensor_state = digitalRead (sensF); 
 	if (sensor_state) {
 		p22_correct = true;
+		Serial.print(" pos22 correct ");
 	}
 	
 	if (p21_correct && p22_correct) {
