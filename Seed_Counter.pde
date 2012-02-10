@@ -199,8 +199,8 @@ void setup() {
 
 
 // Blister positions
-// * 10 * 08 * 06 * 04 * 02 * Y2
-// * 09 * 07 * 05 * 03 * 01 * Y1
+// * 10 * 07 * 06 * 03 * 02 * Y2
+// * 09 * 08 * 05 * 04 * 01 * Y1
 // * X5 * X4 * X3 * X2 * X1 *
 void loop() {
 
@@ -237,11 +237,11 @@ void loop() {
 		pickup_seed ();
 		
 		Serial.print(" - 3th hole");
-		go_to_memory_position (7);			//4th hole
+		go_to_memory_position (7);			//3th hole
 		pickup_seed ();
 		
 		Serial.print(" - 4rd hole");
-		go_to_memory_position (8);			// 3d hole
+		go_to_memory_position (8);			// 4d hole
 		pickup_seed ();
 
 		Serial.println(" - 5th hole");
@@ -253,11 +253,11 @@ void loop() {
 		pickup_seed ();
 		
 		Serial.print(" - 7th hole");
-		go_to_memory_position (11);			// 8th hole
+		go_to_memory_position (11);			// 7th hole
 		pickup_seed ();
 		
 		Serial.print(" - 8th hole");
-		go_to_memory_position (12);			// 7th hole
+		go_to_memory_position (12);			// 8th hole
 		pickup_seed ();
 		
 		Serial.print(" - 9th hole");
@@ -276,7 +276,7 @@ void loop() {
 		pickup_seed ();
 		
 		Serial.print(" - 2nd hole");
-		go_to_memory_position (7);			//4th hole
+		go_to_memory_position (8);			//4th hole
 		pickup_seed ();
 
 		Serial.println(" - 3th hole");
@@ -284,7 +284,7 @@ void loop() {
 		pickup_seed ();
 		
 		Serial.print(" - 4th hole");
-		go_to_memory_position (11);			// 8th hole
+		go_to_memory_position (12);			// 8th hole
 		pickup_seed ();
 		
 		Serial.print(" - 5th hole");
