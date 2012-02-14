@@ -166,7 +166,7 @@ void pickup_seed() {
 				Serial.println ("\n\n **** Something whent wrong. Detected seed where it shouldn't");
 				Serial.println (" Probably counter motor missed some steps");
 				Serial.println ("\n ***Press 1 to try auto-fix or reset the machine.");
-				Serial.println ("\n ***CHECK CURRENT BLISTER FOR DOUBLE SEEDS OR EMPTY SEEDS!!!!!");
+				Serial.println ("\n ***CHECK CURRENT BLISTER FOR DOUBLE SEEDS OR EMPTY SEEDS!");
 				int button_pressed = return_pressed_button ();
 				if (button_pressed == 1) {
 					counter_autofix ();
@@ -233,6 +233,6 @@ boolean counter_autofix() {
 void end_of_batch () {
 	Serial.println ("Close this windows and open again to restart");
 	while (true) {
-	
+		delay(100);
 	}
 }

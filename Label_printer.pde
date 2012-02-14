@@ -228,8 +228,8 @@ void print_one_label () {
 	}else{
 		print_fail();
 		Serial.println (" * Command (C04) Failed");
-		Serial.println(" * Press button 1 to continue");
-		press_button_to_continue (1);
+		//Serial.println(" * Press button 1 to continue");
+		//press_button_to_continue (1);
 	}
 }
 
