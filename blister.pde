@@ -75,7 +75,8 @@ boolean check_blister_realeased () {
 	boolean sensor_state = digitalRead (sensF); 
 	if (!sensor_state) {
 		p21_correct = true;
-		Serial.print(" pos21 correct ");
+	}else{
+		Serial.print(" - OFF state incorrect  ");
 	}
 		
 	// Now we go right ON the blister at the begining.
@@ -85,7 +86,8 @@ boolean check_blister_realeased () {
 	sensor_state = digitalRead (sensF); 
 	if (sensor_state) {
 		p22_correct = true;
-		Serial.print(" pos22 correct ");
+	}else{
+		Serial.print(" - ON state incorrect ");
 	}
 	
 	if (p21_correct && p22_correct) {
@@ -138,9 +140,11 @@ void pick_blister_mode() {
 		if (button_pressed == 1) {
 			blister_mode = seeds10;
 			correct_mode = true;
+			Serial.println ("10 seeds mode delected.");
 		} else if (button_pressed == 2) {
 			blister_mode = seeds5;
 			correct_mode = true;
+			Serial.println ("5 seeds mode delected.");
 		}else{
 			Serial.print (" Mode ");
 			Serial.print (button_pressed);

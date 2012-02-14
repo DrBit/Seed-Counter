@@ -4,6 +4,10 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V3.9 - 14/02/2012
+**  * Added function in too many wheel counts
+**  * Added various logging and user visivility
+**
 **  V3.8 - 10/02/2012
 **  * Added 5/10 mode blisters selector
 **  * Fixed positions in 5 seeds blister mode

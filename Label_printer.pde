@@ -220,10 +220,10 @@ void print_one_label () {
 		if (receive_next_answer(06) == 06) { 
 			print_ok();				// All went OK
 		}else{
-			print_fail();
+			// print_fail();
 			Serial.println (" * Expected response (C06)");
-			Serial.println(" * Press button 1 to continue");
-			press_button_to_continue (1);
+			//Serial.println(" * Press button 1 to continue");
+			//press_button_to_continue (1);
 		}
 	}else{
 		print_fail();

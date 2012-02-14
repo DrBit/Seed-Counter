@@ -4,7 +4,7 @@
 
 #include <network_config.h>
 
-#define version_prog "V3.8"
+#define version_prog "V3.9"
 #define lib_version 13
 
 
@@ -183,7 +183,6 @@ void setup() {
 	Yaxis.set_speed_in_slow_mode (350);
 	Yaxis.set_accel_profile(950, 13, 7, 15);
 	
-	
 	// Pick bl;ister mode to start filling
 	pick_blister_mode();
 	
@@ -205,7 +204,6 @@ void setup() {
 void loop() {
 
 	Serial.println("\n ************ ");
-	
 	Serial.println("Get blister");
 	release_blister ();
 	
@@ -293,7 +291,6 @@ void loop() {
 		
 	}
 
-	
 	Serial.println("Goto print position");
 	go_to_memory_position (3);			// Print position
 	
@@ -342,9 +339,29 @@ void loop() {
 }
 
 
-void chec_sensorF () {
+void chec_sensorE () {
 	while (true) {
 		int sensor_state = digitalRead (sensE); 
+		if (sensor_state) {
+			// We got the begining of the blister
+			print_ok();
+			// We got a blisters
+			// Now we know that we have just a few left
+			// We start counting
+			// How can we reset this count when blisters are refilled? Database?
+				// In database case. Check database, if refilled reset state.
+		}else{
+			print_fail ();
+			// lister not detected, send error
+			// press_button_to_continue (1);
+		}
+		delay (700);
+	}
+}
+
+void chec_sensorF () {
+	while (true) {
+		int sensor_state = digitalRead (sensF); 
 		if (sensor_state) {
 			// We got the begining of the blister
 			print_ok();

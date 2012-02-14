@@ -8,7 +8,7 @@
 #define steps_from_sensor_to_start_moving_when_seed 0		// Number of steps (based in mode 8) away form the pick a seed point to start moving the axis when we got a seed.
 #define margin_steps_to_detect_seed 80		// Its the steps margin in wich the sensor will check if we have a seed
 
-#define fails_max_normal 40			// Max number of tries to pick a seed before software will create an error
+#define fails_max_normal 40				// Max number of tries to pick a seed before software will create an error
 #define fails_max_end 20				// Max number of fails before 100 seeds to reach the complet batch to create an error (since we are close to the end we dont need to go to 1000)
 #define init_turns_till_error 40   		// Number of times the counter will try to get a seed at INITIATION before giving an error
 unsigned int max_batch_count = 1100;	// Tipical number of seeds in a batch
@@ -92,32 +92,56 @@ void pickup_seed() {
 	while (!seed_detected) {
 		
 		// First some error checking.
+		
+		// Prepare code to do the last count if we are at 1 count to trigger error
+		int last_turn = false;
+		if (count_error_turns == fails_max_normal) {
+			last_turn = true;
+		}else if ((count_error_turns == fails_max_end) && (counter_s > (max_batch_count - 200))) {
+			last_turn = true;
+		}
+		
 		if (count_error_turns > fails_max_normal) {
-			Serial.println ("Error, no more seeds? Empty? Bottleneck? did the world end?");
-			Serial.println ("Press 1 to continue, press 2 to finish batch");
+			Serial.println ("\nError, no more seeds? Empty? Bottleneck? did the world end?");
+			Serial.print ("Press 1 to continue, press 2 to finish batch: ");
 			int button_pressed = return_pressed_button ();
-			if (button_pressed == 1) count_error_turns = 0;
+			Serial.println (button_pressed);
+			if (button_pressed == 1) { 
+				count_error_turns = 0;
+				previous_counted_turns = count_total_turns;
+			}
 			if (button_pressed == 2) end_of_batch ();
+
 		}else if ((count_error_turns > fails_max_end) && (counter_s > (max_batch_count - 200))) {
-			Serial.println ("We might have reached the end, is it?");
-			Serial.println ("Press 1 to continue, press 2 to finilize batch");
+			Serial.println ("\nWe might have reached the end, is it?");
+			Serial.print ("Press 1 to continue, press 2 to finilize batch: ");
 			int button_pressed = return_pressed_button ();
-			if (button_pressed == 1) count_error_turns = 0;
+			Serial.println (button_pressed);
+			if (button_pressed == 1) { 
+				count_error_turns = 0;
+				previous_counted_turns = count_total_turns;
+			}
 			if (button_pressed == 2) end_of_batch ();
+
 		}
 		check_pause ();				// Enters menu if a button is pressed
 		
 		// We are at drop seed position ready to start turning.
 		if ((counter.get_steps() == steps_from_sensor_to_init_clockwise) && (count_total_turns == previous_counted_turns)){			// If we are at the starting position means we are ready to continue
 			wait_time(50);
-			speed_cntr_Move(1600/counter.get_step_accuracy(),accel,speed,accel);	// We do a full turn, NOTICE that the acceleration in this case is lower
-			count_total_turns ++;		// for statistics pourpouses
+			if (!last_turn) {
+				speed_cntr_Move(1600/counter.get_step_accuracy(),accel,speed,accel);	// We do a full turn, NOTICE that the acceleration in this case is lower
+				count_total_turns ++;		// for statistics pourpouses
+			}
 			count_error_turns ++;		// for errors pourpous
+			
 		}else if (first_time_drop && (count_total_turns == previous_counted_turns)) {				// If its the first time we wont be at the starting position so instead of a full turn we move less toa rrive at the default pos.
 			first_time_drop = false;
 			wait_time(50);
-			speed_cntr_Move(steps_from_sensor_to_init_clockwise/counter.get_step_accuracy(),accel,speed,accel);	// We do a full turn, NOTICE that the acceleration in this case is lower
-			count_total_turns ++;		// for statistics pourpouses
+			if (!last_turn) {
+				speed_cntr_Move(steps_from_sensor_to_init_clockwise/counter.get_step_accuracy(),accel,speed,accel);	// We do a full turn, NOTICE that the acceleration in this case is lower
+				count_total_turns ++;		// for statistics pourpouses
+			}
 			count_error_turns ++;		// for errors pourpous
 		}
 		// Check if we are at sensor position
@@ -135,12 +159,14 @@ void pickup_seed() {
 			}
 			// Each time we are here is because we already started moving
 			previous_counted_turns = count_total_turns;			// Avoid giving more than 1 order to turn at the same time
+			
 		} else {
 			if (counter.sensor_check()){			// We got a seed and we are not supose to have one here!!
 				// Something whent wrong!!!!
 				Serial.println ("\n\n **** Something whent wrong. Detected seed where it shouldn't");
 				Serial.println (" Probably counter motor missed some steps");
 				Serial.println ("\n ***Press 1 to try auto-fix or reset the machine.");
+				Serial.println ("\n ***CHECK CURRENT BLISTER FOR DOUBLE SEEDS OR EMPTY SEEDS!!!!!");
 				int button_pressed = return_pressed_button ();
 				if (button_pressed == 1) {
 					counter_autofix ();
@@ -195,7 +221,7 @@ boolean counter_autofix() {
 			
 			pre_init_position = true;
 		} else {
-			if (count == steps_limit) {
+			if (count >= steps_limit) {
 				pre_init_position = true;
 			}
 		}
@@ -205,5 +231,8 @@ boolean counter_autofix() {
 }
 
 void end_of_batch () {
-	Serial.println ("Here code for ending the batch");
+	Serial.println ("Close this windows and open again to restart");
+	while (true) {
+	
+	}
 }
