@@ -214,7 +214,7 @@ void print_and_release_label () {
 	print_one_label ();
 	
 	// Wait for the printer to print a label
-	released = check_label_realeased (true);
+	boolean released = check_label_realeased (true);
 	while (!released) {
 		Serial.println("Label error, remove any label that might be left and press number 1 to try again or 2 to continue.");
 		int button_pressed = return_pressed_button ();

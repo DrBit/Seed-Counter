@@ -155,3 +155,25 @@ void pick_blister_mode() {
 		}
 	}	
 }
+
+void get_and_release_blister () {
+
+	Serial.println("Get blister");
+	release_blister ();
+	
+	boolean released = check_blister_realeased ();
+	while (!released) {
+		Serial.println("Blister malfunction, blister will be removed and we will try again. Check for any potencial problem before continuing.");
+		Serial.println("Press 1 to continue");
+		press_button_to_continue (1);
+		
+		Serial.println("Go to exit");
+		go_to_memory_position (4);			// Exit
+		
+		Serial.println("Get blister");
+		release_blister ();
+		released = check_blister_realeased ();
+	}
+	// Check if blister has been released correctly
+	
+}
