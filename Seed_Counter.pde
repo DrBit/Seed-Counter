@@ -119,9 +119,9 @@ unsigned long counter_s = 0;
 boolean pause = false;
 boolean manual_enabled = false;				// Flag to overwrite the pause flag
 
-#define default_idle_time 120		// Defaul idle time to go to sleep on user input 120 = 2 minutes.
+#define default_idle_time 120				// Defaul idle time to go to sleep on user input 120 = 2 minutes.
 unsigned long  idle_time_counter = 0;
-unsigned long  desired_idle_time = 0;	// Time in seconds 120s = 2 minutes
+unsigned long  desired_idle_time = 0;		// Time in seconds 120s = 2 minutes
 
 void setup() {
 	
@@ -296,20 +296,7 @@ void loop() {
 	Serial.println("Goto print position");
 	go_to_memory_position (3);			// Print position
 	
-	print_one_label ();
-	
-	// Wait for the printer to print a label
-	released = check_label_realeased (true);
-	while (!released) {
-		Serial.println("Label error, remove any label that might be left and press number 1 to try again or 2 to continue.");
-		int button_pressed = return_pressed_button ();
-		if (button_pressed == 2) break;
-		
-		Serial.println("Goto print position");
-		go_to_memory_position (3);			// Print position
-		print_one_label ();
-		released = check_label_realeased (true);
-	}
+	print_and_release_label ();
 	
 	Serial.println("Go to exit");
 	go_to_memory_position (4);			// Exit
