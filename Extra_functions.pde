@@ -207,10 +207,12 @@ int freeRam () {
 }
 
 
+
 /***** Pause and wait till a button is pressed  *****/
 void press_button_to_continue (int button_number) {
-        Serial.flush();
+	Serial.flush();
 	boolean pause = true;
+	start_idle_timer (default_idle_time);		// start timer to calcule when do we have to go IDLE
 	switch (button_number) {
 		case 1:
 			while (pause) {
@@ -223,6 +225,7 @@ void press_button_to_continue (int button_number) {
 						pause = false;
 					}
 				} 
+				check_idle_timer (true);
 			}
 		break;
 		case 2:
@@ -235,7 +238,8 @@ void press_button_to_continue (int button_number) {
 					 if (Serial.read() == '2') {
 						pause = false;
 					 }
-				} 
+				}
+				check_idle_timer (true);
 			}
 		break;
 		case 3:
@@ -248,14 +252,17 @@ void press_button_to_continue (int button_number) {
 					if (Serial.read() == '2') {
 						pause = false;
 					}
-				} 
+				}
+				check_idle_timer (true);
 			}
 		break;
 		default: 
-		// if nothing else matches, do the default
-		// default is optional
+			// if nothing else matches, do the default
+			// default is optional
+			start_idle_timer (true);
 		break;
 	}
+	end_idle_timer ();
 }
 
 
@@ -265,6 +272,7 @@ int return_pressed_button () {
 	Serial.flush();
 	boolean pause = true;
 	int pressed_button = 0;
+	start_idle_timer (default_idle_time);
 	while(pause) {
 		if (digitalRead(button1) == HIGH) {
 			pressed_button = 1;
@@ -323,7 +331,11 @@ int return_pressed_button () {
 				pause = false;
 			}
 		}  
+		check_idle_timer (true);
 	}
+	
+	end_idle_timer ();
+	
 	Serial.flush();
 	return pressed_button;
 }
@@ -674,22 +686,14 @@ void check_pause () {
 	if (false) {
 		Serial.println ("Emergency Enabled");
 		// Send error
-		int count = 0;
+		start_idle_timer (60);
 		while (button_emergency) {
 			button_emergency = digitalRead (emergency); 
 			delay (1000);
 			
-			// If we are paused for more than 1 minute we stop the pump
-			count++;
-			if (count > 60) {
-				pump_disable ();
-			}
+			check_idle_timer (true);
 		}
-		
-		// Reenable the pump if was disabled
-		if (!get_pump_state()) {
-			pump_enable();
-		}
+		end_idle_timer ();
 		Serial.println ("Emergency disabled");
 	}
 	
@@ -762,7 +766,6 @@ unsigned int minutes;
 unsigned int seconds;
 
 void statistics () {
-
 	
 	Serial.print ("\nCounter picked ");
 	Serial.print (counter_s);
@@ -895,4 +898,62 @@ void pump_enable () {
 void pump_disable () {
 	Serial.println ("Disable Pump");
 	set_pump_state (false);
+}
+
+
+void boring_messages () {
+	
+	if (check_idle_timer(false)) {
+		int number = random(4);
+		switch (number) {
+			case 0: {
+				Serial.println ("**** Hello? anybody here..? I said RESTART *****");
+			break; }
+			
+			case 1: {
+				Serial.println ("**** I see... this will take time... I can not just leave, can I? *****");
+			break; }
+			
+			case 2: {
+				Serial.println ("**** booooooring... *****");
+			break; }
+			
+			case 3: {
+				Serial.println ("**** Please switch me down *****");
+			break; }
+			
+			case 4: {
+				Serial.println ("**** You could at least put some music... *****");
+			break; }
+		
+		}
+	}
+}
+
+
+boolean check_idle_timer (boolean message) {
+
+	if (idle_time_counter < desired_idle_time) {
+		idle_time_counter ++;
+		delay (100);
+		return false;
+	} else if (idle_time_counter == desired_idle_time) {
+		idle_time_counter++;
+		if (message) Serial.println ("Sleep Time!");
+		pump_disable ();
+		return true;
+	}
+	return false;
+}
+
+void start_idle_timer (unsigned long  seconds) {
+	idle_time_counter = 0;
+	desired_idle_time = seconds*10;
+}
+
+void end_idle_timer () {
+	if (idle_time_counter >= desired_idle_time+1) {
+		Serial.println ("Wake UP!");
+		pump_enable ();
+	}
 }

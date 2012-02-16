@@ -261,7 +261,7 @@ void end_of_batch () {
 				// Wait for the printer to print a label
 				boolean released = check_label_realeased (true);
 				while (!released) {
-					Serial.println("Lable error, remove any label that might be left and press number 1 to try again or 2 to continue.");
+					Serial.println("Label error, remove any label that might be left and press number 1 to try again or 2 to continue.");
 					int button_pressed = return_pressed_button ();
 					if (button_pressed == 2) break;
 					
@@ -277,12 +277,11 @@ void end_of_batch () {
 	}
 	
 	Serial.println ("**** BATCH FINISHED! Close this windows and open again to restart *****");
+	
+	start_idle_timer (1500);	// 1500 = 20minutes
 	while (true) {
-		delay(100000);
-		Serial.println ("**** Eo? anybody here..? I said RESTART *****");
-		delay(500000);
-		Serial.println ("**** O man this will take time... *****");
-		delay(1000000);
-		Serial.println ("**** booooooring... *****");
+		boring_messages ();
 	}
+	end_idle_timer ();		// Will never happens, but just in case...
 }
+
