@@ -110,6 +110,8 @@ void check_out_of_blisters () {
 		// We got emty blisters, stop process
 		Serial.println("OUT OF Blisters, please refill.");
 		
+		pump_disable ();
+		
 		// Check whether the sensor changes state
 		while (sensorC_state) {
 			sensorC_state = digitalRead (sensC);
@@ -124,6 +126,7 @@ void check_out_of_blisters () {
 		sensorC_state = digitalRead (sensC); 
 		if (!sensorC_state) {
 			out_of_blsiters = false;
+			pump_enable ();
 		}
 	}
 }

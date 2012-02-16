@@ -4,6 +4,10 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V3.10 - 16/02/2012
+**  * Added function finish batch
+**  * Added more pump enable/diable actions in the code
+**
 **  V3.9 - 14/02/2012
 **  * Added function in too many wheel counts
 **  * Added various logging and user visivility

@@ -231,8 +231,58 @@ boolean counter_autofix() {
 }
 
 void end_of_batch () {
-	Serial.println ("Close this windows and open again to restart");
+
+	pump_disable ();
+	
+	Serial.println("Goto print position");
+	go_to_memory_position (3);			// Print position
+	
+	// Print 2 stickers at the begining
+	Serial.println ("Print one last label for the blister?");
+	Serial.println (" * Press 1 to finish batch");
+	Serial.println (" * Press 2 to print one label");
+	boolean ready = false;
+
+	while (!ready) {
+		int option = return_pressed_button ();
+		Serial.println (option);
+		switch (option) {
+			case 1	:
+				Serial.println("Go to brush position");
+				go_to_memory_position (20);
+				// just continue
+				ready = true;
+			break;
+			
+			case 2:
+				//Print process
+				print_one_label ();
+	
+				// Wait for the printer to print a label
+				boolean released = check_label_realeased (true);
+				while (!released) {
+					Serial.println("Lable error, remove any label that might be left and press number 1 to try again or 2 to continue.");
+					int button_pressed = return_pressed_button ();
+					if (button_pressed == 2) break;
+					
+					Serial.println("Goto print position");
+					go_to_memory_position (3);			// Print position
+					print_one_label ();
+					released = check_label_realeased (true);
+				}
+				
+				ready = true;
+			break;
+		}
+	}
+	
+	Serial.println ("**** BATCH FINISHED! Close this windows and open again to restart *****");
 	while (true) {
-		delay(100);
+		delay(100000);
+		Serial.println ("**** Eo? anybody here..? I said RESTART *****");
+		delay(500000);
+		Serial.println ("**** O man this will take time... *****");
+		delay(1000000);
+		Serial.println ("**** booooooring... *****");
 	}
 }
