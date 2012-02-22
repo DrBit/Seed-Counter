@@ -14,6 +14,7 @@
 **  * Added more pump enable/diable actions in the code
 **  * Added boring messages
 **  * Major improve in IDLE timers
+**  * Cleaned loop from complex bloks
 **
 **  V3.9 - 14/02/2012
 **  * Added function in too many wheel counts
