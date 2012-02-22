@@ -892,12 +892,12 @@ boolean get_pump_state () {
 void pump_enable () {
 	Serial.println ("Enable Pump");
 	set_pump_state (true);
-	delay (4000);		// Wait 4 seconds to build up some pressure
+	delay (1000);		// Wait 1 second to build up some pressure
 }
 
 void pump_disable () {
 	Serial.println ("Disable Pump");
-	set_pump_state (false);
+	// set_pump_state (false);
 }
 
 

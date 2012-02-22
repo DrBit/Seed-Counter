@@ -4,7 +4,7 @@
 
 #include <network_config.h>
 
-#define version_prog "V3.10"
+#define version_prog "V3.11"
 #define lib_version 13
 
 
@@ -163,6 +163,9 @@ void setup() {
 	init_printer ();		// Init printer
 	prepare_printer();		// Prepares the printer to be ready for blisters 
 	
+	// Pick blister mode to start filling
+	pick_blister_mode();
+	
 	// Defining default directions of motors (in case we change the wiring or the position of motors)
 	#define default_directionX true
 	#define default_directionY false
@@ -175,6 +178,8 @@ void setup() {
 	blisters.set_default_direcction (default_directionB);
 	counter.set_default_direcction (default_directionC);
 	
+	pump_enable ();			// for now to avoid interferences
+	
 	// INIT SYSTEM, and CHECK for ERRORS
 	init_all_motors ();
 		
@@ -184,9 +189,6 @@ void setup() {
 	Xaxis.set_accel_profile(900, 17, 9, 20);
 	Yaxis.set_speed_in_slow_mode (350);
 	Yaxis.set_accel_profile(950, 13, 7, 15);
-	
-	// Pick bl;ister mode to start filling
-	pick_blister_mode();
 	
 	// chec_sensorF();
 	MySW.start();			// Start timer for statistics
@@ -204,6 +206,8 @@ void setup() {
 // * 09 * 08 * 05 * 04 * 01 * Y1
 // * X5 * X4 * X3 * X2 * X1 *
 void loop() {
+
+	// test_pump_interferences ();
 
 	Serial.println("\n ************ ");
 	Serial.println("Get blister");
@@ -365,5 +369,15 @@ void chec_sensorF () {
 			// press_button_to_continue (1);
 		}
 		delay (700);
+	}
+}
+
+
+void test_pump_interferences () {
+
+	while (true) {
+		pump_enable ();
+		pump_disable ();
+		delay (1000);
 	}
 }
