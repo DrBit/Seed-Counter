@@ -4,6 +4,9 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V3.12 - 29/02/2012
+**  * Changed to second row when using the 5 seeds mode
+**
 **  V3.11 - 22/02/2012
 **  * Added testing pump
 **  * Fixed bug in print_and_realease_label

@@ -4,7 +4,7 @@
 
 #include <network_config.h>
 
-#define version_prog "V3.11"
+#define version_prog "V3.12"
 #define lib_version 13
 
 
@@ -261,23 +261,23 @@ void loop() {
 
 		// START FILLING BLISTER
 		Serial.print("1rst hole");
-		go_to_memory_position (5);			// first hole
+		go_to_memory_position (6);			// 2nd hole
 		pickup_seed ();
 		
 		Serial.print(" - 2nd hole");
-		go_to_memory_position (8);			//4th hole
+		go_to_memory_position (7);			//3th hole
 		pickup_seed ();
 
 		Serial.println(" - 3th hole");
-		go_to_memory_position (9);			// 5th hole
+		go_to_memory_position (10);			// 6th hole
 		pickup_seed ();
 		
 		Serial.print(" - 4th hole");
-		go_to_memory_position (12);			// 8th hole
+		go_to_memory_position (11);			// 7th hole
 		pickup_seed ();
 		
 		Serial.print(" - 5th hole");
-		go_to_memory_position (13);			// 9th hole
+		go_to_memory_position (14);			// 10th hole
 		pickup_seed ();
 		
 	}
