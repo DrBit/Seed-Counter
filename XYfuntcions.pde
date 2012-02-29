@@ -237,7 +237,9 @@ int get_step_Ypos_from_index(int index) {
 }
 
 void go_to_memory_position (int position_index_to_go) {
-
+	
+	send_position_to_server (position_index_to_go);
+	
 	int Xcycles = get_cycle_Xpos_from_index(position_index_to_go);
 	int Xsteps = get_step_Xpos_from_index(position_index_to_go);
 	int Ycycles = get_cycle_Ypos_from_index(position_index_to_go);

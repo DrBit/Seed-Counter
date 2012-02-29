@@ -1,7 +1,6 @@
 
 unsigned int seeds_batch = 290;
 
-
 #define number_of_commands 20
 #define number_of_errors 20
 
@@ -134,6 +133,24 @@ void prepare_printer() {
 	
 }*/
 
+void print_and_release_label () {
+
+	print_one_label ();
+	
+	// Wait for the printer to print a label
+	boolean released = check_label_realeased (true);
+	while (!released) {
+		Serial.println("Label error, remove any label that might be left and press number 1 to try again or 2 to continue.");
+		int button_pressed = return_pressed_button ();
+		if (button_pressed == 2) break;
+		
+		Serial.println("Goto print position");
+		go_to_memory_position (3);			// Print position
+		print_one_label ();
+		released = check_label_realeased (true);
+	}
+	
+}
 
 void print_one_label () {
 	// Print one label 
@@ -145,17 +162,48 @@ void print_one_label () {
 		if (receive_next_answer(06) == 06) { 
 			print_ok();				// All went OK
 		}else{
-			print_fail();
+			// print_fail();
 			Serial.println (" * Expected response (C06)");
-			Serial.println(" * Press button 1 to continue");
-			press_button_to_continue (1);
+			//Serial.println(" * Press button 1 to continue");
+			//press_button_to_continue (1);
 		}
 	}else{
 		print_fail();
 		Serial.println (" * Command (C04) Failed");
-		Serial.println(" * Press button 1 to continue");
-		press_button_to_continue (1);
+		//Serial.println(" * Press button 1 to continue");
+		//press_button_to_continue (1);
 	}
+}
+
+
+boolean check_label_realeased (boolean print) {
+	
+	boolean label = false;
+	boolean timeout_label = false;
+	int count = 0;
+	if (print) Serial.print("Label released: ");
+	
+	// Check if we got a label, or we timeout
+	while (!label && !timeout_label) {
+		label = digitalRead (sensE); 
+		count ++;
+		if (count == 200) timeout_label = true;
+		delay (50);
+	}
+	
+	
+	if (label) {
+		if (print) print_ok();
+		delay (500);		// Just give sometime to the printer to finsh the job before we move
+		Serial.println("Go to brush position");
+		go_to_memory_position (20);
+		label = digitalRead (sensE);		// After moving we check the label again, could be that wasn't completely stiked and moved on the way.
+		if (!label) return false;
+		return true;
+	}
+
+	if (print) print_fail ();
+	return false;
 }
 
 

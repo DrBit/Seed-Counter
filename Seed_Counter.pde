@@ -4,7 +4,9 @@
 
 #include <network_config.h>
 
-#define version_prog "V3.5.1"
+
+#define version_prog "V3.11"
+
 #define lib_version 13
 
 
@@ -60,6 +62,14 @@
 
 #define ethReset 39
 #define emergency 13
+#define pump 49
+
+// ***********************
+// ** Physical limits of the motors
+// ***********************
+
+#define Xaxis_cycles_limit 280
+#define Yaxis_cycles_limit 12
 
 
 // ***********************
@@ -90,6 +100,10 @@ const int motor_speed_counter=1000;
 const int motor_speed_XY=900;
 const int motor_speed_blisters=1500;
 
+// Blister mode
+#define seeds5 1
+#define seeds10 2
+int blister_mode = 0;
 
 // ***********************
 // ** Error FLAGS
@@ -106,8 +120,10 @@ unsigned long count_total_turns = 0;
 unsigned long counter_s = 0;
 boolean pause = false;
 boolean manual_enabled = false;				// Flag to overwrite the pause flag
-unsigned int max_batch_count = 1100;
 
+#define default_idle_time 120				// Defaul idle time to go to sleep on user input 120 = 2 minutes.
+unsigned long  idle_time_counter = 0;
+unsigned long  desired_idle_time = 0;		// Time in seconds 120s = 2 minutes
 
 void setup() {
 	
@@ -122,11 +138,18 @@ void setup() {
 	
 	pinMode (sensF, INPUT); 
 	pinMode (sensE, INPUT);
-	pinMode (sensC, INPUT); 
+	pinMode (sensC, INPUT); 	
+	// Setup emergency pin 
+	pinMode (emergency, INPUT);           // set pin to input
+
+
 	// Controls ethernet reset
 	pinMode (ethReset, OUTPUT);
 	digitalWrite (ethReset, HIGH);
 	
+	// Controls Pump relay
+	pinMode (pump, OUTPUT);
+
 	// Check library Version
 	check_library_version ();		//If different STOP
 	
@@ -145,6 +168,9 @@ void setup() {
 	// Needed? Not anymore this is from the server
 	// prepare_printer();		// Prepares the printer to be ready for blisters 
 	
+	// Pick blister mode to start filling
+	pick_blister_mode();
+	
 	// Defining default directions of motors (in case we change the wiring or the position of motors)
 	#define default_directionX true
 	#define default_directionY false
@@ -157,21 +183,23 @@ void setup() {
 	blisters.set_default_direcction (default_directionB);
 	counter.set_default_direcction (default_directionC);
 	
+	pump_enable ();			// for now to avoid interferences
+	
 	// INIT SYSTEM, and CHECK for ERRORS
 	init_all_motors ();
-	
+		
 	// set_accel_profile(init_timing, int ramp_inclination, n_slopes_per_mode, n_steps_per_slope)
 	// MAX speed!
 	Xaxis.set_speed_in_slow_mode (400);
 	Xaxis.set_accel_profile(900, 17, 9, 20);
 	Yaxis.set_speed_in_slow_mode (350);
 	Yaxis.set_accel_profile(950, 13, 7, 15);
-	
+
 	
 	// chec_sensorF();
 	// To be removed in the future
+
 	MySW.start();			// Start timer for statistics
-	
 	
 	send_status (waiting);	// here we wait for the server to send orders
 	
@@ -185,10 +213,11 @@ void setup() {
 
 
 // Blister positions
-// * 10 * 08 * 06 * 04 * 02 * Y2
-// * 09 * 07 * 05 * 03 * 01 * Y1
+// * 10 * 07 * 06 * 03 * 02 * Y2
+// * 09 * 08 * 05 * 04 * 01 * Y1
 // * X5 * X4 * X3 * X2 * X1 *
 void loop() {
+
 
 	update_positions_information ();	// Sends petition to get postions data
 	// receive position data from ethernet module
@@ -196,79 +225,82 @@ void loop() {
 
 	Serial.println("\n ************ ");
 	
-	Serial.println("Get blister");
-	release_blister ();
+	get_and_release_blister ();
 	
-	boolean released = check_blister_realeased ();
-	while (!released) {
-		send_error_to_server(blister_release_fail);
-		Serial.println("Blister malfunction, remove any blister on the belt and press number 1 to try again.");
-		press_button_to_continue (1);
+	// 10 Seeds mode
+	if (blister_mode == seeds10) {
 	
-	Serial.println("Get blister");
-	release_blister ();
-		released = check_blister_realeased ();
+		// START FILLING BLISTER
+		Serial.print("1rst hole");
+		go_to_memory_position (5);			// first hole
+		pickup_seed ();
+		
+		Serial.print(" - 2nd hole");
+		go_to_memory_position (6);			// 2nd hole
+		pickup_seed ();
+		
+		Serial.print(" - 3th hole");
+		go_to_memory_position (7);			//3th hole
+		pickup_seed ();
+		
+		Serial.print(" - 4rd hole");
+		go_to_memory_position (8);			// 4d hole
+		pickup_seed ();
+
+		Serial.println(" - 5th hole");
+		go_to_memory_position (9);			// 5th hole
+		pickup_seed ();
+		
+		Serial.print("6th hole");
+		go_to_memory_position (10);			// 6th hole
+		pickup_seed ();
+		
+		Serial.print(" - 7th hole");
+		go_to_memory_position (11);			// 7th hole
+		pickup_seed ();
+		
+		Serial.print(" - 8th hole");
+		go_to_memory_position (12);			// 8th hole
+		pickup_seed ();
+		
+		Serial.print(" - 9th hole");
+		go_to_memory_position (13);			// 9th hole
+		pickup_seed ();
+		
+		Serial.println(" - 10th hole");
+		go_to_memory_position (14);			// 10th hole
+		pickup_seed ();
+	
+	} else if (blister_mode == seeds5) {		// 5 Seeds mode
+
+		// START FILLING BLISTER
+		Serial.print("1rst hole");
+		go_to_memory_position (5);			// first hole
+		pickup_seed ();
+		
+		Serial.print(" - 2nd hole");
+		go_to_memory_position (8);			//4th hole
+		pickup_seed ();
+
+		Serial.println(" - 3th hole");
+		go_to_memory_position (9);			// 5th hole
+		pickup_seed ();
+		
+		Serial.print(" - 4th hole");
+		go_to_memory_position (12);			// 8th hole
+		pickup_seed ();
+		
+		Serial.print(" - 5th hole");
+		go_to_memory_position (13);			// 9th hole
+		pickup_seed ();
+		
 	}
-	// Check if blister has been released correctly
 
-	
-	// START FILLING BLISTER
-	Serial.print("1rst hole");
-	go_to_memory_position (5);			// first hole
-	pickup_seed ();
-	
-	Serial.print(" - 2nd hole");
-	go_to_memory_position (6);			// 2nd hole
-	pickup_seed ();
-	
-	Serial.print(" - 3th hole");
-	go_to_memory_position (7);			//4th hole
-	pickup_seed ();
-	
-	Serial.print(" - 4rd hole");
-	go_to_memory_position (8);			// 3d hole
-	pickup_seed ();
-
-	Serial.println(" - 5th hole");
-	go_to_memory_position (9);			// 5th hole
-	pickup_seed ();
-	
-	Serial.print("6th hole");
-	go_to_memory_position (10);			// 6th hole
-	pickup_seed ();
-	
-	Serial.print(" - 7th hole");
-	go_to_memory_position (11);			// 8th hole
-	pickup_seed ();
-	
-	Serial.print(" - 8th hole");
-	go_to_memory_position (12);			// 7th hole
-	pickup_seed ();
-	
-	Serial.print(" - 9th hole");
-	go_to_memory_position (13);			// 9th hole
-	pickup_seed ();
-	
-	Serial.println(" - 10th hole");
-	go_to_memory_position (14);			// 10th hole
-	pickup_seed ();
-
-	
 	Serial.println("Goto print position");
 	go_to_memory_position (3);			// Print position
 	
-	print_one_label ();
-	
-	// Wait for the printer to print a label
-	// Or in the future get answer from the server
-	delay (3800);
-	
-	// Check sensor
-	// Is the lable printed correctly?
-	// Continue or send error
-	
-	Serial.println("Go to brush position");
-	go_to_memory_position (20);
+	print_and_release_label ();
+
 	
 	Serial.println("Go to exit");
 	go_to_memory_position (4);			// Exit
@@ -300,6 +332,7 @@ void loop() {
 }
 
 
+
 void chec_sensorF () {
 	while (true) {
 		int sensor_state = digitalRead (sensF); 
@@ -319,3 +352,15 @@ void chec_sensorF () {
 		delay (700);
 	}
 }
+
+
+
+void test_pump_interferences () {
+
+	while (true) {
+		pump_enable ();
+		pump_disable ();
+		delay (1000);
+	}
+}
+

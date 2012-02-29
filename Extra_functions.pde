@@ -146,7 +146,8 @@ void manual_modeCounter() {
 			print_counter_pos();
 		}
 	}
-  delayMicroseconds(motor_speed_counter);
+  //delayMicroseconds(motor_speed_counter*10);
+  delay(100);
 }
 
 
@@ -206,10 +207,12 @@ int freeRam () {
 }
 
 
+
 /***** Pause and wait till a button is pressed  *****/
 void press_button_to_continue (int button_number) {
-        Serial.flush();
+	Serial.flush();
 	boolean pause = true;
+	start_idle_timer (default_idle_time);		// start timer to calcule when do we have to go IDLE
 	switch (button_number) {
 		case 1:
 			while (pause) {
@@ -222,6 +225,7 @@ void press_button_to_continue (int button_number) {
 						pause = false;
 					}
 				} 
+				check_idle_timer (true);
 			}
 		break;
 		case 2:
@@ -234,7 +238,8 @@ void press_button_to_continue (int button_number) {
 					 if (Serial.read() == '2') {
 						pause = false;
 					 }
-				} 
+				}
+				check_idle_timer (true);
 			}
 		break;
 		case 3:
@@ -247,14 +252,17 @@ void press_button_to_continue (int button_number) {
 					if (Serial.read() == '2') {
 						pause = false;
 					}
-				} 
+				}
+				check_idle_timer (true);
 			}
 		break;
 		default: 
-		// if nothing else matches, do the default
-		// default is optional
+			// if nothing else matches, do the default
+			// default is optional
+			start_idle_timer (true);
 		break;
 	}
+	end_idle_timer ();
 }
 
 
@@ -264,6 +272,7 @@ int return_pressed_button () {
 	Serial.flush();
 	boolean pause = true;
 	int pressed_button = 0;
+	start_idle_timer (default_idle_time);
 	while(pause) {
 		if (digitalRead(button1) == HIGH) {
 			pressed_button = 1;
@@ -322,7 +331,11 @@ int return_pressed_button () {
 				pause = false;
 			}
 		}  
+		check_idle_timer (true);
 	}
+	
+	end_idle_timer ();
+	
 	Serial.flush();
 	return pressed_button;
 }
@@ -628,7 +641,8 @@ int init_XY_menu() {
 
 /***** Init Counter from menu *****/
 int init_counter_menu () {
-  // Init Counter
+	// Init Counter
+	pump_enable ();
     Serial.print("Init Seed counter roll: ");
     if (Seedcounter_init()) {  // Initiates seed counters
 	print_ok();
@@ -637,6 +651,7 @@ int init_counter_menu () {
     }else{
 	print_fail();
         error_counter = true;
+		pump_disable ();
         return 0;
     }
 }
@@ -658,6 +673,25 @@ int init_blisters_menu () {
 
 
 void check_pause () {
+	
+	// Emergency button handler
+	int button_emergency = digitalRead (emergency); 
+	// if (button_emergency) {		// Bypas for now,, re-enable when connected
+	if (false) {
+		Serial.println ("Emergency Enabled");
+		// Send error
+		start_idle_timer (60);
+		while (button_emergency) {
+			button_emergency = digitalRead (emergency); 
+			delay (1000);
+			
+			check_idle_timer (true);
+		}
+		end_idle_timer ();
+		Serial.println ("Emergency disabled");
+	}
+	
+	
 	if ((Serial.available() || pause) && !manual_enabled) {
 		pause = true;
 		MySW.stop();
@@ -726,7 +760,6 @@ unsigned int minutes;
 unsigned int seconds;
 
 void statistics () {
-
 	
 	Serial.print ("\nCounter picked ");
 	Serial.print (counter_s);
@@ -831,5 +864,91 @@ void init_all_motors () {
 				// do nothing so we wond detect any error and we will continue
 			break;
 		}
+	}
+}
+
+
+// PUMP functions
+
+void set_pump_state (boolean pump_state) {
+
+	if (pump_state) {
+		digitalWrite (pump, HIGH);
+	}else{ 
+		digitalWrite (pump, LOW);
+	}
+}
+
+boolean get_pump_state () {
+	return digitalRead (pump);
+	return true;
+}
+
+void pump_enable () {
+	Serial.println ("Enable Pump");
+	set_pump_state (true);
+	delay (1000);		// Wait 1 second to build up some pressure
+}
+
+void pump_disable () {
+	Serial.println ("Disable Pump");
+	// set_pump_state (false);
+}
+
+
+void boring_messages () {
+	
+	if (check_idle_timer(false)) {
+		int number = random(4);
+		switch (number) {
+			case 0: {
+				Serial.println ("**** Hello? anybody here..? I said RESTART *****");
+			break; }
+			
+			case 1: {
+				Serial.println ("**** I see... this will take time... I can not just leave, can I? *****");
+			break; }
+			
+			case 2: {
+				Serial.println ("**** booooooring... *****");
+			break; }
+			
+			case 3: {
+				Serial.println ("**** Please switch me down *****");
+			break; }
+			
+			case 4: {
+				Serial.println ("**** You could at least put some music... *****");
+			break; }
+		
+		}
+	}
+}
+
+
+boolean check_idle_timer (boolean message) {
+
+	if (idle_time_counter < desired_idle_time) {
+		idle_time_counter ++;
+		delay (100);
+		return false;
+	} else if (idle_time_counter == desired_idle_time) {
+		idle_time_counter++;
+		if (message) Serial.println ("Sleep Time!");
+		pump_disable ();
+		return true;
+	}
+	return false;
+}
+
+void start_idle_timer (unsigned long  seconds) {
+	idle_time_counter = 0;
+	desired_idle_time = seconds*10;
+}
+
+void end_idle_timer () {
+	if (idle_time_counter >= desired_idle_time+1) {
+		Serial.println ("Wake UP!");
+		pump_enable ();
 	}
 }

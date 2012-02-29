@@ -4,6 +4,7 @@
 *********************************************
 **  REVISIONS from:
 **
+<<<<<<< HEAD
 **  V3.5.1 - 26/01/2010
 **  * Splited list of actions and errors into a new file. Added Status
 **
@@ -20,6 +21,48 @@
 **  V3.4 - 06/01/2012
 **  Changed few functions to adapt to new UI
 **
+=======
+**  V3.11 - 22/02/2012
+**  * Added testing pump
+**  * Fixed bug in print_and_realease_label
+**  * Added batch numbers 4 cyfers
+**
+**  V3.10 - 16/02/2012
+**  * Added function finish batch
+**  * Added more pump enable/diable actions in the code
+**  * Added boring messages
+**  * Major improve in IDLE timers
+**  * Cleaned loop from complex bloks
+**
+**  V3.9 - 14/02/2012
+**  * Added function in too many wheel counts
+**  * Added various logging and user visivility
+**
+**  V3.8 - 10/02/2012
+**  * Added 5/10 mode blisters selector
+**  * Fixed positions in 5 seeds blister mode
+**
+**  V3.7 - 07/02/2010
+**	* Added pin to Pump functions (Relay to be implemented)
+**  * Relocated network configuration file
+**  * Incremented safe distance in counter sensor (avoids triggering errors)
+**
+**  V3.6 - 06/02/2010
+**  * Added emergency button function
+**	* Added Pump functions (Relay to be implemented)
+**
+**  V3.5 - 31/01/2010
+**  * Added function to check sensors at printer label position
+**  * Added autostart after blisters are refilled (during refilling)
+**  * Added error checking in the counter. If seed is detected where it shouldnt. (avoids constant seed picking)
+**  * Added functionality in blisters errors (in sensor position)
+**  * Added autofix when error in coutner wheel losing steps.
+**
+**  V3.4 - 25/01/2010
+**  * Added function to check sensors out of listers and sensor blister not releasd correctly
+**  * Changed a bit all loop distribution
+**
+>>>>>>> master
 **  V3.3.3 - 18/01/2010
 **  * Setup process cleaned, create several sub-functions
 **	* New sensor pins definend, also Emergency button.
