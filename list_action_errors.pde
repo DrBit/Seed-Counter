@@ -3,22 +3,23 @@
 // LIST NEEDED CONFIG
 //////////////////////////
 // get_config_from_server (config);
-#define get_batch_ID 1			// batch ID number
+// #define get_batch_ID 1			// batch ID number NOT NEEDED
 #define get_seeds_mode 2		// 5 or 10 seeds per blister
+// #define get_all_positions 3		// List of all positions
 
 //////////////////////////
 // LIST OF STATUS
 //////////////////////////
 // send_status_to_server (status);
-#define waiting 1 	// waiting action
-#define 2 			// new batch selected (not used in arduino, needed???)
-#define running 3 	// Running
-#define pause 4 	// Pause
-#define batch_end 5 // finished batch, going IDLE
-#define error 6 	// Error (defines an error state that needs user attention)
-#define starting_machine 7 	// Starting machine
-#define counter_autofix	8	// Try counter autofix, re-init counter wheel.
-#define waiting_blisters_refill 9	// Waiting for user to refill blisters
+#define stopped 1 	// waiting action
+#define running 2 	// Running
+#define pause 3 	// Pause   
+// #define error 4 	// Error (defines an error state that needs user attention) NOT necessary
+
+// The list of status should be as short as possible to make it easyer to handler
+// Statuses are continueos events that when enabled will stay enabled till another change on status
+// The differences with actions are that actions are single events that happen in one moment.
+
 
 //////////////////////////
 // LIST OF ACTIONS
@@ -27,8 +28,11 @@
 #define blister_release 1				// Release one blister
 #define blister_refilled 2				// Blisters filled, starting again...
 #define counter_init 3					// Init Counter Motor
-#define
-#define
+#define 4 			// new batch selected (not used in arduino, needed???)
+#define batch_end 5 				// finished batch, going IDLE
+#define starting_machine 7 			// Starting machine
+#define try_counter_autofix	8		// Try counter autofix, re-init counter wheel.
+#define needed_blisters_refill 9	// Required user to refill blisters
 #define
 #define
 #define
@@ -76,6 +80,7 @@
 // LIST OF POSITIONS
 //////////////////////////
 // send_position_to_server (position);
+// P* means all positions.
 #define P1 1 // Go to position 1
 #define P2 2 // Go to position 2
 #define P3 3 // Go to position 3

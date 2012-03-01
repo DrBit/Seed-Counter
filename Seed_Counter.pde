@@ -125,9 +125,14 @@ boolean manual_enabled = false;				// Flag to overwrite the pause flag
 unsigned long  idle_time_counter = 0;
 unsigned long  desired_idle_time = 0;		// Time in seconds 120s = 2 minutes
 
+// ***********************
+// ** STATUS + ACTIONS
+// ***********************
+byte global_status = 0;
+
 void setup() {
 	
-	send_status_to_server (starting_machine);
+	send_action_to_server (starting_machine);
 	
 	// INIT Serial
 	init_serial();	

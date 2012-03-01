@@ -4,24 +4,6 @@
 *********************************************
 **  REVISIONS from:
 **
-<<<<<<< HEAD
-**  V3.5.1 - 26/01/2010
-**  * Splited list of actions and errors into a new file. Added Status
-**
-**  V3.5 - 25/01/2010
-**  * Added function to check sensors out of listers and sensor blister not releasd correctly
-**  * Changed a bit all loop distribution
-**
-**  V3.4.2 - 18/01/2012
-**  * Added actions and errors to the list 
-**
-**  V3.4.1 - 06/01/2012
-**  * Cleaning and preparing code for new UI interface (not operble yet)
-**
-**  V3.4 - 06/01/2012
-**  Changed few functions to adapt to new UI
-**
-=======
 **  V3.11 - 22/02/2012
 **  * Added testing pump
 **  * Fixed bug in print_and_realease_label
@@ -51,18 +33,28 @@
 **  * Added emergency button function
 **	* Added Pump functions (Relay to be implemented)
 **
+**  V3.5.1 - 26/01/2010
+**  * Splited list of actions and errors into a new file. Added Status
+**
 **  V3.5 - 31/01/2010
 **  * Added function to check sensors at printer label position
 **  * Added autostart after blisters are refilled (during refilling)
 **  * Added error checking in the counter. If seed is detected where it shouldnt. (avoids constant seed picking)
 **  * Added functionality in blisters errors (in sensor position)
 **  * Added autofix when error in coutner wheel losing steps.
+**  * Changed a bit all loop distribution
+**
+**  V3.4.2 - 18/01/2012
+**  * Added actions and errors to the list 
+**
+**  V3.4.1 - 06/01/2012
+**  * Cleaning and preparing code for new UI interface (not operble yet)
 **
 **  V3.4 - 25/01/2010
 **  * Added function to check sensors out of listers and sensor blister not releasd correctly
 **  * Changed a bit all loop distribution
+**  * Changed few functions to adapt to new UI
 **
->>>>>>> master
 **  V3.3.3 - 18/01/2010
 **  * Setup process cleaned, create several sub-functions
 **	* New sensor pins definend, also Emergency button.
@@ -233,11 +225,6 @@
 *********************************************
 
 TODO
-
-Fix menus overlaping each other...
-
-Config menu with:
-	Network configuration (Dynamic addresses ports,...)
 
 Change the handling of movements in manual mode. (Diff speeds depending on how long you press the button)
 

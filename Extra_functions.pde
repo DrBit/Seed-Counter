@@ -678,7 +678,10 @@ void check_pause () {
 	int button_emergency = digitalRead (emergency); 
 	// if (button_emergency) {		// Bypas for now,, re-enable when connected
 	if (false) {
+		byte previous_status = global_status;
+		send_status_to_server (pause);
 		Serial.println ("Emergency Enabled");
+		MySW.stop();
 		// Send error
 		start_idle_timer (60);
 		while (button_emergency) {
@@ -688,7 +691,9 @@ void check_pause () {
 			check_idle_timer (true);
 		}
 		end_idle_timer ();
+		MySW.start();
 		Serial.println ("Emergency disabled");
+		send_status_to_server (previous_status);
 	}
 	
 	

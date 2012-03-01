@@ -175,7 +175,7 @@ void wait_time (unsigned long milliseconds) {
 
 
 boolean counter_autofix() {
-    send_status_to_server (counter_autofix);
+    send_action_to_server (try_counter_autofix);
 	// Goes back till senses and then senses nothing again or just turns back little but more than half a turn
 	counter.set_direction (!default_directionC);   // Set direction
 	
@@ -246,7 +246,7 @@ void end_of_batch () {
 		}
 	}
 	
-	send_status_to_server (batch_end);
+	send_action_to_server (batch_end);
 	
 	Serial.println ("**** BATCH FINISHED! Close this windows and open again to restart *****");
 	

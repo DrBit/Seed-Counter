@@ -112,7 +112,7 @@ void check_out_of_blisters () {
 		// We got emty blisters, stop process
 		Serial.println("OUT OF Blisters, please refill.");
 		send_error_to_server (blister_empty);
-		send_status_to_server (waiting_blisters_refill);
+		send_action_to_server (needed_blisters_refill);
 		
 		pump_disable ();
 		
