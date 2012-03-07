@@ -117,15 +117,17 @@ void pickup_seed() {
 			if (!last_turn) {
 				speed_cntr_Move(1600/counter.get_step_accuracy(),accel,speed,accel);	// We do a full turn, NOTICE that the acceleration in this case is lower
 				count_total_turns ++;		// for statistics pourpouses
+				send_action_to_server(seed_counter_turn);
 			}
 			count_error_turns ++;		// for errors pourpous
 			
-		}else if (first_time_drop && (count_total_turns == previous_counted_turns)) {				// If its the first time we wont be at the starting position so instead of a full turn we move less toa rrive at the default pos.
+		}else if (first_time_drop && (count_total_turns == previous_counted_turns)) {				// If its the first time we wont be at the starting position so instead of a full turn we move less to arrive at the default pos.
 			first_time_drop = false;
 			wait_time(50);
 			if (!last_turn) {
 				speed_cntr_Move(steps_from_sensor_to_init_clockwise/counter.get_step_accuracy(),accel,speed,accel);	// We do a full turn, NOTICE that the acceleration in this case is lower
 				count_total_turns ++;		// for statistics pourpouses
+				send_action_to_server(seed_counter_turn);
 			}
 			count_error_turns ++;		// for errors pourpous
 		}
@@ -134,6 +136,7 @@ void pickup_seed() {
 			// Check if we got seed
 			if (counter.sensor_check()){			// We got a seed!!!
 				seed_detected = true; 
+				send_action_to_server(seed_released);
 				counter_s ++;						// For statistics pourpouse
 				while (!(counter.get_steps() == (steps_from_sensor_to_init_clockwise-steps_from_sensor_to_start_moving_when_seed)))	// If we are not finished moving...
 				{

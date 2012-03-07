@@ -4,6 +4,9 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V3.11.1 - 07/07/2012
+**  * Added new errors and actions
+**
 **  V3.11 - 22/02/2012
 **  * Added testing pump
 **  * Fixed bug in print_and_realease_label

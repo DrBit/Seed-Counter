@@ -33,17 +33,16 @@
 #define starting_machine 7 			// Starting machine
 #define try_counter_autofix	8		// Try counter autofix, re-init counter wheel.
 #define needed_blisters_refill 9	// Required user to refill blisters
-#define
-#define
-#define
-#define
-#define
-#define
-#define
-#define
-#define
-#define
-#define
+#define seed_counter_turn	10		// Wheel turned 1 time.
+#define seed_released	11			// Seed has been picked up and released in the blister
+#define enable_pump  12				// Enable pump
+#define disble_pump  13				// Disable pump
+#define enter_idle	14				// Entering IDLE, awaiting user response or another input
+#define resume_from_idle  15		// Resuming action from IDLE
+#define ask_for_label  16			// Ask server to print a label
+#define label_ok   17				// Label detected correctly
+#define XY_init 18					// Init XY axis
+
 
 //////////////////////////
 // LIST OF ERRORS
@@ -75,6 +74,10 @@
 
 #define blister_release_fail 18 // Blister not released correctly, remove any blister on the belt and press number 1 to try again. Check the sensor if error persist.
 #define blister_empty // Blisters are empty, refill needed
+
+
+#define label_timeout  20	// Label not printed or timeout
+
 
 //////////////////////////
 // LIST OF POSITIONS

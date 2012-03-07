@@ -14,6 +14,8 @@
 
 boolean XYaxes_init () {
 
+	send_action_to_server (XY_init);
+
 	// few previous calculations for the different speeds profiles
 	int speed1 = motor_speed_XY;						// Main speed is always the slowest and safer
 	int speed2 = speed1 - (motor_speed_XY/5);

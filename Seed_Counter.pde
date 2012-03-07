@@ -5,7 +5,7 @@
 #include <network_config.h>
 
 
-#define version_prog "V3.11"
+#define version_prog "V3.11.1"
 
 #define lib_version 13
 

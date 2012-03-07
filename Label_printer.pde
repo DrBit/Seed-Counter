@@ -157,6 +157,9 @@ void print_one_label () {
 	Serial.print ("Generate label (C04): ");						
 	send_command (4);			// Print one label
 	
+	send_action_to_server(ask_for_label);
+	
+	// This is just to see if command was sent correctly
 	if (receive_next_answer(01) == 01) { 	// Command accepted
 		// Wait for answer (command 06 indicates sucsesful printing
 		if (receive_next_answer(06) == 06) { 
@@ -194,6 +197,7 @@ boolean check_label_realeased (boolean print) {
 	
 	if (label) {
 		if (print) print_ok();
+		send_action_to_server(label_ok);
 		delay (500);		// Just give sometime to the printer to finsh the job before we move
 		Serial.println("Go to brush position");
 		go_to_memory_position (20);
@@ -203,6 +207,7 @@ boolean check_label_realeased (boolean print) {
 	}
 
 	if (print) print_fail ();
+	send_error_to_server (label_timeout);
 	return false;
 }
 

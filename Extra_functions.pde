@@ -886,17 +886,19 @@ void set_pump_state (boolean pump_state) {
 
 boolean get_pump_state () {
 	return digitalRead (pump);
-	return true;
+	// return true;
 }
 
 void pump_enable () {
 	Serial.println ("Enable Pump");
+	send_action_to_server(enable_pump);
 	set_pump_state (true);
-	delay (1000);		// Wait 1 second to build up some pressure
+	delay (800);		// Wait 1 second to build up some pressure
 }
 
 void pump_disable () {
 	Serial.println ("Disable Pump");
+	send_action_to_server(disable_pump);
 	// set_pump_state (false);
 }
 
@@ -940,6 +942,7 @@ boolean check_idle_timer (boolean message) {
 	} else if (idle_time_counter == desired_idle_time) {
 		idle_time_counter++;
 		if (message) Serial.println ("Sleep Time!");
+		send_action_to_server(enter_idle);
 		pump_disable ();
 		return true;
 	}
@@ -954,6 +957,7 @@ void start_idle_timer (unsigned long  seconds) {
 void end_idle_timer () {
 	if (idle_time_counter >= desired_idle_time+1) {
 		Serial.println ("Wake UP!");
+		send_action_to_server(resume_from_idle);
 		pump_enable ();
 	}
 }
