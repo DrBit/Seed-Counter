@@ -2,10 +2,11 @@
 //////////////////////////
 // LIST NEEDED CONFIG
 //////////////////////////
-// get_config_from_server (config);
-// #define get_batch_ID 1			// batch ID number NOT NEEDED
-#define get_seeds_mode 2		// 5 or 10 seeds per blister
-// #define get_all_positions 3		// List of all positions
+// Basic
+////////////////////////
+#define get_seeds_mode 1		// 5 or 10 seeds per blister
+#define default_idle_time 2		// Defaul idle time to go to sleep on user input 120 = 2 minutes.
+
 
 //////////////////////////
 // LIST OF STATUS
@@ -25,10 +26,10 @@
 // LIST OF ACTIONS
 //////////////////////////
 // send_action_to_server(action);
-#define blister_release 1				// Release one blister
-#define blister_refilled 2				// Blisters filled, starting again...
-#define counter_init 3					// Init Counter Motor
-#define 4 			// new batch selected (not used in arduino, needed???)
+#define blister_release 1			// Release one blister
+#define blister_refilled 2			// Blisters filled, starting again...
+#define counter_init 3				// Init Counter Motor
+#define new_batch 4		 			// new batch selected (not used in arduino, needed???)
 #define batch_end 5 				// finished batch, going IDLE
 #define starting_machine 7 			// Starting machine
 #define try_counter_autofix	8		// Try counter autofix, re-init counter wheel.
@@ -48,33 +49,20 @@
 // LIST OF ERRORS
 //////////////////////////
 // send_error_to_server (error);
-/*
-// this ones might be changed....
-0 - Failed to open connection. Network down or website not available
-1 - Time out receiving and aswer from the server 
-2 - We didnt get any tag equal of what we where expecting
-3 - Expected command (C03) to configure printer before anything else
-4 - Configuration command not supported (when inside configuration)
-5 - Can NOT connect to the User Interface Server. Check connectrions, Check server is alive
-
-10 - Not expected command  	// When we sended a command that receiver wasn't expecting
-							// Normalli means receiver expects a concrete command and only will react to that
-*/
 #define library_error 11 	// Error at compiling time. Library out of date. Update library and compile again.
 #define init_eth_fail 12 	// Error reseting the ethernet module. Check power, connection mega-uno correct?
 #define init_Y1_fail  13	// Error initializing Y axis. Could not find the sensor after doing the hole phisical path
 #define init_X1_fail  14	// Error initializing X axis. Could not find the sensor after doing the hole phisical path
 #define init_Y2_fail  15	// Error initializing Y axis. Could not go out of sensor. The axis might be stuck, or the sensor disconnected or broken. Keeps reading ON even if we move it.
 #define init_X2_fail  16	// Error initializing X axis. Could not go out of sensor. The axis might be stuck, or the sensor disconnected or broken. Keeps reading ON even if we move it.
+
 #define counter_init_fail  17    // Counter error, pump might be off, seeds deposits might be empty, sensor might be disconnected or broken
-
 #define counter_max_turns_normal 19 // Counters has done too much turns. Check if there are seeds, bottle neck or sensor error.
-#define counter_max_turns_end 20 // Counters has done too much turns and already counted all seeds. Check if we finished the batch, bottle neck or sensor error.
-#define counter_sensor_failed 21 // Counter sensor has detected a seed and the wheel was not in the sensor position. This could mean that wheel has skiped steps, sensor malcfunction or dirty sensor.
+#define counter_max_turns_end 20 	// Counters has done too much turns and already counted all seeds. Check if we finished the batch, bottle neck or sensor error.
+#define counter_sensor_failed 21 	// Counter sensor has detected a seed and the wheel was not in the sensor position. This could mean that wheel has skiped steps, sensor malcfunction or dirty sensor.
 
-#define blister_release_fail 18 // Blister not released correctly, remove any blister on the belt and press number 1 to try again. Check the sensor if error persist.
-#define blister_empty // Blisters are empty, refill needed
-
+#define blister_release_fail 18 	// Blister not released correctly, remove any blister on the belt and press number 1 to try again. Check the sensor if error persist.
+#define blister_empty 19			// Blisters are empty, refill needed
 
 #define label_timeout  20	// Label not printed or timeout
 
@@ -83,7 +71,7 @@
 // LIST OF POSITIONS
 //////////////////////////
 // send_position_to_server (position);
-// P* means all positions.
+#define P0 0 // List of all positions (This is only for arduino , server gets P*
 #define P1 1 // Go to position 1
 #define P2 2 // Go to position 2
 #define P3 3 // Go to position 3
@@ -136,13 +124,40 @@
 #define P50 50 // Go to position 50
 
 
+/* To implement in the future so all parameters can be accessed from the interface
+// Internal parameters
+////////////////////////
 
+// Blisters
+#define blisters_steps_limit 		// Max steps to release one blister (default 300)
+#define blisters_steps_absoulut_limit // Max of steps needed to get from min to max (default 1000)
+#define steps_to_move_when_blister_falls // Steps that Y axis will move to fit the blister in the conveier (default 800)
+// Counter
+#define steps_from_sensor_to_init_clockwise 1150  			// Number of steps (based in mode 8) to go forward from the sensor to the init position
+#define steps_from_sensor_to_start_moving_when_seed 0		// Number of steps (based in mode 8) away form the pick a seed point to start moving the axis when we got a seed.
+#define margin_steps_to_detect_seed 80		// Its the steps margin in wich the sensor will check if we have a seed
+#define fails_max_normal 40				// Max number of tries to pick a seed before software will create an error
+#define fails_max_end 20				// Max number of fails before 100 seeds to reach the complet batch to create an error (since we are close to the end we dont need to go to 1000)
+#define init_turns_till_error 40   		// Number of times the counter will try to get a seed at INITIATION before giving an error
+unsigned int max_batch_count = 1100;	// Tipical number of seeds in a batch
 
-// INIT PROCESS
-/*
+// ***********************
+// ** Physical limits of the motors
+// ***********************
+#define Xaxis_cycles_limit 280
+#define Yaxis_cycles_limit 12
+#define max_insensor_stepsError 700		// When init
 
-User needs first to be sure machine is clean of blisters on the combeier and with enough 
-blister in the deposit
+// Defining default directions of motors (in case we change the wiring or the position of motors)
+#define default_directionX true
+#define default_directionY false
+#define default_directionB true
+#define default_directionC false
 
-Printer must have one label ready with the selected batch before start
+// Speeds
+// MAX speed!
+Xaxis.set_speed_in_slow_mode (400);
+Xaxis.set_accel_profile(900, 17, 9, 20);
+Yaxis.set_speed_in_slow_mode (350);
+Yaxis.set_accel_profile(950, 13, 7, 15);
 */
