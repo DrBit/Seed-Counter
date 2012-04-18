@@ -1,0 +1,24 @@
+///////////
+Statuses
+///////////
+
+Stop: When has no pending action, meaning just finished a batch or never started before
+Run: When its running automatically
+Pause: When the machine needs user attention due to an error or to a pop up question, or when the user manually pauses the machine.
+
+States are handled within the "send_action" "send_status" "send_error" "send_position" functions or ALSO within the function "check_pause"
+
+following variables are common for the main program:
+(byte)global_status - contains the actual picked status
+(byte)previous_status - contains the previous status in case we are in pause status
+
+///////////
+NETWORK
+///////////
+Network functions are in file Ethernet_module.pde
+Basic functions are: 
+setup_network() - sets up the network module to start receiving information (IP,MAC,SERVER_IP, SERVER PORT, 
+refresh_server() - check server from incomming commands and also sends the cued commands (if any)
+
+Other functions:
+connect_to_client () - Conects to the selected server at the begining or when the connections goes down

@@ -2,10 +2,11 @@
 #include <avr/pgmspace.h>
 #include <StopWatch.h>
 
-#include <network_config.h>
+#include <network_config.h>		// NEDED?
+#include <list_commands_ethernet.h>
 
 
-#define version_prog "V3.11.1"
+#define version_prog "V3.11.2"
 
 #define lib_version 13
 
@@ -121,7 +122,7 @@ unsigned long counter_s = 0;
 boolean pause = false;
 boolean manual_enabled = false;				// Flag to overwrite the pause flag
 
-#define default_idle_time 120				// Defaul idle time to go to sleep on user input 120 = 2 minutes.
+int default_idle_time=120;					// Defaul idle time to go to sleep on user input 120 = 2 minutes.
 unsigned long  idle_time_counter = 0;
 unsigned long  desired_idle_time = 0;		// Time in seconds 120s = 2 minutes
 
@@ -129,13 +130,18 @@ unsigned long  desired_idle_time = 0;		// Time in seconds 120s = 2 minutes
 // ** STATUS + ACTIONS
 // ***********************
 byte global_status = 0;
+byte previous_status = 0;
 
 void setup() {
-	
-	send_action_to_server (starting_machine);
+
+	// Begin Setup
+	setup_network();					// First thing we do is set up the network and contact the server
+	// Here , if we cannot connect we should have a MANUAL mode;
+	send_status_to_server (setting_up);	// here we comunicate the server that we begin the set-up process
 	
 	// INIT Serial
 	init_serial();	
+	
 	//Configure 3 Input Buttons
 	pinMode (button1, INPUT);
 	pinMode (button2, INPUT);
@@ -146,11 +152,6 @@ void setup() {
 	pinMode (sensC, INPUT); 	
 	// Setup emergency pin 
 	pinMode (emergency, INPUT);           // set pin to input
-
-
-	// Controls ethernet reset
-	pinMode (ethReset, OUTPUT);
-	digitalWrite (ethReset, HIGH);
 	
 	// Controls Pump relay
 	pinMode (pump, OUTPUT);
@@ -166,16 +167,6 @@ void setup() {
 	// Show_all_records();
 	// manual_data_write();		// UPDATE manually all EEPROOM MEMORY (positions)
 	
-	print_set_up ();		// Begin SET-UP process
-	
-	// Init network module
-	init_ethernet ();		// Init printer
-	// Needed? Not anymore this is from the server
-	// prepare_printer();		// Prepares the printer to be ready for blisters 
-	
-	// Pick blister mode to start filling
-	pick_blister_mode();
-	
 	// Defining default directions of motors (in case we change the wiring or the position of motors)
 	#define default_directionX true
 	#define default_directionY false
@@ -188,8 +179,6 @@ void setup() {
 	blisters.set_default_direcction (default_directionB);
 	counter.set_default_direcction (default_directionC);
 	
-	pump_enable ();			// for now to avoid interferences
-	
 	// INIT SYSTEM, and CHECK for ERRORS
 	init_all_motors ();
 		
@@ -200,15 +189,32 @@ void setup() {
 	Yaxis.set_speed_in_slow_mode (350);
 	Yaxis.set_accel_profile(950, 13, 7, 15);
 
-	
-	// chec_sensorF();
-	// To be removed in the future
-
-	MySW.start();			// Start timer for statistics
-	
-	send_status (waiting);	// here we wait for the server to send orders
+	MySW.start();						// Start timer for statistics
 	
 	// END of setup
+	send_status_to_server (stopped);	// here we wait for the server to send orders
+	
+	
+	// While we are on stopped mode, keep chaking the server
+	while (global_status == stopped) {
+		check_server();
+	}
+
+	
+	//When ready....
+	
+	// Pick blister mode to start filling (GETS mode from serial)
+	//pick_blister_mode();
+	
+	get_positions_from_server (P0);					// receives all positions from server
+	get_info_from_server (get_seeds_mode);			// Gets seed mode (5 or 10 seeds per blister)
+	get_info_from_server (get_default_idle_time);	// gets default IDLE time
+	
+	pump_enable ();			// for now to avoid interferences
+	
+	// Controls ethernet reset (NEEDDED?)
+	//pinMode (ethReset, OUTPUT);
+	//digitalWrite (ethReset, HIGH);
 }
 
 
@@ -223,10 +229,7 @@ void setup() {
 // * X5 * X4 * X3 * X2 * X1 *
 void loop() {
 
-
-	update_positions_information ();	// Sends petition to get postions data
-	// receive position data from ethernet module
-	// Check if its correct and update if necessary
+	
 
 	Serial.println("\n ************ ");
 	

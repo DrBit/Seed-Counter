@@ -10,6 +10,7 @@ void init_serial() {
   Serial.print   ("Library: V");
   Serial.println (lib_version);
   Serial.println (" ");
+  print_set_up ();			// Begin SET-UP process
 }
 
 

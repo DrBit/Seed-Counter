@@ -4,21 +4,22 @@
 //////////////////////////
 // Basic
 ////////////////////////
+// get_info_from_server (info)
 #define get_seeds_mode 1		// 5 or 10 seeds per blister
-#define default_idle_time 2		// Defaul idle time to go to sleep on user input 120 = 2 minutes.
+#define get_default_idle_time 2		// Defaul idle time to go to sleep on user input 120 = 2 minutes.
 
 
 //////////////////////////
 // LIST OF STATUS
 //////////////////////////
 // send_status_to_server (status);
-#define stopped 1 	// waiting action
-#define running 2 	// Running
-#define pause 3 	// Pause   
-// #define error 4 	// Error (defines an error state that needs user attention) NOT necessary
+#define stopped 1 		// waiting action
+#define running 2 		// Running
+#define pause 3 		// Pause
+#define setting_up 4 	// Setting up machine (one time at the begining)
 
 // The list of status should be as short as possible to make it easyer to handler
-// Statuses are continueos events that when enabled will stay enabled till another change on status
+// Statuses are contineous events that when enabled will stay enabled till another change on status
 // The differences with actions are that actions are single events that happen in one moment.
 
 
@@ -70,7 +71,9 @@
 //////////////////////////
 // LIST OF POSITIONS
 //////////////////////////
-// send_position_to_server (position);
+// send_position_to_server (position);			// Inform server that we are going to a position
+// get_positions_from_server (position);		// Receive position information stored in the server
+
 #define P0 0 // List of all positions (This is only for arduino , server gets P*
 #define P1 1 // Go to position 1
 #define P2 2 // Go to position 2
@@ -124,7 +127,10 @@
 #define P50 50 // Go to position 50
 
 
-/* To implement in the future so all parameters can be accessed from the interface
+/* To implement in the future
+// List of all parameters of the code, for now due to the complexity of it
+// we leave them as they are
+
 // Internal parameters
 ////////////////////////
 

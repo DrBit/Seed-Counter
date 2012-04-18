@@ -1,8 +1,8 @@
 
-unsigned int seeds_batch = 290;
+//unsigned int seeds_batch = 290;
 
-#define number_of_commands 20
-#define number_of_errors 20
+//#define number_of_commands 20
+//#define number_of_errors 20
 
 /*
 //////////////////////////
@@ -39,7 +39,11 @@ C15 - Ask for data of network configuration
 C16 - Send US (ui_server)
 C17 - Send MI (Machine ID)
 */
-	
+
+
+/*
+
+
 #define endOfLine '*'
 	
 
@@ -110,7 +114,7 @@ void EthernetModuleReset () {
 }
 
 
-/*
+
 void prepare_printer() {
 	// Print 2 stickers at the begining
 	Serial.println ("Label printer should have 2 labels printed before packaging can start");
@@ -131,7 +135,7 @@ void prepare_printer() {
 		}
 	}
 	
-}*/
+}
 
 void print_and_release_label () {
 
@@ -575,3 +579,5 @@ int receive_next_answer (int default_answer) {
 		}
 	}
 }
+
+*/

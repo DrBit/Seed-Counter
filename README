@@ -4,7 +4,13 @@
 *********************************************
 **  REVISIONS from:
 **
-**  V3.11.1 - 07/07/2012
+**  V3.11.2 - 18/04/2012
+**  *Removed Label Printer functions
+**  *Added Ethernet module functions
+**  *Added documentation.txt file for writing notes
+**  *Changed name of list actions to "list_commands_ethernet.h"
+**
+**  V3.11.1 - 07/03/2012
 **  * Added new errors and actions
 **  * Updated commands list
 **
