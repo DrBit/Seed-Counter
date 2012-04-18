@@ -268,6 +268,8 @@ boolean recevie_data (char* parameter_container,int buffer) {
 	}
 }
 
+/*
+// |REDEFINED
 // Simple YES/NO Question
 boolean YN_question () {
 	while (true) {
@@ -280,4 +282,25 @@ boolean YN_question () {
 			}
 		}
 	}
+}*/
+
+
+void get_info_from_server (byte command) {
+
 }
+void send_status_to_server (byte command) {
+	previous_status = global_status;		// Stores previous status
+	global_status = command;					// Updates actual status
+}
+void send_action_to_server(byte command) {
+	// sometimes require an OK back from the server
+}
+void send_error_to_server (byte command) {
+
+}
+void send_position_to_server (byte command) {	// Inform server that we are going to a position
+
+}			
+void get_positions_from_server (byte command) {	// Receive position information stored in the server
+
+}		

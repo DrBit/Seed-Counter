@@ -257,6 +257,8 @@ void go_to_posXY (int Xcy,int Xst,int Ycy,int Yst) {
 	Yaxis.got_to_position (Ycy,Yst) ;
 }
 
+/*
+// NOT NEEDED
 void update_positions_information () {
 	// The process of updating the positions information will be every cycle.
 	// Ideally the server will return us just a flag telling if it has been changed or not
@@ -283,5 +285,5 @@ void update_positions_information () {
 			press_button_to_continue (1);
 		}
 	}	
-}
+}*/
 

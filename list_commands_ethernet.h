@@ -13,10 +13,10 @@
 // LIST OF STATUS
 //////////////////////////
 // send_status_to_server (status);
-#define stopped 1 		// waiting action
-#define running 2 		// Running
-#define pause 3 		// Pause
-#define setting_up 4 	// Setting up machine (one time at the begining)
+#define S_stopped 1 		// waiting action
+#define S_running 2 		// Running
+#define S_pause 3 		// Pause
+#define S_setting_up 4 	// Setting up machine (one time at the begining)
 
 // The list of status should be as short as possible to make it easyer to handler
 // Statuses are contineous events that when enabled will stay enabled till another change on status
@@ -32,18 +32,20 @@
 #define counter_init 3				// Init Counter Motor
 #define new_batch 4		 			// new batch selected (not used in arduino, needed???)
 #define batch_end 5 				// finished batch, going IDLE
+
 #define starting_machine 7 			// Starting machine
 #define try_counter_autofix	8		// Try counter autofix, re-init counter wheel.
 #define needed_blisters_refill 9	// Required user to refill blisters
 #define seed_counter_turn	10		// Wheel turned 1 time.
 #define seed_released	11			// Seed has been picked up and released in the blister
 #define enable_pump  12				// Enable pump
-#define disble_pump  13				// Disable pump
+#define disable_pump  13			// Disable pump
 #define enter_idle	14				// Entering IDLE, awaiting user response or another input
 #define resume_from_idle  15		// Resuming action from IDLE
 #define ask_for_label  16			// Ask server to print a label
 #define label_ok   17				// Label detected correctly
 #define XY_init 18					// Init XY axis
+#define blisters_disp_init 20		// Init blisters
 
 
 //////////////////////////
@@ -57,15 +59,14 @@
 #define init_Y2_fail  15	// Error initializing Y axis. Could not go out of sensor. The axis might be stuck, or the sensor disconnected or broken. Keeps reading ON even if we move it.
 #define init_X2_fail  16	// Error initializing X axis. Could not go out of sensor. The axis might be stuck, or the sensor disconnected or broken. Keeps reading ON even if we move it.
 
-#define counter_init_fail  17    // Counter error, pump might be off, seeds deposits might be empty, sensor might be disconnected or broken
-#define counter_max_turns_normal 19 // Counters has done too much turns. Check if there are seeds, bottle neck or sensor error.
-#define counter_max_turns_end 20 	// Counters has done too much turns and already counted all seeds. Check if we finished the batch, bottle neck or sensor error.
-#define counter_sensor_failed 21 	// Counter sensor has detected a seed and the wheel was not in the sensor position. This could mean that wheel has skiped steps, sensor malcfunction or dirty sensor.
+#define counter_init_fail  17    	// Counter error, pump might be off, seeds deposits might be empty, sensor might be disconnected or broken
+#define counter_max_turns_normal 18 // Counters has done too much turns. Check if there are seeds, bottle neck or sensor error.
+#define counter_max_turns_end 19 	// Counters has done too much turns and already counted all seeds. Check if we finished the batch, bottle neck or sensor error.
+#define counter_sensor_failed 20 	// Counter sensor has detected a seed and the wheel was not in the sensor position. This could mean that wheel has skiped steps, sensor malcfunction or dirty sensor.
+#define label_timeout  21			// Label not printed or timeout
+#define blister_release_fail 22 	// Blister not released correctly, remove any blister on the belt and press number 1 to try again. Check the sensor if error persist.
 
-#define blister_release_fail 18 	// Blister not released correctly, remove any blister on the belt and press number 1 to try again. Check the sensor if error persist.
-#define blister_empty 19			// Blisters are empty, refill needed
 
-#define label_timeout  20	// Label not printed or timeout
 
 
 //////////////////////////

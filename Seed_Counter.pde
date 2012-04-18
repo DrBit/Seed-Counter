@@ -3,12 +3,13 @@
 #include <StopWatch.h>
 
 #include <network_config.h>		// NEDED?
-#include <list_commands_ethernet.h>
+#include "list_commands_ethernet.h"		// Check in the same directory
 
 
 #define version_prog "V3.11.2"
 
-#define lib_version 13
+#define lib_version 14
+
 
 
 /********************************************
@@ -122,7 +123,7 @@ unsigned long counter_s = 0;
 boolean pause = false;
 boolean manual_enabled = false;				// Flag to overwrite the pause flag
 
-int default_idle_time=120;					// Defaul idle time to go to sleep on user input 120 = 2 minutes.
+int default_idle_time = 120;				// Defaul idle time to go to sleep on user input 120 = 2 minutes.
 unsigned long  idle_time_counter = 0;
 unsigned long  desired_idle_time = 0;		// Time in seconds 120s = 2 minutes
 
@@ -137,7 +138,7 @@ void setup() {
 	// Begin Setup
 	setup_network();					// First thing we do is set up the network and contact the server
 	// Here , if we cannot connect we should have a MANUAL mode;
-	send_status_to_server (setting_up);	// here we comunicate the server that we begin the set-up process
+	send_status_to_server (S_setting_up);	// here we comunicate the server that we begin the set-up process
 	
 	// INIT Serial
 	init_serial();	
@@ -192,11 +193,11 @@ void setup() {
 	MySW.start();						// Start timer for statistics
 	
 	// END of setup
-	send_status_to_server (stopped);	// here we wait for the server to send orders
+	send_status_to_server (S_stopped);	// here we wait for the server to send orders
 	
 	
 	// While we are on stopped mode, keep chaking the server
-	while (global_status == stopped) {
+	while (global_status == S_stopped) {
 		check_server();
 	}
 

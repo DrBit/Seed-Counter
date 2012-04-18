@@ -11,7 +11,7 @@
 // ************************************************************
 
 boolean blisters_init () {
-	send_action_to_server (blisters_init);
+	send_action_to_server (blisters_disp_init);
 	int steps_to_do = (blisters_steps_absoulut_limit+100) / blisters.get_step_accuracy();		// The absolut limit would be 1000, but we add an extra 100 to be sure that we hit the maximum point so we init correctly
 	blisters.set_direction (default_directionB);
 	for (int i = 0 ; i< steps_to_do; i++) {
@@ -111,9 +111,9 @@ void check_out_of_blisters () {
 	while (out_of_blsiters) {
 		// We got emty blisters, stop process
 		Serial.println("OUT OF Blisters, please refill.");
-		send_error_to_server (blister_empty);
+
 		send_action_to_server (needed_blisters_refill);
-		
+		send_status_to_server (S_pause);
 		pump_disable ();
 		
 		// Check whether the sensor changes state
@@ -131,7 +131,7 @@ void check_out_of_blisters () {
 		if (!sensorC_state) {
 			out_of_blsiters = false;
 			send_action_to_server (blister_refilled);
-			send_status_to_server (running);
+			send_status_to_server (S_running);
 			pump_enable ();
 		}
 	}

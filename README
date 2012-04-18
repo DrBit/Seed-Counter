@@ -9,6 +9,7 @@
 **  *Added Ethernet module functions
 **  *Added documentation.txt file for writing notes
 **  *Changed name of list actions to "list_commands_ethernet.h"
+**  *Added new version of library Stepper_AC V1.4 (UNO compatible)
 **
 **  V3.11.1 - 07/03/2012
 **  * Added new errors and actions

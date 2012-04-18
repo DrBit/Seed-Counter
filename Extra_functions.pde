@@ -678,8 +678,7 @@ void check_pause () {
 	int button_emergency = digitalRead (emergency); 
 	// if (button_emergency) {		// Bypas for now,, re-enable when connected
 	if (false) {
-		byte previous_status = global_status;
-		send_status_to_server (pause);
+		send_status_to_server (S_pause);
 		Serial.println ("Emergency Enabled");
 		MySW.stop();
 		// Send error
@@ -703,7 +702,7 @@ void check_pause () {
 		Serial.flush();
 		Serial.println ("Pause activated ");
 		Serial.println ("Press 1 to resume");
-		Serial.println ("Press 2 Change seed batch code");
+		//Serial.println ("Press 2 Change seed batch code");
 		Serial.println ("Press 3 to print statistics");
 		Serial.println ("Press 4 to reset statistics");
 		Serial.println ("Press 5 to go to main menu");
@@ -716,9 +715,9 @@ void check_pause () {
 				break;
 				
 				case 2:
-					select_batch_number ();
-					send_petition_to_configure_network ();
-					update_network_configuration ();
+					//select_batch_number ();
+					//send_petition_to_configure_network ();
+					//update_network_configuration ();
 				break;
 				
 				case 3:
@@ -838,7 +837,7 @@ void check_library_version () {
 		Serial.print(" And the library installed is version V");
 		Serial.println(Xaxis.get_version());
 		Serial.println (" Program stoped!");
-		send_error_to_server (library_error)
+		send_error_to_server (library_error);
 		while (true) {}
 	}
 }
