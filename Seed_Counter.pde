@@ -220,42 +220,52 @@ void loop() {
 		Serial.print("1rst hole");
 		go_to_memory_position (5);			// first hole
 		pickup_seed ();
+		//delay (5000);
 		
 		Serial.print(" - 2nd hole");
 		go_to_memory_position (6);			// 2nd hole
 		pickup_seed ();
+		//delay (5000);
 		
 		Serial.print(" - 3th hole");
 		go_to_memory_position (7);			//3th hole
 		pickup_seed ();
+		//delay (5000);
 		
 		Serial.print(" - 4rd hole");
 		go_to_memory_position (8);			// 4d hole
 		pickup_seed ();
+		//delay (5000);
 
 		Serial.println(" - 5th hole");
 		go_to_memory_position (9);			// 5th hole
 		pickup_seed ();
+		//delay (5000);
 		
 		Serial.print("6th hole");
 		go_to_memory_position (10);			// 6th hole
 		pickup_seed ();
+		//delay (5000);
 		
 		Serial.print(" - 7th hole");
 		go_to_memory_position (11);			// 7th hole
 		pickup_seed ();
+		//delay (5000);
 		
 		Serial.print(" - 8th hole");
 		go_to_memory_position (12);			// 8th hole
 		pickup_seed ();
+		//delay (5000);
 		
 		Serial.print(" - 9th hole");
 		go_to_memory_position (13);			// 9th hole
 		pickup_seed ();
+		//delay (5000);
 		
 		Serial.println(" - 10th hole");
 		go_to_memory_position (14);			// 10th hole
 		pickup_seed ();
+		//delay (5000);
 	
 	} else if (blister_mode == seeds5) {		// 5 Seeds mode
 

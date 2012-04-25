@@ -30,12 +30,15 @@ void release_blister () {
 	Serial.println("go to Blister Position");
 	go_to_memory_position (2);			// blister
 	
+	
 	int steps_to_do = blisters_steps_limit / blisters.get_step_accuracy();
 	blisters.set_direction (!default_directionB);
 	for (int i = 0 ; i< steps_to_do; i++) {
 		blisters.do_step();
 		delayMicroseconds (motor_speed_blisters);
 	} 
+	
+	/*
 
 	// SHAKE to fit the blister (2 is blister position)
 	int tempYcycles = get_cycle_Ypos_from_index(2);
@@ -46,13 +49,14 @@ void release_blister () {
 	Yaxis.got_to_position (tempYcycles, tempYsteps-steps_to_move_when_blister_falls);
 	delay (100);
 	Yaxis.got_to_position (tempYcycles, tempYsteps);
-
+	*/
 	
 	blisters.set_direction (default_directionB);
 	for (int i = 0 ; i< steps_to_do + 50; i++) {
 		blisters.do_step();
 		delayMicroseconds (motor_speed_blisters);
 	}
+	
 	
 	// Check if we are out of blisters
 	check_out_of_blisters ();
