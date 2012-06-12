@@ -8,7 +8,7 @@ byte mac[] = {  0xDE, 0xAD, 0xBA, 0xEF, 0xFE, M_ID };
 byte local_ip[] = { 10,250,1,199 };
 byte server[] = { 10,250,1,3 }; 
 int port = 8888;
-boolean connection_alive = false;
+
 
 #define bufferSize 21
 char commandBuffer[bufferSize];
@@ -44,13 +44,13 @@ void setup_network() {
 	}
 	
 
-	connection_alive = connect_to_server ();
+	connected_to_server = connect_to_server ();
 }
 
 
 void check_server()
 {
-	if (connection_alive) {
+	if (connected_to_server) {
 		// if there are incoming bytes available 
 		// from the server, read them and print them:
 		if (client.available()) {
@@ -85,11 +85,11 @@ void check_server()
 		 if (!client.connected()) {
 			Serial.println("Server Disconnected.");
 			client.stop();
-			connection_alive = false;
+			connected_to_server = false;
 		}
 	 
 	}else{
-		connection_alive = connect_to_server ();
+		connected_to_server = connect_to_server ();
 		// wait 20 seconds before connecting again.
 		delay (5000);   //5 seconds for testing
 	}

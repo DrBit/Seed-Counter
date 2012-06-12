@@ -100,7 +100,8 @@ int situation=0;
 const int motor_speed_counter=1000;
 const int motor_speed_XY=900;
 const int motor_speed_blisters=1500;
-
+//ethernet flag
+boolean connected_to_server = false;
 // Blister mode
 #define seeds5 1
 #define seeds10 2
@@ -138,7 +139,12 @@ void setup() {
 	init_serial();
 	// Begin Setup
 	setup_network();					// First thing we do is set up the network and contact the server
+	while (!connected_to_server) {
+		delay (1000);
+		check_server();					// check server checks connection and also sends/receives any data in buffer
+	}	// Dont continue if we dont have a connection to the server
 	// Here , if we cannot connect we should have a MANUAL mode;
+	
 	send_status_to_server (S_setting_up);	// here we comunicate the server that we begin the set-up process	
 	
 	//Configure 3 Input Buttons
@@ -194,7 +200,7 @@ void setup() {
 	send_status_to_server (S_stopped);	// here we wait for the server to send orders
 	
 	
-	// While we are on stopped mode, keep chaking the server
+	// While we are on stopped mode, keep cheking the server
 	while (global_status == S_stopped) {
 		check_server();
 	}
