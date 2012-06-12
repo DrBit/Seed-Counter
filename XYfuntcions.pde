@@ -1,12 +1,20 @@
 // ************************************************************
 // ** INIT FUNCTIONS
 // ************************************************************
+
+
+// ***********************
+// ** Physical limits of the motors
+// ***********************
 // Init the both axes at the same time to save time.
-#define max_insensor_stepsError 3000
-#define max_outsensor_stepsError (long) 528000
+#define max_insensor_stepsError 700
+#define Xaxis_cycles_limit 280
+#define Yaxis_cycles_limit 12
 
 
 boolean XYaxes_init () {
+
+	send_action_to_server (XY_init);
 
 	// few previous calculations for the different speeds profiles
 	int speed1 = motor_speed_XY;						// Main speed is always the slowest and safer
@@ -50,7 +58,7 @@ boolean XYaxes_init () {
 	
 	unsigned long start_time = millis ();
 	
-	// We should move the motors at this point in mode 1 for top speed
+	// We should move the motors at this point in mode 1 at top speed
 	while (!both_sensors) {			// While we dont hit the sensor...
 		if (!Xaxis.sensor_check()) {
 			Xaxis.do_step();
@@ -88,16 +96,13 @@ boolean XYaxes_init () {
 		
 		// Error checking, if we cannot reach a point where we hit the sensor means that there is a problem
 		temp_counter++;
-		if (temp_counter > max_outsensor_stepsError) {			// recheck the limit of revolutions
-			if (!Xaxis.sensor_check()) {
-				// send_error("i3");				//still to implement an error message system
-				// error in axis X off sensor range
+		if ((temp_counter/1600) > Yaxis_cycles_limit) {			// recheck the limit of revolutions
+			send_error_to_server (init_Y1_fail);				//still to implement an error message system
+			return false;
 			}
-			if (!Yaxis.sensor_check()) {
-				// send_error("i4");				//still to implement an error message system
-				// error in axis Y off sensor range
-			}
-		// sensor error, might be broquen, out of its place, disconected or failing
+		
+		if ((temp_counter/1600) > Xaxis_cycles_limit) {			// recheck the limit of revolutions
+			send_error_to_server (init_X1_fail);				//still to implement an error message system
 		return false;
 		}
 	}
@@ -133,19 +138,16 @@ boolean XYaxes_init () {
 			both_sensors = true;
 		}
 		delayMicroseconds(motor_speed_XY);		// here we go at minimum speed so we asure we wont lose any step and we will achieve maximum acuracy
+		
 		// Error checking, if we cannot reach a point where we dont hit the sensor meands that there is a problem
 		temp_counter++;
-		if (temp_counter > max_insensor_stepsError) {			// More than 3200 steps will generate an error (3200 steps = to 2 complete turns in step mode 8)
-			if (Xaxis.sensor_check()) {
-				// send_error("i3");					//still to implemetn an error message system
-				// error in axis X off sensor range
+		if (max_insensor_stepsError > Yaxis_cycles_limit) {			// recheck the limit of revolutions
+			send_error_to_server (init_Y2_fail);				//still to implement an error message system
+			return false;
 			}
-			if (Yaxis.sensor_check()) {
-				// send_error("i4");					//still to implemetn an error message system
-				// error in axis Y off sensor range
-			}
-			//send_error("i1");							//still to implemetn an error message system
-			// Sensor error,  might be obstructed or disconnected.
+		
+		if (max_insensor_stepsError > Xaxis_cycles_limit) {			// recheck the limit of revolutions
+			send_error_to_server (init_X2_fail);				//still to implement an error message system
 			return false;
 		}
 	}
@@ -237,7 +239,9 @@ int get_step_Ypos_from_index(int index) {
 }
 
 void go_to_memory_position (int position_index_to_go) {
-
+	
+	send_position_to_server (position_index_to_go);		// Inform server that we are going to a position
+	
 	int Xcycles = get_cycle_Xpos_from_index(position_index_to_go);
 	int Xsteps = get_step_Xpos_from_index(position_index_to_go);
 	int Ycycles = get_cycle_Ypos_from_index(position_index_to_go);
@@ -252,3 +256,34 @@ void go_to_posXY (int Xcy,int Xst,int Ycy,int Yst) {
 	check_pause ();			// Check for any pause button
 	Yaxis.got_to_position (Ycy,Yst) ;
 }
+
+/*
+// NOT NEEDED
+void update_positions_information () {
+	// The process of updating the positions information will be every cycle.
+	// Ideally the server will return us just a flag telling if it has been changed or not
+	// The last configuration
+	
+	// This will speed up the process
+	
+	boolean command_sended = false;
+	while (!command_sended) {
+		// First send a command to update position information
+		send_command (3);			// Update pos information
+		// Now The ethernet module is checking if we need to update
+		
+		if (receive_next_answer(00) == 00) { 	// False , we dont need to update
+			command_sended = true;
+			Serial.println ("No need to update positions... ");
+		}else if (receive_next_answer(01) == 01) {	// True , we need to update
+			Serial.println ("Updating positions: ");
+			// Now we have to receive all positions and check them.
+		}else{
+			print_fail();
+			Serial.println (" * Command send (C03) Failed");
+			Serial.println(" * Press button 1 to try again");
+			press_button_to_continue (1);
+		}
+	}	
+}*/
+

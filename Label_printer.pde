@@ -1,13 +1,66 @@
+void print_one_label () {
+	// Print one label 
+	send_action_to_server(ask_for_label);
+}
 
-unsigned int seeds_batch = 290;
+void print_and_release_label () {
+	print_one_label ();
+	// Wait for the printer to print a label
+	boolean released = check_label_realeased (true);
+	while (!released) {
+		Serial.println("Label error, remove any label that might be left and press number 1 to try again or 2 to continue.");
+		int button_pressed = return_pressed_button ();
+		if (button_pressed == 2) break;
+		
+		Serial.println("Goto print position");
+		go_to_memory_position (3);			// Print position
+		print_one_label ();
+		released = check_label_realeased (true);
+	}
+}
 
-#define number_of_commands 20
-#define number_of_errors 20
+boolean check_label_realeased (boolean print) {
+	
+	boolean label = false;
+	boolean timeout_label = false;
+	int count = 0;
+	if (print) Serial.print("Label released: ");
+	
+	// Check if we got a label, or we timeout
+	while (!label && !timeout_label) {
+		label = digitalRead (sensE); 
+		count ++;
+		if (count == 200) timeout_label = true;
+		delay (50);
+	}
+	
+	
+	if (label) {
+		if (print) print_ok();
+		send_action_to_server(label_ok);
+		delay (500);		// Just give sometime to the printer to finsh the job before we move
+		Serial.println("Go to brush position");
+		go_to_memory_position (20);
+		label = digitalRead (sensE);		// After moving we check the label again, could be that wasn't completely stiked and moved on the way.
+		if (!label) return false;
+		return true;
+	}
+
+	if (print) print_fail ();
+	send_error_to_server (label_timeout);
+	return false;
+}
+
+
+//unsigned int seeds_batch = 290;
+
+//#define number_of_commands 20
+//#define number_of_errors 20
+
 /*
 //////////////////////////
-// LIST OF COMMANDS
+// LIST OF INTERNAL ACTIONS/COMMANDS
 //////////////////////////
-
 // All commands are begined and ended with a '*'
 // any received data failling to have '*' at the begining anb at the end will be descarted.
 -------------
@@ -15,7 +68,7 @@ C00 - FALSE
 C01 - TRUE
 C02 - ERROR
 -------------
-C03 - Arduino Mega ready for operation (Normally after a C05 command)
+C03 - Fetch All positions 
 C04 - Print label
 C05 - Network module ready for operation (normally after reset)
 C06 - Label printed correctly
@@ -27,6 +80,10 @@ C10 - Send IP (printer_IP)
 C11 - Send PS (password)
 C12 - Send PP (printer_port)
 ------------
+EXTRA DATA
+------------
+// Extra data will be used to transfer further data. Like in order go to position
+// in go to position extradata will indicate the position itself
 C13 - Begining of data stream
 C14 - End of data stream
 ------------
@@ -34,22 +91,12 @@ C15 - Ask for data of network configuration
 ------------
 C16 - Send US (ui_server)
 C17 - Send MI (Machine ID)
-
-//////////////////////////
-// LIST OF POSSIBLE ERRORS
-//////////////////////////
-
-E00 - Failed to open connection. Network down or website not available
-E01 - Time out receiving and aswer from the server 
-E02 - We didnt get any tag equal of what we where expecting
-E03 - Expected command (C03) to configure printer before anything else
-E04 - Configuration command not supported (when inside configuration)
-E05 - Can NOT connect to the User Interface Server. Check connectrions, Check server is alive
-E10 - Not expected command  // When we sended a command that receiver wasn't expecting
-							// Normalli means receiver expects a concrete command and opnly will react to that
-	
 */
-	
+
+
+/*
+
+
 #define endOfLine '*'
 	
 
@@ -57,8 +104,8 @@ E10 - Not expected command  // When we sended a command that receiver wasn't exp
 // Main Functions
 //////////////////////////
 
-void init_printer () {
-	// Reset arduino (TODO connect reset cable)
+void init_ethernet () {
+	// Reset arduino
 	EthernetModuleReset ();
 	Serial1.begin (9600);
 	Serial.print   ("Init Ethernet module: ");
@@ -70,113 +117,46 @@ void init_printer () {
 			cReceived = true;
 		}
 	}
-	// The module now just had a reset and is ready
-	select_batch_number ();						// Ask for a batch number
-	send_petition_to_configure_network ();		// Sends petition to conifgure
-	update_network_configuration ();			// If accepted pettition send configuration
-	// print_network_config ();					// Once sended configuration ask it again and also print other info from module
-}
-
-
-// Types in a batch nomber for update it
-int select_batch_number () {
-	boolean inNumber = true;
-	//while (inNumber) {
-		Serial.print (" Type in batch number (290 test): ");
-		seeds_batch = get_number(4);
-		Serial.println (seeds_batch);
-		
-		/*		// We remove this since is a waste of time at the begining and can be done via the menu
-		inNumber = false;
-		Serial.println (" Correct? Y/N ");
-		if (YN_question()) {
-			// if YES do nothing and quit
-		}else{
-			// if no...
-			inNumber = true;	// Ask number again
-		}*/
-
-	//}
-}
-
-void send_petition_to_configure_network () {
 	
-	boolean command_sended = false;
-	while (!command_sended) {
-		Serial.print   ("Update network module: ");
-		send_command (3);			// Print one label
-		
-		if (receive_next_answer(01) == 01) { 	// Command accepted
-			command_sended = true;
-		}else{
-			print_fail();
-			Serial.println (" * Command send (C03) Failed");
-			Serial.println(" * Press button 1 to try again");
-			press_button_to_continue (1);
-		}
-	}
-} 
-
-// TODO
-void update_network_configuration () {
-/* 
-C07 - Send SA (server_address)
-C08 - Send SS (server_script)
-C09 - Send SB (seeds_batch)
-C10 - Send IP (printer_IP)
-C11 - Send PS (password)
-C12 - Send PP (printer_port)
-*/
-	delay(40);
-	send_command (7);
-	send_data (server_address);
-	delay (40);	
-	send_command (8);
-	send_data (server_script);
-	delay (40);	
-	send_command (9);
-	send_data (seeds_batch);
-	delay (40);	
-	send_command (10);
-	send_data (printer_IP);
-	delay (40);	
-	send_command (11);
-	send_data (password);
-	delay (40);	
-	send_command (12);
-	send_data (printer_port);
-
-	if (receive_next_answer(01) == 01) { 	// Command accepted
-		// All correct , continue
-		print_ok();
-	}else{
-		print_fail();
-		Serial.println (" * Configuration of network module Failed");
-		Serial.println(" * Press button 1 to try again");
-		press_button_to_continue (1);
-	}
+	// The module is now ready
+	
+	// 	It is waiting for a *C01* command confirmation to continue
 }
 
-void print_network_config () {
-	boolean command_sended = false;
-	while (!command_sended) {
-		Serial.print   ("Retrieve network configuration: ");
-		send_command (15);			// Print one label
-		
-		if (receive_next_answer(01) == 01) { 	// Command accepted
-			command_sended = true;
+void configure_network () {
+
+	// First we tell the module to get ready to configure itself (after a hard reset)
+	send_command (1);		// Send confirmation
+
+	// Right now the module will configure itsef and send us a confirmation or an error
+	// Whait for it...
+	
+	// The module will contact the main server and retrieve all configuration data
+	// If the data is new it will update its eeprom memory with the new configuration
+	// In case the connection fails or server is down, arduino has previous 
+	// config information stored in the memory.
+	
+	cReceived = false;
+	while (!cReceived) {
+		int last_com = receive_next_answer(01);
+		if (last_com == 01) {
 			print_ok();
-		}else{
-			print_fail();
-			Serial.println (" * Command send (C03) Failed");
-			Serial.println(" * Press button 1 to try again");
-			press_button_to_continue (1);
+			cReceived = true;
+		}else if (last_com == 01) {
+		
 		}
 	}
-	Serial.println("");
-	recevie_data_and_print ();
+	
+	// if configured succesfully -> print_ok();
+	// else
+	// first ask to USER if the DNS name is ok
+	// get name from the ethernet module and show it to the user
+	// is correct? 
+		// yes try again
+		// NO ask for a new name
+	// If has changed get the name and send it back to ethernet module
+	// If configuration still fail offer option to continue with previous configuration
 }
-
 
 void EthernetModuleReset () {
 	// Serial.println (" * Reseting network module...");
@@ -185,6 +165,7 @@ void EthernetModuleReset () {
 	delay (1000);
 	digitalWrite (ethReset, HIGH);
 }
+
 
 
 void prepare_printer() {
@@ -233,6 +214,9 @@ void print_one_label () {
 	Serial.print ("Generate label (C04): ");						
 	send_command (4);			// Print one label
 	
+	send_action_to_server(ask_for_label);
+	
+	// This is just to see if command was sent correctly
 	if (receive_next_answer(01) == 01) { 	// Command accepted
 		// Wait for answer (command 06 indicates sucsesful printing
 		if (receive_next_answer(06) == 06) { 
@@ -270,6 +254,7 @@ boolean check_label_realeased (boolean print) {
 	
 	if (label) {
 		if (print) print_ok();
+		send_action_to_server(label_ok);
 		delay (500);		// Just give sometime to the printer to finsh the job before we move
 		Serial.println("Go to brush position");
 		go_to_memory_position (20);
@@ -279,6 +264,7 @@ boolean check_label_realeased (boolean print) {
 	}
 
 	if (print) print_fail ();
+	send_error_to_server (label_timeout);
 	return false;
 }
 
@@ -646,3 +632,5 @@ int receive_next_answer (int default_answer) {
 		}
 	}
 }
+
+*/

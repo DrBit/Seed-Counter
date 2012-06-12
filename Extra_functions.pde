@@ -610,12 +610,6 @@ int init_blocks(int block) {
 		default:
 			int error = 0;
 			if (!init_blisters_menu ()) error++;
-				// Security Check
-				// Serial.println(" * Check the seed counter for any blister that may be left in the X axel");
-				// Serial.println(" * When ready press button 1 to continue set-up process");
-				// delay (150);
-				// Press button 1 to continue
-				// press_button_to_continue (1);
 			if (!init_XY_menu()) error++;
 			if (!init_counter_menu ()) error++;
 			mem_check ();
@@ -684,7 +678,9 @@ void check_pause () {
 	int button_emergency = digitalRead (emergency); 
 	// if (button_emergency) {		// Bypas for now,, re-enable when connected
 	if (false) {
+		send_status_to_server (S_pause);
 		Serial.println ("Emergency Enabled");
+		MySW.stop();
 		// Send error
 		start_idle_timer (60);
 		while (button_emergency) {
@@ -694,7 +690,9 @@ void check_pause () {
 			check_idle_timer (true);
 		}
 		end_idle_timer ();
+		MySW.start();
 		Serial.println ("Emergency disabled");
+		send_status_to_server (previous_status);
 	}
 	
 	
@@ -704,7 +702,7 @@ void check_pause () {
 		Serial.flush();
 		Serial.println ("Pause activated ");
 		Serial.println ("Press 1 to resume");
-		Serial.println ("Press 2 Change seed batch code");
+		//Serial.println ("Press 2 Change seed batch code");
 		Serial.println ("Press 3 to print statistics");
 		Serial.println ("Press 4 to reset statistics");
 		Serial.println ("Press 5 to go to main menu");
@@ -717,9 +715,9 @@ void check_pause () {
 				break;
 				
 				case 2:
-					select_batch_number ();
-					send_petition_to_configure_network ();
-					update_network_configuration ();
+					//select_batch_number ();
+					//send_petition_to_configure_network ();
+					//update_network_configuration ();
 				break;
 				
 				case 3:
@@ -839,6 +837,7 @@ void check_library_version () {
 		Serial.print(" And the library installed is version V");
 		Serial.println(Xaxis.get_version());
 		Serial.println (" Program stoped!");
+		send_error_to_server (library_error);
 		while (true) {}
 	}
 }
@@ -886,17 +885,19 @@ void set_pump_state (boolean pump_state) {
 
 boolean get_pump_state () {
 	return digitalRead (pump);
-	return true;
+	// return true;
 }
 
 void pump_enable () {
 	Serial.println ("Enable Pump");
+	send_action_to_server(enable_pump);
 	set_pump_state (true);
-	delay (1000);		// Wait 1 second to build up some pressure
+	delay (800);		// Wait 1 second to build up some pressure
 }
 
 void pump_disable () {
 	Serial.println ("Disable Pump");
+	send_action_to_server(disable_pump);
 	// set_pump_state (false);
 }
 
@@ -940,6 +941,7 @@ boolean check_idle_timer (boolean message) {
 	} else if (idle_time_counter == desired_idle_time) {
 		idle_time_counter++;
 		if (message) Serial.println ("Sleep Time!");
+		send_action_to_server(enter_idle);
 		pump_disable ();
 		return true;
 	}
@@ -954,6 +956,7 @@ void start_idle_timer (unsigned long  seconds) {
 void end_idle_timer () {
 	if (idle_time_counter >= desired_idle_time+1) {
 		Serial.println ("Wake UP!");
+		send_action_to_server(resume_from_idle);
 		pump_enable ();
 	}
 }

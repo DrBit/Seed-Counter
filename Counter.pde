@@ -16,26 +16,17 @@ unsigned int max_batch_count = 1100;	// Tipical number of seeds in a batch
 boolean first_time_drop = true;		// Used only to acomodate positionafter INIT. Once hase been used we won't used anymore.
 
 boolean Seedcounter_init() {
-        
+    send_action_to_server(counter_init);
 	boolean seed_sensor = false; 
 	int count = 0;
 
-	/*
-	// First time we init we just go back one complete cycle in case we have seeds atached and we bring them into the deposit
-	counter.set_direction (true);   // Set direction
-	for (count = (counter.get_steps_per_cycle()); count > 0; count--) {
-		counter.do_step();
-		delayMicroseconds(motor_speed_counter);
-	} */
-
-	count =0;
 	counter.set_direction (default_directionC);   // Set direction
 	while (!seed_sensor) {
 		// If the vacuum is not on, this would be cheking for the 0 position foreve
 		// so we count ten times and if there is no sense of a seed we pause
 		count++;
 		if (count == (counter.get_steps_per_cycle() * init_turns_till_error)) {  
-			//send_error("c1");     still to implemetn an error message system
+			send_error_to_server(counter_init_fail);
 			// Counter error, pump might be off, seeds deposits might be empty, sensor might be disconnected or broken
 			return false;  // Failed to initiate seed counter, retunr false
 		}  
@@ -57,14 +48,6 @@ boolean Seedcounter_init() {
 		delayMicroseconds(motor_speed_counter);
 	}
 	counter.set_init_position();  
-	/*
-	counter.set_direction (true);   // Set direction
-	for (int i=0;i<(steps_from_sensor_to_init/counter.get_step_accuracy()); i++) {   // we go back at the position we should be for starting point
-		counter.do_step();
-		delayMicroseconds(motor_speed_counter);
-	}
-	counter.set_direction (true);   // Set direction
-	*/
 	first_time_drop = true;		// State that the first time we drop a seed has to be different because we just INIT and the wheel is in a different posuition than by default
 	return true;
 }
@@ -102,6 +85,7 @@ void pickup_seed() {
 		}
 		
 		if (count_error_turns > fails_max_normal) {
+			send_error_to_server(counter_max_turns_normal);
 			Serial.println ("\nError, no more seeds? Empty? Bottleneck? did the world end?");
 			Serial.print ("Press 1 to continue, press 2 to finish batch: ");
 			int button_pressed = return_pressed_button ();
@@ -113,6 +97,7 @@ void pickup_seed() {
 			if (button_pressed == 2) end_of_batch ();
 
 		}else if ((count_error_turns > fails_max_end) && (counter_s > (max_batch_count - 200))) {
+			send_error_to_server(counter_max_turns_end);
 			Serial.println ("\nWe might have reached the end, is it?");
 			Serial.print ("Press 1 to continue, press 2 to finilize batch: ");
 			int button_pressed = return_pressed_button ();
@@ -132,15 +117,17 @@ void pickup_seed() {
 			if (!last_turn) {
 				speed_cntr_Move(1600/counter.get_step_accuracy(),accel,speed,accel);	// We do a full turn, NOTICE that the acceleration in this case is lower
 				count_total_turns ++;		// for statistics pourpouses
+				send_action_to_server(seed_counter_turn);
 			}
 			count_error_turns ++;		// for errors pourpous
 			
-		}else if (first_time_drop && (count_total_turns == previous_counted_turns)) {				// If its the first time we wont be at the starting position so instead of a full turn we move less toa rrive at the default pos.
+		}else if (first_time_drop && (count_total_turns == previous_counted_turns)) {				// If its the first time we wont be at the starting position so instead of a full turn we move less to arrive at the default pos.
 			first_time_drop = false;
 			wait_time(50);
 			if (!last_turn) {
 				speed_cntr_Move(steps_from_sensor_to_init_clockwise/counter.get_step_accuracy(),accel,speed,accel);	// We do a full turn, NOTICE that the acceleration in this case is lower
 				count_total_turns ++;		// for statistics pourpouses
+				send_action_to_server(seed_counter_turn);
 			}
 			count_error_turns ++;		// for errors pourpous
 		}
@@ -149,6 +136,7 @@ void pickup_seed() {
 			// Check if we got seed
 			if (counter.sensor_check()){			// We got a seed!!!
 				seed_detected = true; 
+				send_action_to_server(seed_released);
 				counter_s ++;						// For statistics pourpouse
 				while (!(counter.get_steps() == (steps_from_sensor_to_init_clockwise-steps_from_sensor_to_start_moving_when_seed)))	// If we are not finished moving...
 				{
@@ -162,6 +150,7 @@ void pickup_seed() {
 			
 		} else {
 			if (counter.sensor_check()){			// We got a seed and we are not supose to have one here!!
+				send_error_to_server(counter_sensor_failed);
 				// Something whent wrong!!!!
 				Serial.println ("\n\n **** Something whent wrong. Detected seed where it shouldn't");
 				Serial.println (" Probably counter motor missed some steps");
@@ -189,7 +178,7 @@ void wait_time (unsigned long milliseconds) {
 
 
 boolean counter_autofix() {
-    
+    send_action_to_server (try_counter_autofix);
 	// Goes back till senses and then senses nothing again or just turns back little but more than half a turn
 	counter.set_direction (!default_directionC);   // Set direction
 	
@@ -231,7 +220,7 @@ boolean counter_autofix() {
 }
 
 void end_of_batch () {
-
+	
 	pump_disable ();
 	
 	Serial.println("Goto print position");
@@ -259,6 +248,8 @@ void end_of_batch () {
 			break;
 		}
 	}
+	
+	send_action_to_server (batch_end);
 	
 	Serial.println ("**** BATCH FINISHED! Close this windows and open again to restart *****");
 	

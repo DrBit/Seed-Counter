@@ -2,11 +2,14 @@
 #include <avr/pgmspace.h>
 #include <StopWatch.h>
 
-#include <network_config.h>
+#include <network_config.h>		// NEDED?
+#include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "V3.12"
-#define lib_version 13
+#define version_prog "V4.0"
 
+#define lib_version 14
+
+#define M_ID 1
 
 /********************************************
 **  Name: Seed Counter 
@@ -119,14 +122,25 @@ unsigned long counter_s = 0;
 boolean pause = false;
 boolean manual_enabled = false;				// Flag to overwrite the pause flag
 
-#define default_idle_time 120				// Defaul idle time to go to sleep on user input 120 = 2 minutes.
+int default_idle_time = 120;				// Defaul idle time to go to sleep on user input 120 = 2 minutes.
 unsigned long  idle_time_counter = 0;
 unsigned long  desired_idle_time = 0;		// Time in seconds 120s = 2 minutes
 
+// ***********************
+// ** STATUS + ACTIONS
+// ***********************
+byte global_status = 0;
+byte previous_status = 0;
+
 void setup() {
-	
+
 	// INIT Serial
-	init_serial();	
+	init_serial();
+	// Begin Setup
+	setup_network();					// First thing we do is set up the network and contact the server
+	// Here , if we cannot connect we should have a MANUAL mode;
+	send_status_to_server (S_setting_up);	// here we comunicate the server that we begin the set-up process	
+	
 	//Configure 3 Input Buttons
 	pinMode (button1, INPUT);
 	pinMode (button2, INPUT);
@@ -134,18 +148,13 @@ void setup() {
 	
 	pinMode (sensF, INPUT); 
 	pinMode (sensE, INPUT);
-	pinMode (sensC, INPUT); 
-	
+	pinMode (sensC, INPUT); 	
 	// Setup emergency pin 
 	pinMode (emergency, INPUT);           // set pin to input
-
-	// Controls ethernet reset
-	pinMode (ethReset, OUTPUT);
-	digitalWrite (ethReset, HIGH);
 	
 	// Controls Pump relay
 	pinMode (pump, OUTPUT);
-	
+
 	// Check library Version
 	check_library_version ();		//If different STOP
 	
@@ -156,15 +165,6 @@ void setup() {
 	init_DB ();				// Init database
 	// Show_all_records();
 	// manual_data_write();		// UPDATE manually all EEPROOM MEMORY (positions)
-	
-	print_set_up ();		// Begin SET-UP process
-	
-	// Init network module
-	init_printer ();		// Init printer
-	prepare_printer();		// Prepares the printer to be ready for blisters 
-	
-	// Pick blister mode to start filling
-	pick_blister_mode();
 	
 	// Defining default directions of motors (in case we change the wiring or the position of motors)
 	#define default_directionX true
@@ -178,8 +178,6 @@ void setup() {
 	blisters.set_default_direcction (default_directionB);
 	counter.set_default_direcction (default_directionC);
 	
-	pump_enable ();			// for now to avoid interferences
-	
 	// INIT SYSTEM, and CHECK for ERRORS
 	init_all_motors ();
 		
@@ -189,10 +187,33 @@ void setup() {
 	Xaxis.set_accel_profile(900, 17, 9, 20);
 	Yaxis.set_speed_in_slow_mode (350);
 	Yaxis.set_accel_profile(950, 13, 7, 15);
+
+	MySW.start();						// Start timer for statistics
 	
-	// chec_sensorF();
-	MySW.start();			// Start timer for statistics
 	// END of setup
+	send_status_to_server (S_stopped);	// here we wait for the server to send orders
+	
+	
+	// While we are on stopped mode, keep chaking the server
+	while (global_status == S_stopped) {
+		check_server();
+	}
+
+	
+	//When ready....
+	
+	// Pick blister mode to start filling (GETS mode from serial)
+	//pick_blister_mode();
+	
+	get_positions_from_server (P0);					// receives all positions from server
+	get_info_from_server (get_seeds_mode);			// Gets seed mode (5 or 10 seeds per blister)
+	get_info_from_server (get_default_idle_time);	// gets default IDLE time
+	
+	pump_enable ();			// for now to avoid interferences
+	
+	// Controls ethernet reset (NEEDDED?)
+	//pinMode (ethReset, OUTPUT);
+	//digitalWrite (ethReset, HIGH);
 }
 
 
@@ -207,7 +228,7 @@ void setup() {
 // * X5 * X4 * X3 * X2 * X1 *
 void loop() {
 
-	// test_pump_interferences ();
+	
 
 	Serial.println("\n ************ ");
 	
@@ -296,6 +317,7 @@ void loop() {
 	go_to_memory_position (3);			// Print position
 	
 	print_and_release_label ();
+
 	
 	Serial.println("Go to exit");
 	go_to_memory_position (4);			// Exit
@@ -327,25 +349,6 @@ void loop() {
 }
 
 
-void chec_sensorE () {
-	while (true) {
-		int sensor_state = digitalRead (sensE); 
-		if (sensor_state) {
-			// We got the begining of the blister
-			print_ok();
-			// We got a blisters
-			// Now we know that we have just a few left
-			// We start counting
-			// How can we reset this count when blisters are refilled? Database?
-				// In database case. Check database, if refilled reset state.
-		}else{
-			print_fail ();
-			// lister not detected, send error
-			// press_button_to_continue (1);
-		}
-		delay (700);
-	}
-}
 
 void chec_sensorF () {
 	while (true) {
@@ -368,6 +371,7 @@ void chec_sensorF () {
 }
 
 
+
 void test_pump_interferences () {
 
 	while (true) {
@@ -376,3 +380,4 @@ void test_pump_interferences () {
 		delay (1000);
 	}
 }
+

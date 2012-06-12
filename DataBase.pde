@@ -1,7 +1,12 @@
 //*********************
 // DEFINE DATABASE
 //*********************
-#include "WProgram.h"
+
+#if defined(ARDUINO) && ARDUINO >= 100
+  #include "Arduino.h"
+#else
+  #include "WProgram.h"
+#endif
 #include <EEPROM.h>
 #include <DB.h>
 #include <string.h>
