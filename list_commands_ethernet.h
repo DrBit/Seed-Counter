@@ -5,7 +5,7 @@
 // Basic
 ////////////////////////
 // get_info_from_server (info)
-#define get_seeds_mode 1		// 5 or 10 seeds per blister
+#define get_seeds_mode 1			// 5 or 10 seeds per blister
 #define get_default_idle_time 2		// Defaul idle time to go to sleep on user input 120 = 2 minutes.
 
 
@@ -15,8 +15,8 @@
 // send_status_to_server (status);
 #define S_stopped 1 		// waiting action
 #define S_running 2 		// Running
-#define S_pause 3 		// Pause
-#define S_setting_up 4 	// Setting up machine (one time at the begining)
+#define S_pause 3 			// Pause
+#define S_setting_up 4 		// Setting up machine (one time at the begining)
 
 // The list of status should be as short as possible to make it easyer to handler
 // Statuses are contineous events that when enabled will stay enabled till another change on status

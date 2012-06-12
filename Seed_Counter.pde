@@ -10,7 +10,7 @@
 
 #define lib_version 14
 
-
+#define M_ID 1
 
 /********************************************
 **  Name: Seed Counter 
@@ -135,13 +135,12 @@ byte previous_status = 0;
 
 void setup() {
 
+	// INIT Serial
+	init_serial();
 	// Begin Setup
 	setup_network();					// First thing we do is set up the network and contact the server
 	// Here , if we cannot connect we should have a MANUAL mode;
-	send_status_to_server (S_setting_up);	// here we comunicate the server that we begin the set-up process
-	
-	// INIT Serial
-	init_serial();	
+	send_status_to_server (S_setting_up);	// here we comunicate the server that we begin the set-up process	
 	
 	//Configure 3 Input Buttons
 	pinMode (button1, INPUT);

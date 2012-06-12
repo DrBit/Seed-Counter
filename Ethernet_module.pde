@@ -1,18 +1,12 @@
-/*
-Seed counter tests
-
-*/
-
-
 #include <SPI.h>
 #include <Ethernet.h>
 
 
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
-byte mac[] = {  0xDE, 0xAD, 0xBA, 0xEF, 0xFE, 0xED };
-byte ip[] = { 10,250,1,199 };
-byte server[] = { 10,250,1,3 }; // Google
+byte mac[] = {  0xDE, 0xAD, 0xBA, 0xEF, 0xFE, M_ID };
+byte local_ip[] = { 10,250,1,199 };
+byte server[] = { 10,250,1,3 }; 
 int port = 8888;
 boolean connection_alive = false;
 
@@ -27,19 +21,19 @@ EthernetClient client;
 
 void setup_network() {
 	// start the Ethernet connection:
-	Ethernet.begin(mac, ip);
-	// start the serial library:
-	Serial.begin(9600);
+	Ethernet.begin(mac, local_ip);
 	// give the Ethernet shield a second to initialize:
 	delay(1000);
 
-	Serial.print("Starting on IP: ");
-	Serial.println(ip_to_str(ip));
+	Serial.print("Blister blaster id ");
+	Serial.print(M_ID);
+	Serial.print(" on IP: ");
+	Serial.println(ip_to_str(local_ip));
 	
-	Serial.print ("Default server ip: ");
+	Serial.print ("Default User Interface server ip: ");
 	Serial.println(ip_to_str(server));
 	
-	Serial.print ("Default server port: ");
+	Serial.print ("Default User Interface server port: ");
 	Serial.println(port);
 	
 	Serial.print("\r\nChange server and port? [y/n]\r\n");
@@ -120,7 +114,7 @@ boolean connect_to_server () {
 		delay (300);
 		return true;
 	} else {
-		// kf you didn't get a connection to the server:
+		// if you didn't get a connection to the server:
 		Serial.println("connection failed");
 	}
 	return false;
@@ -132,34 +126,41 @@ void print_to_server (char* text) {
 	if (strlen(text) > 0) {		// If text empty wont print anything
 		client.print(text);
 		client.print("\r\n");
-		Serial.print(text);
-		Serial.print("\r\n");
+		//Serial.print(text);
+		//Serial.print("\r\n");
 	}
 }
 
+void get_info_from_server (byte command) {
 
-// NOT NEEDDED, (ONLY FOR SERIAL PRINT)
-void buffer_char (char character, char* bufferContainer, int max_size) {
-	int len = max_size;
-	int actualLen = strlen(bufferContainer);
-	char temp_char = character;
-	
-	if (actualLen < len-1) {
-		bufferContainer[actualLen] = temp_char;
-	}else{
-		Serial.print("buffer full, max ");
-		Serial.print(len-1,DEC);
-		Serial.println(" characters per command.");
-	}
 }
-// NOT NEEDDED, (ONLY FOR SERIAL PRINT)
-void clean_buffer (char* bufferContainer, int max_size) {
-	int len = max_size;
-	for (int c = 0; c < len; c++) {
-		bufferContainer[c] = 0;
-	}
+
+void send_status_to_server (byte command) {
+	previous_status = global_status;		// Stores previous status
+	global_status = command;					// Updates actual status
+}
+
+void send_action_to_server(byte command) {
+	// sometimes require an OK back from the server
+}
+
+void send_error_to_server (byte command) {
+
+}
+
+void send_position_to_server (byte command) {	// Inform server that we are going to a position
+
+}	
+
+void get_positions_from_server (byte command) {	// Receive position information stored in the server
+
 }
  
+ 
+ 
+////////////////
+// EXTRAS
+////////////////
 
  // Just a utility function to nicely format an IP address.
 const char* ip_to_str(const uint8_t* ipAddr)
@@ -168,10 +169,6 @@ const char* ip_to_str(const uint8_t* ipAddr)
 	sprintf(buf, "%d.%d.%d.%d\0", ipAddr[0], ipAddr[1], ipAddr[2], ipAddr[3]);
 	return buf;
 }
-
-
-
-
 
 void receive_server_IP () {
 	Serial.print ("Type server ip: ");
@@ -268,39 +265,24 @@ boolean recevie_data (char* parameter_container,int buffer) {
 	}
 }
 
-/*
-// |REDEFINED
-// Simple YES/NO Question
-boolean YN_question () {
-	while (true) {
-		if (Serial.available ()) {
-			char C = Serial.read ();
-			if (C == 'y' || C == 'Y') {
-				return true;
-			}else if (C == 'n' || C == 'N') {
-				return false;
-			}
-		}
+// NOT NEEDDED, (ONLY FOR SERIAL PRINT)
+void buffer_char (char character, char* bufferContainer, int max_size) {
+	int len = max_size;
+	int actualLen = strlen(bufferContainer);
+	char temp_char = character;
+	
+	if (actualLen < len-1) {
+		bufferContainer[actualLen] = temp_char;
+	}else{
+		Serial.print("buffer full, max ");
+		Serial.print(len-1,DEC);
+		Serial.println(" characters per command.");
 	}
-}*/
-
-
-void get_info_from_server (byte command) {
-
 }
-void send_status_to_server (byte command) {
-	previous_status = global_status;		// Stores previous status
-	global_status = command;					// Updates actual status
+// NOT NEEDDED, (ONLY FOR SERIAL PRINT)
+void clean_buffer (char* bufferContainer, int max_size) {
+	int len = max_size;
+	for (int c = 0; c < len; c++) {
+		bufferContainer[c] = 0;
+	}
 }
-void send_action_to_server(byte command) {
-	// sometimes require an OK back from the server
-}
-void send_error_to_server (byte command) {
-
-}
-void send_position_to_server (byte command) {	// Inform server that we are going to a position
-
-}			
-void get_positions_from_server (byte command) {	// Receive position information stored in the server
-
-}		
