@@ -10,8 +10,9 @@ byte server[] = { 10,250,1,3 };
 int port = 8888;
 
 
-#define bufferSize 21
-char commandBuffer[bufferSize];
+#define bufferSize 18
+static char message[bufferSize];		// Variable to send messages to the server
+char received_msg[bufferSize];
 
 // Initialize the Ethernet client library
 // with the IP address and port of the server 
@@ -138,6 +139,9 @@ void get_info_from_server (byte command) {
 void send_status_to_server (byte command) {
 	previous_status = global_status;		// Stores previous status
 	global_status = command;					// Updates actual status
+    sprintf(message, "%dS%d\r\n", M_ID, command);
+    client.print(message);
+	while (!wait_for_ok ()) {}
 }
 
 void send_action_to_server(byte command) {
@@ -155,18 +159,59 @@ void send_position_to_server (byte command) {	// Inform server that we are going
 
 void get_positions_from_server (byte command) {	// Receive position information stored in the server
   if (command == 0) {  // Ask for all positions
-    static char buf[16];
-    sprintf(buf, "%dP*\r\n", M_ID);
-    client.print(buf);
+    sprintf(message, "%dP*\r\n", M_ID);
+    client.print(message);
   }else{
-    client.print(M_ID);
-    client.print("P");
-    client.print(command);
-    client.print("\r\n");
+    sprintf(message, "%dP%d\r\n", M_ID, command);
+    client.print(message);
   }
-}                   
- 
- 
+}
+
+
+boolean wait_for_ok () {
+	clean_buffer (received_msg,bufferSize);		// Prepare buffer
+	
+	while (client.available() > 0) {
+		char inChar = client.read();
+		if ((inChar == 13) || (inChar == 10)) {
+			// Compare received command, if its OK return true, else false
+			if (strcmp(received_msg,"OK")) {
+				return true;
+			}else{
+				return false;
+			}
+		}else{
+			buffer_char (inChar,received_msg,bufferSize);	
+		}		
+	}
+	return false;
+}
+
+
+
+////////////////////////////
+// Functions to pharse text
+////////////////////////////
+void buffer_char (char character, char* bufferContainer, int max_size) {
+	int len = max_size;
+	int actualLen = strlen(bufferContainer);
+	char temp_char = character;
+	
+	if (actualLen < len-1) {
+		bufferContainer[actualLen] = temp_char;
+	}else{
+		Serial.print("buffer full, max ");
+		Serial.print(len-1,DEC);
+		Serial.println(" characters per command.");
+	}
+}
+
+void clean_buffer (char* bufferContainer, int max_size) {
+	int len = max_size;
+	for (int c = 0; c < len; c++) {
+		bufferContainer[c] = 0;
+	}
+}
  
 ////////////////
 // EXTRAS
@@ -275,24 +320,4 @@ boolean recevie_data (char* parameter_container,int buffer) {
 	}
 }
 
-// NOT NEEDDED, (ONLY FOR SERIAL PRINT)
-void buffer_char (char character, char* bufferContainer, int max_size) {
-	int len = max_size;
-	int actualLen = strlen(bufferContainer);
-	char temp_char = character;
-	
-	if (actualLen < len-1) {
-		bufferContainer[actualLen] = temp_char;
-	}else{
-		Serial.print("buffer full, max ");
-		Serial.print(len-1,DEC);
-		Serial.println(" characters per command.");
-	}
-}
-// NOT NEEDDED, (ONLY FOR SERIAL PRINT)
-void clean_buffer (char* bufferContainer, int max_size) {
-	int len = max_size;
-	for (int c = 0; c < len; c++) {
-		bufferContainer[c] = 0;
-	}
-}
+

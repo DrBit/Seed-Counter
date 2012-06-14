@@ -5,7 +5,7 @@
 #include <network_config.h>		// NEDED?
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "V4.0"
+#define version_prog "V4.0.1"
 
 #define lib_version 14
 
@@ -57,11 +57,12 @@
 #define ms2C 35
 #define ms1D 41
 #define ms2D 32
-#define ms1E 49
+#define ms1E 40
 #define ms2E 30
 //Control
 #define sleep 42
 #define enable 33
+#define motor_reset 43
 
 
 // Digital sensors
@@ -194,9 +195,9 @@ void setup() {
 	}	// Dont continue if we dont have a connection to the server
 	// Here , if we cannot connect we should have a MANUAL mode;
 	
-        get_positions_from_server (0);
-        delay (500);
-        check_server();
+	//get_positions_from_server (0);
+	//delay (500);
+	//check_server();
 	send_status_to_server (S_setting_up);	// here we comunicate the server that we begin the set-up process	
 	
 	// Check library Version
