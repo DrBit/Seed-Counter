@@ -22,3 +22,16 @@ refresh_server() - check server from incomming commands and also sends the cued 
 
 Other functions:
 connect_to_client () - Conects to the selected server at the begining or when the connections goes down
+
+////////////
+Sending commands
+////////////
+1P*
+
+first number is always the machine ID from where the messages are sended
+then the command tipe: 
+
+P for positions
+S for Statuses
+A for actions
+E for errors
