@@ -20,6 +20,7 @@ boolean holdX2 = false;
 boolean holdY2 = false;
 boolean Xaxis_enabled = true;
 
+/*
 void manual_modeXY() {
   if (digitalRead(button1) == HIGH) {
     Xaxis_enabled =true;
@@ -78,12 +79,12 @@ void manual_modeXY() {
   }
   delayMicroseconds(motor_speed_XY);
 }
-
+*/
 
 /***** MANUAL MODE BLISTERS  *****/
 boolean holdC1 = false;
 boolean holdC2 = false;
-
+/*
 void manual_mode_blisters() {
   // Botton 2 moves motor BACKWARDS
   if (digitalRead(button2) == HIGH) {
@@ -115,12 +116,12 @@ void manual_mode_blisters() {
   }
   delayMicroseconds(motor_speed_blisters);
 }
-
+*/
 
 /***** MANUAL MODE Counter  *****/
 boolean holdD1 = false;
 boolean holdD2 = false;
-
+/*
 void manual_modeCounter() {
 	// Button 2 moves motor BACKWARDS
 	if (digitalRead(button2) == HIGH) {
@@ -149,7 +150,7 @@ void manual_modeCounter() {
   //delayMicroseconds(motor_speed_counter*10);
   delay(100);
 }
-
+*/
 
 /***** Print Position X axis  *****/
 void print_x_pos () {
@@ -216,10 +217,11 @@ void press_button_to_continue (int button_number) {
 	switch (button_number) {
 		case 1:
 			while (pause) {
+                                /*
 				//Chek if we press the start button
 				if (digitalRead(button1) == HIGH) {
 					pause = false;   // If we do, unpause
-				}
+				}*/
 				if (Serial.available()) {
 					if (Serial.read() == '1') {
 						pause = false;
@@ -230,10 +232,11 @@ void press_button_to_continue (int button_number) {
 		break;
 		case 2:
 			while (pause) {
+                                /*
 				//Chek if we press the start button
 				if (digitalRead(button2) == HIGH) {
 					pause = false;   // If we do, unpause
-				}
+				}*/
 				if (Serial.available()) {
 					 if (Serial.read() == '2') {
 						pause = false;
@@ -245,9 +248,9 @@ void press_button_to_continue (int button_number) {
 		case 3:
 			while (pause) {
 				//Chek if we press the start button
-				if (digitalRead(button3) == HIGH) {
+				/*if (digitalRead(button3) == HIGH) {
 					pause = false;   // If we do, unpause
-				}
+				}*/
 				if (Serial.available()) {
 					if (Serial.read() == '2') {
 						pause = false;
@@ -274,7 +277,7 @@ int return_pressed_button () {
 	int pressed_button = 0;
 	start_idle_timer (default_idle_time);
 	while(pause) {
-		if (digitalRead(button1) == HIGH) {
+		/*if (digitalRead(button1) == HIGH) {
 			pressed_button = 1;
 			pause = false;   // If we do, unpause
 		}
@@ -285,7 +288,7 @@ int return_pressed_button () {
 		if (digitalRead(button3) == HIGH) {
 			pressed_button = 3;
 			pause = false;   // If we do, unpause
-		}
+		}*/
 
 		// Serial interface
 		if (Serial.available()) {
@@ -396,7 +399,7 @@ boolean inTestMenu = true;
 					
 					Serial.println("Adjust position and press a key when ready.");
 					while (InMenuTemp) {
-						manual_modeXY();					// Manual mode, adjust position
+						//manual_modeXY();					// Manual mode, adjust position
 						if (Serial.available()) {			// If a key is pressed
 							Serial.flush();					// Remove all data from serial
 							Serial.print("Save changes into postion: ");
@@ -430,7 +433,7 @@ boolean inTestMenu = true;
 						Serial.println("\n	Error ** XY motors not initialized correctly, first INIT");
 				}else{
 					while (InMenuTemp) {
-						manual_modeXY();
+						//manual_modeXY();
 						if (Serial.read() == '4')  InMenuTemp = false;
 					}
 				}
@@ -439,7 +442,7 @@ boolean inTestMenu = true;
 			case 5:
 				Serial.println("\n	Move Counter motors, buttons to move motors and press keyboard key 4 to quit");
 				while (InMenuTemp) {
-					manual_modeCounter();
+					//manual_modeCounter();
 					if (Serial.read() == '4')  InMenuTemp = false;
 				}
 			break;
@@ -450,7 +453,7 @@ boolean inTestMenu = true;
 						Serial.println("\n	Error ** Blisters motors not initialized correctly, first INIT");
 				}else{
 					while (InMenuTemp) {
-						manual_mode_blisters();
+						//manual_mode_blisters();
 						if (Serial.read() == '4')  InMenuTemp = false;
 					}
 				}
@@ -675,7 +678,7 @@ int init_blisters_menu () {
 void check_pause () {
 	
 	// Emergency button handler
-	int button_emergency = digitalRead (emergency); 
+	int button_emergency = digitalRead (emergency); // Conected at sens C?????
 	// if (button_emergency) {		// Bypas for now,, re-enable when connected
 	if (false) {
 		send_status_to_server (S_pause);
@@ -872,6 +875,85 @@ void init_all_motors () {
 }
 
 
+// MOTOR Functions
+
+void set_motor_enable_state (boolean motor_state) {
+
+	if (motor_state) {
+		digitalWrite (enable, LOW);     // Enable motors 
+	}else{ 
+		digitalWrite (enable, HIGH);    // Disable motors 
+	}
+}
+
+boolean get_motor_enable_state () {
+	return !(digitalRead (enable));
+}
+
+void motors_enable () {
+	Serial.println ("Enable Motors");
+	send_action_to_server(enable_motors);
+	set_motor_enable_state (true);
+}
+
+void motors_disable () {
+	Serial.println ("Disable Motors");
+	send_action_to_server(disable_motors);
+	set_motor_enable_state (false);
+}
+
+
+void set_motor_sleep_state (boolean motor_state) {
+
+	if (motor_state) {
+                digitalWrite(sleep, LOW);    // Put drivers in sleep mode
+	}else{ 
+		digitalWrite (sleep, HIGH);    // Awake motors 
+	}
+}
+
+boolean get_motor_sleep_state () {
+	return !(digitalRead (sleep));
+}
+
+void motors_sleep () {
+	Serial.println ("Sleep Motors");
+	send_action_to_server(sleep_motors);
+	set_motor_sleep_state (true);
+}
+
+void motors_awake () {
+	Serial.println ("Awake Motors");
+	send_action_to_server(awake_motors);
+	set_motor_sleep_state (false);
+}
+
+// POWER CONTROL
+void set_power_state (boolean power_state) {
+
+	if (power_state) {
+                digitalWrite(PSupply, LOW);    // Power ON
+       	}else{ 
+		digitalWrite (PSupply, HIGH);    // Power OFF
+	}
+}
+
+boolean get_power_state () {
+	return !(digitalRead (PSupply));
+}
+
+void PSupply_ON () {
+	Serial.println ("Power Supply ON");
+	send_action_to_server(power_on);
+	set_power_state (true);
+}
+
+void PSupply_OFF () {
+	Serial.println ("Power Supply OFF");
+	send_action_to_server(power_off);
+	set_power_state (false);
+}
+
 // PUMP functions
 
 void set_pump_state (boolean pump_state) {
@@ -898,7 +980,7 @@ void pump_enable () {
 void pump_disable () {
 	Serial.println ("Disable Pump");
 	send_action_to_server(disable_pump);
-	// set_pump_state (false);
+	set_pump_state (false);
 }
 
 

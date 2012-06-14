@@ -2,6 +2,7 @@
 void init_serial() {
   delay (200);
   Serial.begin (9600);
+  Serial.println (" ");
   Serial.println ("*****************************");
   Serial.println ("** Seed Counter on-line    **");
   Serial.println ("*****************************");

@@ -33,37 +33,57 @@
 // ***********************
 // ** DEFINES PIN MAP
 // ***********************
-#define button1 23
-#define button2 25
-#define button3 27
+//#define button1 23
+//#define button2 25
+//#define button3 27
 
-#define stepA 8
-#define stepB 10
-#define stepC 6
-#define stepD 52
-#define dirA 9
-#define dirB 11
-#define dirC 5
-#define dirD 53
-#define sensA 12
-#define sensB 4
-#define sensC 48
-#define sensD 7
-#define sensE 46
-#define sensF 47
+// Direction and steps
+#define stepA 45
+#define stepB 28
+#define stepC 26
+#define stepD 24
+#define stepE 22
+#define dirA 31
+#define dirB 29
+#define dirC 27
+#define dirD 25
+#define dirE 23
+// Speed control
+#define ms1A 36
+#define ms2A 37
+#define ms1B 39
+#define ms2B 34
+#define ms1C 38
+#define ms2C 35
+#define ms1D 41
+#define ms2D 32
+#define ms1E 49
+#define ms2E 30
+//Control
+#define sleep 42
+#define enable 33
 
-#define ms1A 43
-#define ms2A 42
-#define ms1B 41
-#define ms2B 40
-#define ms1C 44
-#define ms2C 45
-#define ms1D 51
-#define ms2D 50
 
-#define ethReset 39
-#define emergency 13
-#define pump 49
+// Digital sensors
+#define sensA 49
+#define sensB 48
+#define sensC 46  // Emergency button?
+// Analog sensors
+#define sensD 8
+#define sensE 9
+#define sensF 10
+#define sensG 11
+#define sensH 12
+#define sensI 13
+
+//#define ethReset 39
+#define emergency sensC  // Change in case connected at another place
+
+#define PSupply 47
+#define solenoid1 5
+#define solenoid2 6
+#define pump 2
+#define extraoutput 3
 
 // ***********************
 // ** Physical limits of the motors
@@ -137,6 +157,35 @@ void setup() {
 
 	// INIT Serial
 	init_serial();
+
+        // Setp all pins
+        pinMode (PSupply, OUTPUT);  
+        digitalWrite(PSupply, HIGH);    // Disable power supply at de begining
+        
+        pinMode (enable, OUTPUT);  
+        digitalWrite (enable, HIGH);    // Disable motors before start
+
+        pinMode (sleep, OUTPUT);  
+        digitalWrite(sleep, LOW);    // Put drivers in sleep mode
+        
+        // Define Outputs
+        pinMode (solenoid1, OUTPUT); 
+        pinMode (solenoid2, OUTPUT); 
+        pinMode (pump, OUTPUT); 
+        pinMode (extraoutput, OUTPUT); 
+        
+        //Configure 3 Input Buttons
+	//pinMode (button1, INPUT);
+	//pinMode (button2, INPUT);
+	//pinMode (button3, INPUT);
+	
+	pinMode (sensF, INPUT); 
+	pinMode (sensE, INPUT);
+	pinMode (sensC, INPUT); 	
+	
+        // Setup emergency pin 
+	// pinMode (emergency, INPUT);           // set pin to input
+	
 	// Begin Setup
 	setup_network();					// First thing we do is set up the network and contact the server
 	while (!connected_to_server) {
@@ -145,22 +194,11 @@ void setup() {
 	}	// Dont continue if we dont have a connection to the server
 	// Here , if we cannot connect we should have a MANUAL mode;
 	
+        get_positions_from_server (0);
+        delay (500);
+        check_server();
 	send_status_to_server (S_setting_up);	// here we comunicate the server that we begin the set-up process	
 	
-	//Configure 3 Input Buttons
-	pinMode (button1, INPUT);
-	pinMode (button2, INPUT);
-	pinMode (button3, INPUT);
-	
-	pinMode (sensF, INPUT); 
-	pinMode (sensE, INPUT);
-	pinMode (sensC, INPUT); 	
-	// Setup emergency pin 
-	pinMode (emergency, INPUT);           // set pin to input
-	
-	// Controls Pump relay
-	pinMode (pump, OUTPUT);
-
 	// Check library Version
 	check_library_version ();		//If different STOP
 	
@@ -184,6 +222,13 @@ void setup() {
 	blisters.set_default_direcction (default_directionB);
 	counter.set_default_direcction (default_directionC);
 	
+        PSupply_ON ();     // Power supply ON
+        delay (1000);
+        motors_enable ();  // Enable motors
+        delay (1000);
+        motors_awake ();    // Awake motors
+        delay (1000);
+        
 	// INIT SYSTEM, and CHECK for ERRORS
 	init_all_motors ();
 		
@@ -214,8 +259,7 @@ void setup() {
 	get_positions_from_server (P0);					// receives all positions from server
 	get_info_from_server (get_seeds_mode);			// Gets seed mode (5 or 10 seeds per blister)
 	get_info_from_server (get_default_idle_time);	// gets default IDLE time
-	
-	pump_enable ();			// for now to avoid interferences
+
 	
 	// Controls ethernet reset (NEEDDED?)
 	//pinMode (ethReset, OUTPUT);

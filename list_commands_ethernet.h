@@ -47,6 +47,13 @@
 #define XY_init 18					// Init XY axis
 #define blisters_disp_init 20		// Init blisters
 
+#define awake_motors  21    // Awake motor drivers, sleep off
+#define sleep_motors 22     // Sleep motor drivers, sleep on
+#define enable_motors 23    // Enable motor drivers
+#define disable_motors 34   // Disable motor drivers
+#define power_on 35  // Power on internal circuits (Motors, solenoids, pump_switch)
+#define power_off 36 // Power off internal circuits
+
 
 //////////////////////////
 // LIST OF ERRORS

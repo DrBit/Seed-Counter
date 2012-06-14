@@ -4,12 +4,16 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V4.0.1 - 13/06/2012
+**  * Changed files to INO
+**  * Added function send status
+**
 **  V4.0 - 12/06/2012
 **  * First merged version into master branch
-**  * Added Connections to server fail metoths
+**  * Added Connections to server fail methods
 **
 **  V3.13 - 04/25/2012
-**  * Testing Bug of Yaxis dsiplacement
+**  * Testing Bug of Yaxis displacement
 **
 **  V3.12 - 29/02/2012
 **  * Changed to second row when using the 5 seeds mode

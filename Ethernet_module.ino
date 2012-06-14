@@ -53,7 +53,7 @@ void check_server()
 	if (connected_to_server) {
 		// if there are incoming bytes available 
 		// from the server, read them and print them:
-		if (client.available()) {
+		while (client.available()) {
 			char c = client.read();
 			Serial.print(c);
 		}
@@ -82,7 +82,7 @@ void check_server()
 		}*/
 	 
 		// if the server's disconnected, stop the client:
-		 if (!client.connected()) {
+		if (!client.connected()) {
 			Serial.println("Server Disconnected.");
 			client.stop();
 			connected_to_server = false;
@@ -106,12 +106,12 @@ boolean connect_to_server () {
 	// if you get a connection, report back via serial:
 	if (client.connect(server, port)) {
 		Serial.println("connected!");
-		print_to_server ("Hello Server\r\nThis is an example of command:\r\nP*");
+		//print_to_server ("Hello Server\r\nThis is an example of command:\r\nP*");
 		// testing generated commands
-		client.print("1P");
-		client.print(1);
-		client.print("\r\n");
-		delay (300);
+		//client.print("1P");
+		//client.print(1);
+		//client.print("\r\n");
+		//delay (300);
 		return true;
 	} else {
 		// if you didn't get a connection to the server:
@@ -150,11 +150,21 @@ void send_error_to_server (byte command) {
 
 void send_position_to_server (byte command) {	// Inform server that we are going to a position
 
+
 }	
 
 void get_positions_from_server (byte command) {	// Receive position information stored in the server
-
-}
+  if (command == 0) {  // Ask for all positions
+    static char buf[16];
+    sprintf(buf, "%dP*\r\n", M_ID);
+    client.print(buf);
+  }else{
+    client.print(M_ID);
+    client.print("P");
+    client.print(command);
+    client.print("\r\n");
+  }
+}                   
  
  
  
