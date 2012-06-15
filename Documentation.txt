@@ -5,23 +5,32 @@ Statuses
 Stop: When has no pending action, meaning just finished a batch or never started before
 Run: When its running automatically
 Pause: When the machine needs user attention due to an error or to a pop up question, or when the user manually pauses the machine.
+setting up: When arduino is setting everything up. Happens at the begining and after a shut down of the motors.
 
-States are handled within the "send_action" "send_status" "send_error" "send_position" functions or ALSO within the function "check_pause"
+///////////
+States
+///////////
+States are handled within the "send_action" "send_status" "send_error" "send_position" functions or ALSO within the function "check_pause" in Arduino
 
 following variables are common for the main program:
 (byte)global_status - contains the actual picked status
 (byte)previous_status - contains the previous status in case we are in pause status
+
+Example of commands sended:
+1A6	(action)
+1S20	(Status)
+1G56	(Goto position)
+1E2	(Error)
 
 ///////////
 NETWORK
 ///////////
 Network functions are in file Ethernet_module.pde
 Basic functions are: 
-setup_network() - sets up the network module to start receiving information (IP,MAC,SERVER_IP, SERVER PORT, 
-refresh_server() - check server from incomming commands and also sends the cued commands (if any)
+setup_network() - sets up the network module to start receiving information (IP,MAC,SERVER_IP, SERVER PORT)
+connect_to_server() - Opens a telnet connection to the previous set server
+check_server() - check server from incomming commands and also sends the cued commands (if any), also connects to server if necessary (connect_to_server())
 
-Other functions:
-connect_to_client () - Conects to the selected server at the begining or when the connections goes down
 
 ////////////
 Sending commands
@@ -31,7 +40,48 @@ Sending commands
 first number is always the machine ID from where the messages are sended
 then the command tipe: 
 
-P for positions
+P for get positions from server (returns the data position of specific position numbers)
+G (go-to) informs server that we are going to a defined position. 
 S for Statuses
 A for actions
 E for errors
+I for info
+I1 means blister mode (Two tipes 1 for 10seeds per blister or 2 for 5 seeds per blister)
+I2 means idle_time (time the machine will go idle if no user input is detected) (in seconds - 120 for 2 minutes)
+I3 means shutdown_time (time the machine will fo off after idle activated) (120 for 2 minutes)
+
+////////////
+Receiving commands
+////////////
+
+X it is actualli not needed to start a reception of data from the server
+you can directly send commands to arduino and it will receive them acordingly
+
+for now acepted commands are:
+P-number (to send changed positions)
+!!! needs to be followed with 4 numbers line feeded or return after each one.(OK at the end if nothing elses is expected)
+
+I-command (to submit information...)
+DATA needs to follow one only number foer the selected command
+
+
+EXAMPLE of data arduino can receive:
+
+(updating Positions 3 and 4 and changing IDLE time to 200)
+P3
+123
+234
+456
+678
+P4
+346
+623
+123
+3
+I2
+200
+OK
+
+as observerd there is no need for an X at the begining of the transmit as arduino will be looking for predefined letters (P or I at the moment, and OK for ending)
+arduino check periodically if new data is received.
+Arduino will stop receiving if an OK is sended or if there is no more data being sended (in last case will report an error as OK is missing)

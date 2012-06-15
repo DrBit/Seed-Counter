@@ -4,15 +4,15 @@
 //////////////////////////
 // Basic
 ////////////////////////
-// get_info_from_server (info)
+// get_info_from_server (info); (I)
 #define get_seeds_mode 1			// 5 or 10 seeds per blister
 #define get_default_idle_time 2		// Defaul idle time to go to sleep on user input 120 = 2 minutes.
-
+#define get_default_off_time 3		// Defaul off time to shutdown after idle is activated 120 = 2 minutes.
 
 //////////////////////////
 // LIST OF STATUS
 //////////////////////////
-// send_status_to_server (status);
+// send_status_to_server (status); (S)
 #define S_stopped 1 		// waiting action
 #define S_running 2 		// Running
 #define S_pause 3 			// Pause
@@ -26,7 +26,7 @@
 //////////////////////////
 // LIST OF ACTIONS
 //////////////////////////
-// send_action_to_server(action);
+// send_action_to_server(action); (A)
 #define blister_release 1			// Release one blister
 #define blister_refilled 2			// Blisters filled, starting again...
 #define counter_init 3				// Init Counter Motor
@@ -58,7 +58,7 @@
 //////////////////////////
 // LIST OF ERRORS
 //////////////////////////
-// send_error_to_server (error);
+// send_error_to_server (error); (E)
 #define library_error 11 	// Error at compiling time. Library out of date. Update library and compile again.
 #define init_eth_fail 12 	// Error reseting the ethernet module. Check power, connection mega-uno correct?
 #define init_Y1_fail  13	// Error initializing Y axis. Could not find the sensor after doing the hole phisical path
@@ -79,10 +79,10 @@
 //////////////////////////
 // LIST OF POSITIONS
 //////////////////////////
-// send_position_to_server (position);			// Inform server that we are going to a position
-// get_positions_from_server (position);		// Receive position information stored in the server
+// get_positions_from_server (position); (P)		// Receive position information stored in the server
+// send_position_to_server (position); (G)			// Inform server that we are going to a position
 
-#define P0 0 // List of all positions (This is only for arduino , server gets P*
+#define P0 0 // List of all positions (server gets P*)
 #define P1 1 // Go to position 1
 #define P2 2 // Go to position 2
 #define P3 3 // Go to position 3

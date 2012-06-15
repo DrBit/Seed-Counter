@@ -277,19 +277,6 @@ int return_pressed_button () {
 	int pressed_button = 0;
 	start_idle_timer (default_idle_time);
 	while(pause) {
-		/*if (digitalRead(button1) == HIGH) {
-			pressed_button = 1;
-			pause = false;   // If we do, unpause
-		}
-		if (digitalRead(button2) == HIGH) {
-			pressed_button = 2;
-			pause = false;   // If we do, unpause
-		}
-		if (digitalRead(button3) == HIGH) {
-			pressed_button = 3;
-			pause = false;   // If we do, unpause
-		}*/
-
 		// Serial interface
 		if (Serial.available()) {
 			char received_char = Serial.read();
@@ -1025,6 +1012,13 @@ boolean check_idle_timer (boolean message) {
 		if (message) Serial.println ("Sleep Time!");
 		send_action_to_server(enter_idle);
 		pump_disable ();
+		
+		if ((idle_time_counter == (desired_idle_time + default_off_time)) {
+			if (message) Serial.println ("Switching OFF!");
+			//Switch off!!!
+			//variable to restart again!!
+		}
+		
 		return true;
 	}
 	return false;

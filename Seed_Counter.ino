@@ -33,10 +33,6 @@
 // ***********************
 // ** DEFINES PIN MAP
 // ***********************
-//#define button1 23
-//#define button2 25
-//#define button3 27
-
 // Direction and steps
 #define stepA 45
 #define stepB 28
@@ -76,9 +72,7 @@
 #define sensG 11
 #define sensH 12
 #define sensI 13
-
-//#define ethReset 39
-#define emergency sensC  // Change in case connected at another place
+#define emergency sensC  // Change in case connected at another input
 
 #define PSupply 47
 #define solenoid1 5
@@ -89,7 +83,6 @@
 // ***********************
 // ** Physical limits of the motors
 // ***********************
-
 #define Xaxis_cycles_limit 280
 #define Yaxis_cycles_limit 12
 
@@ -144,7 +137,11 @@ unsigned long counter_s = 0;
 boolean pause = false;
 boolean manual_enabled = false;				// Flag to overwrite the pause flag
 
+// Set the default times (they might be overwrited in the code)
 int default_idle_time = 120;				// Defaul idle time to go to sleep on user input 120 = 2 minutes.
+int default_off_time = 120;					// Defaul off time to go to sleep on user input 120 = 2 minutes.
+
+// Used forinternal pourpouses
 unsigned long  idle_time_counter = 0;
 unsigned long  desired_idle_time = 0;		// Time in seconds 120s = 2 minutes
 
@@ -159,33 +156,27 @@ void setup() {
 	// INIT Serial
 	init_serial();
 
-        // Setp all pins
-        pinMode (PSupply, OUTPUT);  
-        digitalWrite(PSupply, HIGH);    // Disable power supply at de begining
-        
-        pinMode (enable, OUTPUT);  
-        digitalWrite (enable, HIGH);    // Disable motors before start
+	// Setp all pins
+	pinMode (PSupply, OUTPUT);  
+	digitalWrite(PSupply, HIGH);    // Disable power supply at de begining
+	
+	pinMode (enable, OUTPUT);  
+	digitalWrite (enable, HIGH);    // Disable motors before start
 
-        pinMode (sleep, OUTPUT);  
-        digitalWrite(sleep, LOW);    // Put drivers in sleep mode
-        
-        // Define Outputs
-        pinMode (solenoid1, OUTPUT); 
-        pinMode (solenoid2, OUTPUT); 
-        pinMode (pump, OUTPUT); 
-        pinMode (extraoutput, OUTPUT); 
-        
-        //Configure 3 Input Buttons
-	//pinMode (button1, INPUT);
-	//pinMode (button2, INPUT);
-	//pinMode (button3, INPUT);
+	pinMode (sleep, OUTPUT);  
+	digitalWrite(sleep, LOW);    // Put drivers in sleep mode
 	
-	pinMode (sensF, INPUT); 
+	// Define Outputs
+	pinMode (solenoid1, OUTPUT); 
+	pinMode (solenoid2, OUTPUT); 
+	pinMode (pump, OUTPUT); 
+	pinMode (extraoutput, OUTPUT); 
+	// Define Inputs
 	pinMode (sensE, INPUT);
-	pinMode (sensC, INPUT); 	
-	
-        // Setup emergency pin 
-	// pinMode (emergency, INPUT);           // set pin to input
+	pinMode (sensF, INPUT); 
+	pinMode (sensG, INPUT); 
+	pinMode (sensH, INPUT);
+	pinMode (sensI, INPUT);
 	
 	// Begin Setup
 	setup_network();					// First thing we do is set up the network and contact the server
@@ -219,12 +210,13 @@ void setup() {
 	blisters.set_default_direcction (default_directionB);
 	counter.set_default_direcction (default_directionC);
 	
-        PSupply_ON ();     // Power supply ON
-        delay (1000);
-        motors_enable ();  // Enable motors
-        delay (1000);
-        motors_awake ();    // Awake motors
-        delay (1000);
+	// Prepare to init motors
+	PSupply_ON ();		// Switch Power supply ON
+	delay (2000);
+	motors_enable ();	// Enable motors
+	delay (2000);
+	motors_awake ();	// Awake motors
+	delay (2000);
         
 	// INIT SYSTEM, and CHECK for ERRORS
 	init_all_motors ();
@@ -236,29 +228,22 @@ void setup() {
 	Yaxis.set_speed_in_slow_mode (350);
 	Yaxis.set_accel_profile(950, 13, 7, 15);
 
-	MySW.start();						// Start timer for statistics
+	get_positions_from_server (P0);					// receives all positions from server
+	get_info_from_server (get_default_idle_time);	// gets default IDLE time
+	get_info_from_server (get_default_off_time);	// gets default off time
 	
 	// END of setup
+	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	send_status_to_server (S_stopped);	// here we wait for the server to send orders
-	
-	
 	// While we are on stopped mode, keep cheking the server
 	while (global_status == S_stopped) {
 		check_server();	
 	}	//When ready....
 
-	
-	// Pick blister mode to start filling (GETS mode from serial)
-	//pick_blister_mode();
-	
-	get_positions_from_server (P0);					// receives all positions from server
 	get_info_from_server (get_seeds_mode);			// Gets seed mode (5 or 10 seeds per blister)
-	get_info_from_server (get_default_idle_time);	// gets default IDLE time
-
-	
-	// Controls ethernet reset (NEEDDED?)
-	//pinMode (ethReset, OUTPUT);
-	//digitalWrite (ethReset, HIGH);
+	MySW.start();									// Start timer for statistics
+	// Ready to start with the process
 }
 
 
@@ -272,8 +257,6 @@ void setup() {
 // * 09 * 08 * 05 * 04 * 01 * Y1
 // * X5 * X4 * X3 * X2 * X1 *
 void loop() {
-
-	
 
 	Serial.println("\n ************ ");
 	
@@ -412,17 +395,6 @@ void chec_sensorF () {
 			// press_button_to_continue (1);
 		}
 		delay (700);
-	}
-}
-
-
-
-void test_pump_interferences () {
-
-	while (true) {
-		pump_enable ();
-		pump_disable ();
-		delay (1000);
 	}
 }
 

@@ -43,7 +43,6 @@ void setup_network() {
 		receive_server_IP ();
 		receive_server_PORT ();
 	}
-	
 	// Here we dont need to connect yet, just prepare everything
 	// connected_to_server = connect_to_server ();
 }
@@ -104,7 +103,13 @@ boolean connect_to_server () {
 }
 
 void get_info_from_server (byte command) {
-
+	sprintf(message, "%dI%d\r\n", M_ID, command);
+	client.print(message);
+	// we have to receive information
+	if (!receive_server_data ()) {
+		Serial.print ("OK not received or error on sended command I");
+		Serial.println (command);
+	}
 }
 
 void send_status_to_server (byte command) {
@@ -119,16 +124,37 @@ void send_status_to_server (byte command) {
 	}
 }
 
-void send_action_to_server(byte command) {
+void send_action_to_server(byte command) {		// Inform server that an action has been trigered
 	//require an OK back from the server
+    sprintf(message, "%dA%d\r\n", M_ID, command);
+    client.print(message);
+
+    if (!receive_server_data ()) {
+		Serial.print ("OK not received or error on sended command A");
+		Serial.println (command);
+	}
 }
 
-void send_error_to_server (byte command) {
+void send_error_to_server (byte command) {		// Inform server that an error has ocurred
+	//require an OK back from the server
+    sprintf(message, "%dE%d\r\n", M_ID, command);
+    client.print(message);
 
+    if (!receive_server_data ()) {
+		Serial.print ("OK not received or error on sended command E");
+		Serial.println (command);
+	}
 }
 
 void send_position_to_server (byte command) {	// Inform server that we are going to a position
+	//require an OK back from the server
+    sprintf(message, "%dG%d\r\n", M_ID, command);
+    client.print(message);
 
+    if (!receive_server_data ()) {
+		Serial.print ("OK not received or error on sended command G");
+		Serial.println (command);
+	}
 }	
 
 void get_positions_from_server (byte command) {	// Receive position information stored in the server
@@ -148,7 +174,6 @@ void get_positions_from_server (byte command) {	// Receive position information 
 			Serial.println (command);
 		}
 	}
-
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -196,7 +221,49 @@ boolean receive_server_data (){
 				global_status = receiving_status;					// Updates actual status
 				// Inform
 				Serial.print("Received Status: ");
-				Serial.print(receiving_status);
+				Serial.println(receiving_status);
+			break;
+			
+			case "I":	// INFORMATION
+				//#define get_seeds_mode 1				// 5 or 10 seeds per blister
+				//#define get_default_idle_time 2		// Defaul idle time to go to sleep on user input 120 = 2 minutes.
+				
+				recevie_data_telnet (received_msg,bufferSize);
+				char * thisChar = received_msg;
+				int receiving_info = atoi(thisChar);
+				
+				switch (receiving_info) {	// What info are we going to receive? 
+				
+					case get_seeds_mode:	// Should we define the seeds per blister? for now 2 modes 1 or 2 (10 or 5 seeds)
+						recevie_data_telnet (received_msg,bufferSize);
+						char * thisChar = received_msg;
+						int receiving_seedmode = atoi(thisChar);
+						
+						if (receiving_seedmode == 1) {
+							blister_mode = seeds10;
+						}
+						if (receiving_seedmode == 2) {
+							blister_mode = seeds5;
+						}
+					break;
+					
+					case get_default_idle_time:
+						recevie_data_telnet (received_msg,bufferSize);
+						char * thisChar = received_msg;
+						int receiving_idle_time = atoi(thisChar);
+						default_idle_time = receiving_idle_time;
+					break;
+					
+					case get_default_off_time:
+						recevie_data_telnet (received_msg,bufferSize);
+						char * thisChar = received_msg;
+						int receiving_off_time = atoi(thisChar);
+						default_off_time = receiving_off_time;
+					break;
+				}
+				// Inform
+				Serial.print("Received Information: ");
+				Serial.println(receiving_info);
 			break;
 			
 			case "P":	// POSITION
@@ -260,10 +327,20 @@ boolean receive_server_data (){
 				}
 				
 				// Finished. go back to the origin. If we receive another command we will sense it there.
+				// Inform
+				Serial.print("Received Position: ");
+				Serial.println(receiving_position);
 			break;
 			
 			default: 
-			// sentencias
+				// Undefined command received
+				Serial.print("Received undefined command: ");
+				Serial.println(inChar);
+				recevie_data_telnet (received_msg,bufferSize);
+				char * thisChar = received_msg;
+				// data
+				Serial.print("With Data: ");
+				Serial.println(thisChar);
 			break;
 		}
 	}
