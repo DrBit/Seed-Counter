@@ -4,6 +4,11 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V4.0.2 - 15/06/2012
+**  * Added function "get_positions_from_server" 
+**  * Added function "receive_server_data"
+**  * Improved functions "check_server", "connect_to_server", "setup_network"
+**
 **  V4.0.1 - 13/06/2012
 **  * Changed files to INO
 **  * Added function send status

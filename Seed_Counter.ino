@@ -5,7 +5,7 @@
 #include <network_config.h>		// NEDED?
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "V4.0.1"
+#define version_prog "V4.0.2"
 
 #define lib_version 14
 
@@ -189,15 +189,11 @@ void setup() {
 	
 	// Begin Setup
 	setup_network();					// First thing we do is set up the network and contact the server
-	while (!connected_to_server) {
-		delay (1000);
-		check_server();					// check server checks connection and also sends/receives any data in buffer
-	}	// Dont continue if we dont have a connection to the server
-	// Here , if we cannot connect we should have a MANUAL mode;
 	
-	//get_positions_from_server (0);
-	//delay (500);
-	//check_server();
+	if (!check_server()) {
+		// Here , if we cannot connect we should have a MANUAL mode;
+	}
+	
 	send_status_to_server (S_setting_up);	// here we comunicate the server that we begin the set-up process	
 	
 	// Check library Version
@@ -248,11 +244,9 @@ void setup() {
 	
 	// While we are on stopped mode, keep cheking the server
 	while (global_status == S_stopped) {
-		check_server();
-	}
+		check_server();	
+	}	//When ready....
 
-	
-	//When ready....
 	
 	// Pick blister mode to start filling (GETS mode from serial)
 	//pick_blister_mode();

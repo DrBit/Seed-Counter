@@ -44,43 +44,29 @@ void setup_network() {
 		receive_server_PORT ();
 	}
 	
-
-	connected_to_server = connect_to_server ();
+	// Here we dont need to connect yet, just prepare everything
+	// connected_to_server = connect_to_server ();
 }
 
 
-void check_server()
+boolean check_server()
 {
+	// Convert this time oput in a real timeout 
+	while ((!connected_to_server) && (timeout < 60)) {
+		connected_to_server = connect_to_server ();
+		delay (50);
+		timeout ++; 
+	}
+	
 	if (connected_to_server) {
 		// if there are incoming bytes available 
-		// from the server, read them and print them:
-		while (client.available()) {
-			char c = client.read();
-			Serial.print(c);
+		// from the server, read them and process them:
+		if (!receive_server_data ()) {
+			// Nothing to do
+		}else{
+			// Something has been received
 		}
-	 
-		// as long as there are bytes in the serial queue,
-		// read them and buffer them, when return is pressed send them out the socket if it's open:
 		
-		// THIS PART NEEDS TO BE CHANGED BY A FLAG IN SOFTWARE
-		// instead of reading the arduino serial port and echoing it. We will send pre-recorded
-		// actions, errors, statuses,....
-		
-		/*
-		while (Serial.available() > 0) {
-		
-			char inChar = Serial.read();
-			if ((inChar == 13) || (inChar == 10)) {
-				if (client.connected()) {
-					print_to_server(commandBuffer);
-					clean_buffer (commandBuffer,bufferSize);
-				}else{
-					Serial.println("Failed to send command, client not available.");
-				}
-			}else{
-				buffer_char (inChar,commandBuffer,bufferSize);	
-			}		
-		}*/
 	 
 		// if the server's disconnected, stop the client:
 		if (!client.connected()) {
@@ -90,10 +76,11 @@ void check_server()
 		}
 	 
 	}else{
-		connected_to_server = connect_to_server ();
-		// wait 20 seconds before connecting again.
-		delay (5000);   //5 seconds for testing
+		// We got a timeout connecting
+		Serial.println("Timeout Connecting to the server...");
+		return false;
 	}
+	return true;
 }
 
 
@@ -107,12 +94,6 @@ boolean connect_to_server () {
 	// if you get a connection, report back via serial:
 	if (client.connect(server, port)) {
 		Serial.println("connected!");
-		//print_to_server ("Hello Server\r\nThis is an example of command:\r\nP*");
-		// testing generated commands
-		//client.print("1P");
-		//client.print(1);
-		//client.print("\r\n");
-		//delay (300);
 		return true;
 	} else {
 		// if you didn't get a connection to the server:
@@ -120,16 +101,6 @@ boolean connect_to_server () {
 	}
 	return false;
 
-}
-
-void print_to_server (char* text) {
-
-	if (strlen(text) > 0) {		// If text empty wont print anything
-		client.print(text);
-		client.print("\r\n");
-		//Serial.print(text);
-		//Serial.print("\r\n");
-	}
 }
 
 void get_info_from_server (byte command) {
@@ -141,11 +112,15 @@ void send_status_to_server (byte command) {
 	global_status = command;					// Updates actual status
     sprintf(message, "%dS%d\r\n", M_ID, command);
     client.print(message);
-	while (!wait_for_ok ()) {}
+
+    if (!receive_server_data ()) {
+		Serial.print ("OK not received or error on sended command S");
+		Serial.println (command);
+	}
 }
 
 void send_action_to_server(byte command) {
-	// sometimes require an OK back from the server
+	//require an OK back from the server
 }
 
 void send_error_to_server (byte command) {
@@ -154,39 +129,147 @@ void send_error_to_server (byte command) {
 
 void send_position_to_server (byte command) {	// Inform server that we are going to a position
 
-
 }	
 
 void get_positions_from_server (byte command) {	// Receive position information stored in the server
-  if (command == 0) {  // Ask for all positions
-    sprintf(message, "%dP*\r\n", M_ID);
-    client.print(message);
-  }else{
-    sprintf(message, "%dP%d\r\n", M_ID, command);
-    client.print(message);
-  }
+	if (command == 0) {  // Ask for all positions
+		sprintf(message, "%dP*\r\n", M_ID);
+		client.print(message);
+	}else{
+		sprintf(message, "%dP%d\r\n", M_ID, command);
+		client.print(message);
+		// we have to receive one position
+		// this means P + number equal the one we have asked for
+		// puls 4 numbers that form the data of the position
+		
+		// so...
+		if (!receive_server_data ()) {
+			Serial.print ("OK not received or error on sended command P");
+			Serial.println (command);
+		}
+	}
+
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////
+boolean receive_server_data (){
 
-boolean wait_for_ok () {
 	clean_buffer (received_msg,bufferSize);		// Prepare buffer
 	
+	// wait 3 seconds for incoming data before a time out
+	int timeout =0;
+	while ((client.available() == 0) && (timeout < 60)) {
+		delay (50);
+		timeout ++;
+	}			
+	
+	boolean receivedO = false;					// Used to control the first letter of the OK sentence
 	while (client.available() > 0) {
-		char inChar = client.read();
-		if ((inChar == 13) || (inChar == 10)) {
-			// Compare received command, if its OK return true, else false
-			if (strcmp(received_msg,"OK")) {
+		char inChar = client.read();				// read
+		
+		switch (inChar) {
+			case "O":
+				receivedO = true;
+			break;
+			
+			case "K":
 				return true;
-			}else{
-				return false;
-			}
-		}else{
-			buffer_char (inChar,received_msg,bufferSize);	
-		}		
+			break;
+			
+			case "X":
+				// some data waiting for us receive it
+			break;
+			
+			case 13:
+				// omit return
+			break;
+			
+			case 10:
+				// omit feed line
+			break;
+			
+			case "S":	// STATUS
+				previous_status = global_status;					// Stores previous status
+				recevie_data_telnet (received_msg,bufferSize);
+				char * thisChar = received_msg;
+				int receiving_status = atoi(thisChar);
+				global_status = receiving_status;					// Updates actual status
+				// Inform
+				Serial.print("Received Status: ");
+				Serial.print(receiving_status);
+			break;
+			
+			case "P":	// POSITION
+			
+				// what we will do now is check what addres are we receiving and compare it with the one on the memory
+				// if the data is different we will update the memory wth the newly received data.
+				
+				// receive memory position to change  /////////////////////////////////////////
+				recevie_data_telnet (received_msg,bufferSize);
+				char * thisChar = received_msg;
+				int receiving_position = atoi(thisChar);
+				
+				db.read(receiving_position, DB_REC mposition);	// Load database position
+				
+				// receive Xc /////////////////////////////////////////
+				recevie_data_telnet (received_msg,bufferSize);
+				char * thisChar = received_msg;
+				int Xc = atoi(thisChar);
+				
+				// Compare with the real value.. do we have to update??
+				if (strcmp(Xc,mposition.Xc)) {		// If data is different from the eeprom
+					// store data in eeprom, data is different
+					sprintf(mposition.Xc, Xc);
+					db.write(receiving_position, DB_REC mposition);
+				}
+				
+				// receive Xf /////////////////////////////////////////
+				recevie_data_telnet (received_msg,bufferSize);
+				char * thisChar = received_msg;
+				int Xf = atoi(thisChar);
+				
+				// Compare with the real value.. do we have to update??
+				if (strcmp(Xf,mposition.Xf)) {		// If data is different from the eeprom
+					// store data in eeprom, data is different
+					sprintf(mposition.Xf, Xf);
+					db.write(receiving_position, DB_REC mposition);
+				}
+				
+				// receive Yc /////////////////////////////////////////
+				recevie_data_telnet (received_msg,bufferSize);
+				char * thisChar = received_msg;
+				int Yc = atoi(thisChar);
+				
+				// Compare with the real value.. do we have to update??
+				if (strcmp(Yc,mposition.Yc)) {		// If data is different from the eeprom
+					// store data in eeprom, data is different
+					sprintf(mposition.Yc, Yc);
+					db.write(receiving_position, DB_REC mposition);
+				}
+				
+				// receive Yf /////////////////////////////////////////
+				recevie_data_telnet (received_msg,bufferSize);
+				char * thisChar = received_msg;
+				int Yf = atoi(thisChar);
+				
+				// Compare with the real value.. do we have to update??
+				if (strcmp(Yf,mposition.Yf)) {		// If data is different from the eeprom
+					// store data in eeprom, data is different
+					sprintf(mposition.Yf, Yf);
+					db.write(receiving_position, DB_REC mposition);
+				}
+				
+				// Finished. go back to the origin. If we receive another command we will sense it there.
+			break;
+			
+			default: 
+			// sentencias
+			break;
+		}
 	}
 	return false;
+	// DONE!
 }
-
 
 
 ////////////////////////////
@@ -297,6 +380,40 @@ boolean recevie_data (char* parameter_container,int buffer) {
 	while (true) {
 		while (Serial.available()) {
 			char c = (char) Serial.read();
+			//Serial.print (Serial.read()); // JUST for debug
+			if ((c == 13) || (c == 10)) { 	// begining or end of command
+				//end
+				if (strlen(parameter_container) > 0) {	// We have to receive something first
+					parameter_container[strlen(parameter_container)] = '\0';
+					return true;
+				}
+			}else{
+					if (strlen(parameter_container) == buffer ) {
+					// Serial.println (" Reached the data max lengh, we reset the tag" );
+					// Error!! buffer overload
+					return false;
+				}else{
+					// DATA comes here
+					// Serial.print (c);
+					parameter_container[strlen(parameter_container)]=c;
+					// DEBUG IP
+				}
+			}
+		}
+	}
+}
+
+boolean recevie_data_telnet (char* parameter_container,int buffer) {
+	// first clean data
+	int len = buffer;
+	for (int c = 0; c < len; c++) {
+		parameter_container[c] = 0;
+	}
+
+
+	while (true) {
+		while (client.available()) {
+			char c = (char) client.read();
 			//Serial.print (Serial.read()); // JUST for debug
 			if ((c == 13) || (c == 10)) { 	// begining or end of command
 				//end
