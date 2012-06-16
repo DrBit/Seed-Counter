@@ -50,6 +50,7 @@ void setup_network() {
 
 boolean check_server()
 {
+	int timeout =0;
 	// Convert this time oput in a real timeout 
 	while ((!connected_to_server) && (timeout < 60)) {
 		connected_to_server = connect_to_server ();
@@ -193,27 +194,27 @@ boolean receive_server_data (){
 		char inChar = client.read();				// read
 		
 		switch (inChar) {
-			case "O":
+			case 'O': {
 				receivedO = true;
-			break;
+			break; }
 			
-			case "K":
+			case 'K': {
 				return true;
-			break;
+			break; }
 			
-			case "X":
+			case 'X': {
 				// some data waiting for us receive it
-			break;
+			break; }
 			
-			case 13:
+			case 13: {
 				// omit return
-			break;
+			break; }
 			
-			case 10:
+			case 10: {
 				// omit feed line
-			break;
+			break; }
 			
-			case "S":	// STATUS
+			case 'S': {	// STATUS
 				previous_status = global_status;					// Stores previous status
 				recevie_data_telnet (received_msg,bufferSize);
 				char * thisChar = received_msg;
@@ -222,9 +223,9 @@ boolean receive_server_data (){
 				// Inform
 				Serial.print("Received Status: ");
 				Serial.println(receiving_status);
-			break;
+			break; }
 			
-			case "I":	// INFORMATION
+			case 'I': {	// INFORMATION
 				//#define get_seeds_mode 1				// 5 or 10 seeds per blister
 				//#define get_default_idle_time 2		// Defaul idle time to go to sleep on user input 120 = 2 minutes.
 				
@@ -234,7 +235,7 @@ boolean receive_server_data (){
 				
 				switch (receiving_info) {	// What info are we going to receive? 
 				
-					case get_seeds_mode:	// Should we define the seeds per blister? for now 2 modes 1 or 2 (10 or 5 seeds)
+					case get_seeds_mode: {	// Should we define the seeds per blister? for now 2 modes 1 or 2 (10 or 5 seeds)
 						recevie_data_telnet (received_msg,bufferSize);
 						char * thisChar = received_msg;
 						int receiving_seedmode = atoi(thisChar);
@@ -245,94 +246,76 @@ boolean receive_server_data (){
 						if (receiving_seedmode == 2) {
 							blister_mode = seeds5;
 						}
-					break;
+					break; }
 					
-					case get_default_idle_time:
+					case get_default_idle_time: {
 						recevie_data_telnet (received_msg,bufferSize);
 						char * thisChar = received_msg;
-						int receiving_idle_time = atoi(thisChar);
+						unsigned int receiving_idle_time = atoi(thisChar);
 						default_idle_time = receiving_idle_time;
-					break;
+					break; }
 					
-					case get_default_off_time:
+					case get_default_off_time: {
 						recevie_data_telnet (received_msg,bufferSize);
 						char * thisChar = received_msg;
-						int receiving_off_time = atoi(thisChar);
+						unsigned int receiving_off_time = atoi(thisChar);
 						default_off_time = receiving_off_time;
-					break;
+					break; }
 				}
 				// Inform
 				Serial.print("Received Information: ");
 				Serial.println(receiving_info);
-			break;
+			break; }
 			
-			case "P":	// POSITION
+			case 'P': {	// POSITION
 			
 				// what we will do now is check what addres are we receiving and compare it with the one on the memory
 				// if the data is different we will update the memory wth the newly received data.
 				
-				// receive memory position to change  /////////////////////////////////////////
+				// receive memory position to check  /////////////////////////////////////////
 				recevie_data_telnet (received_msg,bufferSize);
 				char * thisChar = received_msg;
 				int receiving_position = atoi(thisChar);
-				
-				db.read(receiving_position, DB_REC mposition);	// Load database position
+				// Load database position
+				db.read(receiving_position, DB_REC mposition);	
 				
 				// receive Xc /////////////////////////////////////////
 				recevie_data_telnet (received_msg,bufferSize);
-				char * thisChar = received_msg;
-				int Xc = atoi(thisChar);
-				
-				// Compare with the real value.. do we have to update??
-				if (strcmp(Xc,mposition.Xc)) {		// If data is different from the eeprom
-					// store data in eeprom, data is different
-					sprintf(mposition.Xc, Xc);
-					db.write(receiving_position, DB_REC mposition);
-				}
-				
+				thisChar = received_msg;
+				unsigned int Xc = atoi(thisChar);
 				// receive Xf /////////////////////////////////////////
 				recevie_data_telnet (received_msg,bufferSize);
-				char * thisChar = received_msg;
-				int Xf = atoi(thisChar);
-				
-				// Compare with the real value.. do we have to update??
-				if (strcmp(Xf,mposition.Xf)) {		// If data is different from the eeprom
-					// store data in eeprom, data is different
-					sprintf(mposition.Xf, Xf);
-					db.write(receiving_position, DB_REC mposition);
-				}
-				
+				thisChar = received_msg;
+				unsigned int Xf = atoi(thisChar);
 				// receive Yc /////////////////////////////////////////
 				recevie_data_telnet (received_msg,bufferSize);
-				char * thisChar = received_msg;
-				int Yc = atoi(thisChar);
-				
-				// Compare with the real value.. do we have to update??
-				if (strcmp(Yc,mposition.Yc)) {		// If data is different from the eeprom
-					// store data in eeprom, data is different
-					sprintf(mposition.Yc, Yc);
-					db.write(receiving_position, DB_REC mposition);
-				}
-				
+				thisChar = received_msg;
+				unsigned int Yc = atoi(thisChar);
 				// receive Yf /////////////////////////////////////////
 				recevie_data_telnet (received_msg,bufferSize);
-				char * thisChar = received_msg;
-				int Yf = atoi(thisChar);
+				thisChar = received_msg;
+				unsigned int Yf = atoi(thisChar);
 				
+				// Inform
+				Serial.print("Received Position: ");
+				Serial.print(receiving_position);
 				// Compare with the real value.. do we have to update??
-				if (strcmp(Yf,mposition.Yf)) {		// If data is different from the eeprom
+				if (Xc != mposition.Xc || Xf != mposition.Xf || Yc != mposition.Yc || Yf != mposition.Yf) {		// If data is different from the eeprom
 					// store data in eeprom, data is different
-					sprintf(mposition.Yf, Yf);
+					mposition.Xc = Xc;
+					mposition.Xf = Xf;
+					mposition.Yf = Yf;
+					mposition.Yc = Yc;
 					db.write(receiving_position, DB_REC mposition);
+					Serial.println (" - Updated!");
+				}else{
+					Serial.println (" - OK");
 				}
 				
 				// Finished. go back to the origin. If we receive another command we will sense it there.
-				// Inform
-				Serial.print("Received Position: ");
-				Serial.println(receiving_position);
-			break;
+			break; }
 			
-			default: 
+			default: {
 				// Undefined command received
 				Serial.print("Received undefined command: ");
 				Serial.println(inChar);
@@ -341,7 +324,7 @@ boolean receive_server_data (){
 				// data
 				Serial.print("With Data: ");
 				Serial.println(thisChar);
-			break;
+			break; }
 		}
 	}
 	return false;

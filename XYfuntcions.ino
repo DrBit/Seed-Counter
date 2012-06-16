@@ -58,6 +58,15 @@ boolean XYaxes_init () {
 	
 	unsigned long start_time = millis ();
 	
+	boolean skip_x = false;
+	boolean skip_y = false;
+#if defined Xmotor_debug
+	skip_x = true;
+#endif
+#if defined Ymotor_debug
+	skip_x = false;
+#endif
+	
 	// We should move the motors at this point in mode 1 at top speed
 	while (!both_sensors) {			// While we dont hit the sensor...
 		if (!Xaxis.sensor_check()) {
@@ -72,7 +81,7 @@ boolean XYaxes_init () {
 			delayMicroseconds(19);
 		}
 
-		if (Xaxis.sensor_check() && Yaxis.sensor_check()) {
+		if ((Xaxis.sensor_check() || skip_x) && (Yaxis.sensor_check() || skip_y)) {
 			// When both sensors are activated means we reached both init points
 			both_sensors = true;
 		}
@@ -133,7 +142,7 @@ boolean XYaxes_init () {
 		}else{
 			delayMicroseconds(19);
 		}
-		if (!Xaxis.sensor_check() && !Yaxis.sensor_check()) {
+		if ((!Xaxis.sensor_check() || skip_x) && (!Yaxis.sensor_check() || skip_y)) {
 			// When both sensors are NOT activated means we are inside the safe zone, now we can correctly init the axes
 			both_sensors = true;
 		}
@@ -159,7 +168,6 @@ boolean XYaxes_init () {
 	// All correct , return true
 	return true;
 }
-
 
 
 // ************************************************************
@@ -256,34 +264,3 @@ void go_to_posXY (int Xcy,int Xst,int Ycy,int Yst) {
 	check_pause ();			// Check for any pause button
 	Yaxis.got_to_position (Ycy,Yst) ;
 }
-
-/*
-// NOT NEEDED
-void update_positions_information () {
-	// The process of updating the positions information will be every cycle.
-	// Ideally the server will return us just a flag telling if it has been changed or not
-	// The last configuration
-	
-	// This will speed up the process
-	
-	boolean command_sended = false;
-	while (!command_sended) {
-		// First send a command to update position information
-		send_command (3);			// Update pos information
-		// Now The ethernet module is checking if we need to update
-		
-		if (receive_next_answer(00) == 00) { 	// False , we dont need to update
-			command_sended = true;
-			Serial.println ("No need to update positions... ");
-		}else if (receive_next_answer(01) == 01) {	// True , we need to update
-			Serial.println ("Updating positions: ");
-			// Now we have to receive all positions and check them.
-		}else{
-			print_fail();
-			Serial.println (" * Command send (C03) Failed");
-			Serial.println(" * Press button 1 to try again");
-			press_button_to_continue (1);
-		}
-	}	
-}*/
-

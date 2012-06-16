@@ -83,7 +83,6 @@ void show_pos_list ()  {
 
 void manual_data_write () {
     
-	
 	// MANUAL WRITE OF Position 20 (Brush)
 	int position_n = 20;			// Hole number
 	mposition.Xc = 8;				// Xcycles

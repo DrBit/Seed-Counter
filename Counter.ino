@@ -19,7 +19,10 @@ boolean Seedcounter_init() {
     send_action_to_server(counter_init);
 	boolean seed_sensor = false; 
 	int count = 0;
-
+#if defined Cmotor_debug
+	// Do nothing so we skip the init 
+	seed_sensor = true;
+#endif
 	counter.set_direction (default_directionC);   // Set direction
 	while (!seed_sensor) {
 		// If the vacuum is not on, this would be cheking for the 0 position foreve
@@ -47,6 +50,7 @@ boolean Seedcounter_init() {
 		counter.do_step();
 		delayMicroseconds(motor_speed_counter);
 	}
+
 	counter.set_init_position();  
 	first_time_drop = true;		// State that the first time we drop a seed has to be different because we just INIT and the wheel is in a different posuition than by default
 	return true;
@@ -84,6 +88,7 @@ void pickup_seed() {
 			last_turn = true;
 		}
 		
+		// Checks if we did too many turns. Could mean a bottle neck or just out of seeds
 		if (count_error_turns > fails_max_normal) {
 			send_error_to_server(counter_max_turns_normal);
 			Serial.println ("\nError, no more seeds? Empty? Bottleneck? did the world end?");
@@ -133,8 +138,13 @@ void pickup_seed() {
 		}
 		// Check if we are at sensor position
 		if ((counter.get_steps() >= (1600-margin_steps_to_detect_seed)) || (counter.get_steps() <= margin_steps_to_detect_seed)) {				// We check the sensor only when we are in the range of the sensor
+			// Fake sensor in case of debug motors
+			boolean sensor_skip = false;
+#if defined Cmotor_debug
+			sensor_skip = true; 
+#endif
 			// Check if we got seed
-			if (counter.sensor_check()){			// We got a seed!!!
+			if (counter.sensor_check() || sensor_skip){			// We got a seed!!!
 				seed_detected = true; 
 				send_action_to_server(seed_released);
 				counter_s ++;						// For statistics pourpouse
@@ -149,7 +159,12 @@ void pickup_seed() {
 			previous_counted_turns = count_total_turns;			// Avoid giving more than 1 order to turn at the same time
 			
 		} else {
-			if (counter.sensor_check()){			// We got a seed and we are not supose to have one here!!
+			// Fake sensor in case of debug motors
+			boolean sensor_skip = false;
+#if defined Cmotor_debug
+			sensor_skip = true; 
+#endif
+			if (counter.sensor_check() && !sensor_skip){			// We got a seed and we are not supose to have one here!!
 				send_error_to_server(counter_sensor_failed);
 				// Something whent wrong!!!!
 				Serial.println ("\n\n **** Something whent wrong. Detected seed where it shouldn't");

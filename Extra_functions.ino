@@ -5,189 +5,6 @@
 #define blisters_steps_limit 300
 #define blisters_steps_absoulut_limit 1000
 
-
-// ************************************************************
-// ** MANUAL FUNCTIONS  (NOT USED)
-// ************************************************************
-
-
-/***** MANUAL MODE XY AXIS  *****/
-boolean holdX = false;
-boolean holdY = false; 
-boolean holdX1 = false;
-boolean holdY1 = false; 
-boolean holdX2 = false;
-boolean holdY2 = false;
-boolean Xaxis_enabled = true;
-
-/*
-void manual_modeXY() {
-  if (digitalRead(button1) == HIGH) {
-    Xaxis_enabled =true;
-  }else{
-    Xaxis_enabled =false;
-  }
-  // Botton 2 moves motor BACKWARDS
-  if (digitalRead(button2) == HIGH) {
-    if (Xaxis_enabled) {
-      if ((Xaxis.get_steps_cycles() >= 0) && (Xaxis.get_steps() > 0)) {// If the position is bigger than 0 then we can move backwards
-        Xaxis.set_direction (!default_directionX);   // Goes backward towards the sensor
-        Xaxis.do_step();
-      }
-      holdX1 = true;
-    }else{
-      if ((Yaxis.get_steps_cycles() >= 0) && (Yaxis.get_steps() > 0)) {// If the position is bigger than 0 then we can move backwards
-        Yaxis.set_direction (!default_directionY);   // Goes backward towards the sensor
-        Yaxis.do_step();
-      }
-      holdY1 = true;
-    } 
-    delayMicroseconds(18);
-  }else{
-    if (holdX1) {
-      holdX1 = false;
-      print_x_pos();
-    }else if (holdY1) {    
-      holdY1 = false;
-      print_y_pos();
-    }
-  }
-  // Botton 3 moves motor FORWARD
-  if (digitalRead(button3) == HIGH) {
-    if (Xaxis_enabled) {
-      if (Xaxis.get_steps_cycles() < Xaxis_cycles_limit)  { // If the position is lesser than defined in Yaxis_cycles_limit then we can move forwards
-        Xaxis.set_direction (default_directionX);   // Goes forward
-        Xaxis.do_step();
-      }
-      holdX2 = true;
-    }else{
-      if (Yaxis.get_steps_cycles() < Yaxis_cycles_limit)  { // If the position is lesser than defined in Yaxis_cycles_limit then we can move forwards
-        Yaxis.set_direction (default_directionY);   // Goes forward 
-        Yaxis.do_step();
-      }
-      holdY2 = true;
-    }
-    delayMicroseconds(18);
-  }else{
-    if (holdX2) {
-      holdX2 = false;
-      print_x_pos();
-    }else if (holdY2) {    
-      holdY2 = false;
-      print_y_pos();
-    }
-  }
-  delayMicroseconds(motor_speed_XY);
-}
-*/
-
-/***** MANUAL MODE BLISTERS  *****/
-boolean holdC1 = false;
-boolean holdC2 = false;
-/*
-void manual_mode_blisters() {
-  // Botton 2 moves motor BACKWARDS
-  if (digitalRead(button2) == HIGH) {
-    if ((blisters.get_steps_cycles() >= 0) && (blisters.get_steps() > 0)) {// If the position is bigger than 0 then we can move backwards
-      blisters.set_direction (true);   // Goes backward towards the sensor
-      blisters.do_step();
-    }
-    holdC1 = true;
-    delayMicroseconds(18);
-  }else{
-    if (holdC1) {
-      holdC1 = false;
-      print_blisters_pos();
-    }
-  }
-  // Botton 3 moves motor FORWARD
-  if (digitalRead(button3) == HIGH) {
-    if (blisters.get_steps() < blisters_steps_limit)  { // If the position is lesser than defined in Yaxis_cycles_limit then we can move forwards
-      blisters.set_direction (false);   // Goes forward
-      blisters.do_step();
-    }
-    holdC2 = true;
-    delayMicroseconds(18);
-  }else{
-    if (holdC2) {
-      holdC2 = false;
-      print_blisters_pos();
-    }
-  }
-  delayMicroseconds(motor_speed_blisters);
-}
-*/
-
-/***** MANUAL MODE Counter  *****/
-boolean holdD1 = false;
-boolean holdD2 = false;
-/*
-void manual_modeCounter() {
-	// Button 2 moves motor BACKWARDS
-	if (digitalRead(button2) == HIGH) {
-		counter.set_direction (true);   // Goes backward towards the sensor
-		counter.do_step();
-		holdC1 = true;
-		delayMicroseconds(18);
-	}else{
-		if (holdC1) {
-			holdC1 = false;
-			print_counter_pos ();
-		}
-	}
-	// Botton 3 moves motor FORWARD
-	if (digitalRead(button3) == HIGH) {
-		counter.set_direction (false);   // Goes forward
-		counter.do_step();
-		holdC2 = true;
-		delayMicroseconds(18);
-	}else{
-		if (holdC2) {
-			holdC2 = false;
-			print_counter_pos();
-		}
-	}
-  //delayMicroseconds(motor_speed_counter*10);
-  delay(100);
-}
-*/
-
-/***** Print Position X axis  *****/
-void print_x_pos () {
-	Serial.print ("* X_cycles: ");
-	Serial.print (Xaxis.get_steps_cycles());
-	Serial.print (", X_steps: ");
-	Serial.println (Xaxis.get_steps());
-}
-
-
-/***** Print Position Y axis  *****/
-void print_y_pos () {
-	Serial.print ("* Y_cycles: ");
-	Serial.print (Yaxis.get_steps_cycles());
-	Serial.print (", Y_steps: ");
-	Serial.println (Yaxis.get_steps());
-}
-
-
-/***** Print Position Blisters axis  *****/
-void print_blisters_pos () {
-	Serial.print ("* Blister_cycles: ");
-	Serial.print (blisters.get_steps_cycles());
-	Serial.print (", Blister_steps: ");
-	Serial.println (blisters.get_steps());
-}
-
-
-/***** Print Position Counter axis  *****/
-void print_counter_pos () {
-	Serial.print ("* Couter_cycles: ");
-	Serial.print (counter.get_steps_cycles());
-	Serial.print (", Counter_steps: ");
-	Serial.println (counter.get_steps());
-}
-
-
 // ************************************************************
 // ** UTILS  FUNCTIONS
 // ************************************************************
@@ -833,6 +650,15 @@ void check_library_version () {
 }
 
 void init_all_motors () {
+
+	// Prepare to init motors
+	PSupply_ON ();		// Switch Power supply ON
+	delay (2000);
+	motors_enable ();	// Enable motors
+	delay (2000);
+	motors_awake ();	// Awake motors
+	delay (2000);
+	
 	// INIT SYSTEM, and CHECK for ERRORS
 	int temp_err = 0;   // flag for found errors
 	if (!init_blocks(ALL)) temp_err = 1;
@@ -865,7 +691,6 @@ void init_all_motors () {
 // MOTOR Functions
 
 void set_motor_enable_state (boolean motor_state) {
-
 	if (motor_state) {
 		digitalWrite (enable, LOW);     // Enable motors 
 	}else{ 
@@ -893,7 +718,7 @@ void motors_disable () {
 void set_motor_sleep_state (boolean motor_state) {
 
 	if (motor_state) {
-                digitalWrite(sleep, LOW);    // Put drivers in sleep mode
+		digitalWrite(sleep, LOW);    // Put drivers in sleep mode
 	}else{ 
 		digitalWrite (sleep, HIGH);    // Awake motors 
 	}
@@ -917,10 +742,9 @@ void motors_awake () {
 
 // POWER CONTROL
 void set_power_state (boolean power_state) {
-
 	if (power_state) {
-                digitalWrite(PSupply, LOW);    // Power ON
-       	}else{ 
+		digitalWrite(PSupply, LOW);    // Power ON
+	}else{ 
 		digitalWrite (PSupply, HIGH);    // Power OFF
 	}
 }
@@ -961,7 +785,7 @@ void pump_enable () {
 	Serial.println ("Enable Pump");
 	send_action_to_server(enable_pump);
 	set_pump_state (true);
-	delay (800);		// Wait 1 second to build up some pressure
+	delay (1000);		// Wait 1 second to build up some pressure
 }
 
 void pump_disable () {
@@ -1013,10 +837,16 @@ boolean check_idle_timer (boolean message) {
 		send_action_to_server(enter_idle);
 		pump_disable ();
 		
-		if ((idle_time_counter == (desired_idle_time + default_off_time)) {
+		if (idle_time_counter == (desired_idle_time + default_off_time)) {
 			if (message) Serial.println ("Switching OFF!");
-			//Switch off!!!
-			//variable to restart again!!
+			// Sleep motors
+			// Switch off!!!
+			motors_sleep ();	// Awake motors
+			delay (2000);
+			motors_disable ();	// Enable motors
+			delay (2000);
+			PSupply_ON ();		// Switch Power supply ON
+			delay (2000);
 		}
 		
 		return true;
@@ -1030,9 +860,199 @@ void start_idle_timer (unsigned long  seconds) {
 }
 
 void end_idle_timer () {
+
+	if (idle_time_counter >= (desired_idle_time + default_off_time + 1)) {
+		if (message) Serial.println ("Switching ON!");
+		
+		// init_all_motors () 
+
+	}
 	if (idle_time_counter >= desired_idle_time+1) {
 		Serial.println ("Wake UP!");
 		send_action_to_server(resume_from_idle);
 		pump_enable ();
 	}
 }
+
+
+// ************************************************************
+// ** MANUAL FUNCTIONS  (NOT USED)
+// ************************************************************
+
+
+/***** MANUAL MODE XY AXIS  *****/
+boolean holdX = false;
+boolean holdY = false; 
+boolean holdX1 = false;
+boolean holdY1 = false; 
+boolean holdX2 = false;
+boolean holdY2 = false;
+boolean Xaxis_enabled = true;
+
+/*
+void manual_modeXY() {
+  if (digitalRead(button1) == HIGH) {
+    Xaxis_enabled =true;
+  }else{
+    Xaxis_enabled =false;
+  }
+  // Botton 2 moves motor BACKWARDS
+  if (digitalRead(button2) == HIGH) {
+    if (Xaxis_enabled) {
+      if ((Xaxis.get_steps_cycles() >= 0) && (Xaxis.get_steps() > 0)) {// If the position is bigger than 0 then we can move backwards
+        Xaxis.set_direction (!default_directionX);   // Goes backward towards the sensor
+        Xaxis.do_step();
+      }
+      holdX1 = true;
+    }else{
+      if ((Yaxis.get_steps_cycles() >= 0) && (Yaxis.get_steps() > 0)) {// If the position is bigger than 0 then we can move backwards
+        Yaxis.set_direction (!default_directionY);   // Goes backward towards the sensor
+        Yaxis.do_step();
+      }
+      holdY1 = true;
+    } 
+    delayMicroseconds(18);
+  }else{
+    if (holdX1) {
+      holdX1 = false;
+      print_x_pos();
+    }else if (holdY1) {    
+      holdY1 = false;
+      print_y_pos();
+    }
+  }
+  // Botton 3 moves motor FORWARD
+  if (digitalRead(button3) == HIGH) {
+    if (Xaxis_enabled) {
+      if (Xaxis.get_steps_cycles() < Xaxis_cycles_limit)  { // If the position is lesser than defined in Yaxis_cycles_limit then we can move forwards
+        Xaxis.set_direction (default_directionX);   // Goes forward
+        Xaxis.do_step();
+      }
+      holdX2 = true;
+    }else{
+      if (Yaxis.get_steps_cycles() < Yaxis_cycles_limit)  { // If the position is lesser than defined in Yaxis_cycles_limit then we can move forwards
+        Yaxis.set_direction (default_directionY);   // Goes forward 
+        Yaxis.do_step();
+      }
+      holdY2 = true;
+    }
+    delayMicroseconds(18);
+  }else{
+    if (holdX2) {
+      holdX2 = false;
+      print_x_pos();
+    }else if (holdY2) {    
+      holdY2 = false;
+      print_y_pos();
+    }
+  }
+  delayMicroseconds(motor_speed_XY);
+}
+*/
+
+/***** MANUAL MODE BLISTERS  *****/
+boolean holdC1 = false;
+boolean holdC2 = false;
+/*
+void manual_mode_blisters() {
+  // Botton 2 moves motor BACKWARDS
+  if (digitalRead(button2) == HIGH) {
+    if ((blisters.get_steps_cycles() >= 0) && (blisters.get_steps() > 0)) {// If the position is bigger than 0 then we can move backwards
+      blisters.set_direction (true);   // Goes backward towards the sensor
+      blisters.do_step();
+    }
+    holdC1 = true;
+    delayMicroseconds(18);
+  }else{
+    if (holdC1) {
+      holdC1 = false;
+      print_blisters_pos();
+    }
+  }
+  // Botton 3 moves motor FORWARD
+  if (digitalRead(button3) == HIGH) {
+    if (blisters.get_steps() < blisters_steps_limit)  { // If the position is lesser than defined in Yaxis_cycles_limit then we can move forwards
+      blisters.set_direction (false);   // Goes forward
+      blisters.do_step();
+    }
+    holdC2 = true;
+    delayMicroseconds(18);
+  }else{
+    if (holdC2) {
+      holdC2 = false;
+      print_blisters_pos();
+    }
+  }
+  delayMicroseconds(motor_speed_blisters);
+}
+*/
+
+/***** MANUAL MODE Counter  *****/
+boolean holdD1 = false;
+boolean holdD2 = false;
+/*
+void manual_modeCounter() {
+	// Button 2 moves motor BACKWARDS
+	if (digitalRead(button2) == HIGH) {
+		counter.set_direction (true);   // Goes backward towards the sensor
+		counter.do_step();
+		holdC1 = true;
+		delayMicroseconds(18);
+	}else{
+		if (holdC1) {
+			holdC1 = false;
+			print_counter_pos ();
+		}
+	}
+	// Botton 3 moves motor FORWARD
+	if (digitalRead(button3) == HIGH) {
+		counter.set_direction (false);   // Goes forward
+		counter.do_step();
+		holdC2 = true;
+		delayMicroseconds(18);
+	}else{
+		if (holdC2) {
+			holdC2 = false;
+			print_counter_pos();
+		}
+	}
+  //delayMicroseconds(motor_speed_counter*10);
+  delay(100);
+}
+*/
+
+/***** Print Position X axis  *****/
+void print_x_pos () {
+	Serial.print ("* X_cycles: ");
+	Serial.print (Xaxis.get_steps_cycles());
+	Serial.print (", X_steps: ");
+	Serial.println (Xaxis.get_steps());
+}
+
+
+/***** Print Position Y axis  *****/
+void print_y_pos () {
+	Serial.print ("* Y_cycles: ");
+	Serial.print (Yaxis.get_steps_cycles());
+	Serial.print (", Y_steps: ");
+	Serial.println (Yaxis.get_steps());
+}
+
+
+/***** Print Position Blisters axis  *****/
+void print_blisters_pos () {
+	Serial.print ("* Blister_cycles: ");
+	Serial.print (blisters.get_steps_cycles());
+	Serial.print (", Blister_steps: ");
+	Serial.println (blisters.get_steps());
+}
+
+
+/***** Print Position Counter axis  *****/
+void print_counter_pos () {
+	Serial.print ("* Couter_cycles: ");
+	Serial.print (counter.get_steps_cycles());
+	Serial.print (", Counter_steps: ");
+	Serial.println (counter.get_steps());
+}
+

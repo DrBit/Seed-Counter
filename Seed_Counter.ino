@@ -5,10 +5,8 @@
 #include <network_config.h>		// NEDED?
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "V4.0.2"
-
+#define version_prog "V4.0.3"
 #define lib_version 14
-
 #define M_ID 1
 
 /********************************************
@@ -24,11 +22,17 @@
 */
 
 // #define DEBUG		// Remove / Add"//" to enable / disbale DEBUG mode
+// #define Cmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
+// #define Xmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
+// #define Ymotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 
 // example debug:
 // #if defined DEBUG
 // Serial.println(val);
 // #endif
+
+// Stop Watch Timer
+StopWatch MySW;
 
 // ***********************
 // ** DEFINES PIN MAP
@@ -59,8 +63,6 @@
 #define sleep 42
 #define enable 33
 #define motor_reset 43
-
-
 // Digital sensors
 #define sensA 49
 #define sensB 48
@@ -73,7 +75,7 @@
 #define sensH 12
 #define sensI 13
 #define emergency sensC  // Change in case connected at another input
-
+// Outputs
 #define PSupply 47
 #define solenoid1 5
 #define solenoid2 6
@@ -86,7 +88,6 @@
 #define Xaxis_cycles_limit 280
 #define Yaxis_cycles_limit 12
 
-
 // ***********************
 // ** CONFIG MOTOR PINS
 // ***********************
@@ -98,10 +99,6 @@ Stepper_ac Yaxis(stepB,dirB,sensB,ms1B,ms2B,200,4);
 Stepper_ac blisters(stepC,dirC,0,ms1C,ms2C,200,4);
 // Setting up motor D, step pin, direction pin, sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for wighth step(mode of the stepper driver)
 Stepper_ac counter(stepD,dirD,sensD,ms1D,ms2D,200,4);
-
-// Stop Watch Timer
-StopWatch MySW;
-
 
 // ***********************
 // ** DEFINES variables
@@ -136,11 +133,9 @@ unsigned long count_total_turns = 0;
 unsigned long counter_s = 0;
 boolean pause = false;
 boolean manual_enabled = false;				// Flag to overwrite the pause flag
-
 // Set the default times (they might be overwrited in the code)
 int default_idle_time = 120;				// Defaul idle time to go to sleep on user input 120 = 2 minutes.
 int default_off_time = 120;					// Defaul off time to go to sleep on user input 120 = 2 minutes.
-
 // Used forinternal pourpouses
 unsigned long  idle_time_counter = 0;
 unsigned long  desired_idle_time = 0;		// Time in seconds 120s = 2 minutes
@@ -151,90 +146,55 @@ unsigned long  desired_idle_time = 0;		// Time in seconds 120s = 2 minutes
 byte global_status = 0;
 byte previous_status = 0;
 
+// ***********************
+// ** Default Direcctions MOTORS
+// ***********************
+// Defining default directions of motors (in case we change the wiring or the position of motors)
+#define default_directionX true
+#define default_directionY false
+#define default_directionB true
+#define default_directionC false
+
+
 void setup() {
 
-	// INIT Serial
-	init_serial();
-
-	// Setp all pins
-	pinMode (PSupply, OUTPUT);  
-	digitalWrite(PSupply, HIGH);    // Disable power supply at de begining
-	
-	pinMode (enable, OUTPUT);  
-	digitalWrite (enable, HIGH);    // Disable motors before start
-
-	pinMode (sleep, OUTPUT);  
-	digitalWrite(sleep, LOW);    // Put drivers in sleep mode
-	
-	// Define Outputs
-	pinMode (solenoid1, OUTPUT); 
-	pinMode (solenoid2, OUTPUT); 
-	pinMode (pump, OUTPUT); 
-	pinMode (extraoutput, OUTPUT); 
-	// Define Inputs
-	pinMode (sensE, INPUT);
-	pinMode (sensF, INPUT); 
-	pinMode (sensG, INPUT); 
-	pinMode (sensH, INPUT);
-	pinMode (sensI, INPUT);
-	
-	// Begin Setup
-	setup_network();					// First thing we do is set up the network and contact the server
-	
-	if (!check_server()) {
+	init_serial();			// INIT Serial
+	setup_pins ();			// Setup IO pins
+	setup_network();		// First thing we do is set up the network
+	if (!check_server()) {	// We check if the server is available
 		// Here , if we cannot connect we should have a MANUAL mode;
 	}
-	
 	send_status_to_server (S_setting_up);	// here we comunicate the server that we begin the set-up process	
-	
-	// Check library Version
-	check_library_version ();		//If different STOP
-	
-	// Initiate the Timer1 config function in order to prepare the timing functions of motor acceleration
-	speed_cntr_Init_Timer1();
-	delay (10);  // Delay to be safe
-
+	check_library_version ();	// Check library Version. If different STOP
+	speed_cntr_Init_Timer1();	// Initiate the Timer1 config function in order to prepare the timing functions of motor acceleration
+	delay (10);  				// Delay to be safe
 	init_DB ();				// Init database
 	// Show_all_records();
 	// manual_data_write();		// UPDATE manually all EEPROOM MEMORY (positions)
-	
-	// Defining default directions of motors (in case we change the wiring or the position of motors)
-	#define default_directionX true
-	#define default_directionY false
-	#define default_directionB true
-	#define default_directionC false
 
-	// Set default direction
+	// Set default directions
 	Xaxis.set_default_direcction (default_directionX);
 	Yaxis.set_default_direcction (default_directionY);
 	blisters.set_default_direcction (default_directionB);
 	counter.set_default_direcction (default_directionC);
-	
-	// Prepare to init motors
-	PSupply_ON ();		// Switch Power supply ON
-	delay (2000);
-	motors_enable ();	// Enable motors
-	delay (2000);
-	motors_awake ();	// Awake motors
-	delay (2000);
-        
-	// INIT SYSTEM, and CHECK for ERRORS
-	init_all_motors ();
-		
+    
 	// set_accel_profile(init_timing, int ramp_inclination, n_slopes_per_mode, n_steps_per_slope)
-	// MAX speed!
 	Xaxis.set_speed_in_slow_mode (400);
 	Xaxis.set_accel_profile(900, 17, 9, 20);
 	Yaxis.set_speed_in_slow_mode (350);
 	Yaxis.set_accel_profile(950, 13, 7, 15);
-
+	
+	// INIT SYSTEM, and CHECK for ERRORS
+	init_all_motors ();
+	
+	// Updating Database from info staroed in the server
 	get_positions_from_server (P0);					// receives all positions from server
 	get_info_from_server (get_default_idle_time);	// gets default IDLE time
 	get_info_from_server (get_default_off_time);	// gets default off time
 	
 	// END of setup
-	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
 	send_status_to_server (S_stopped);	// here we wait for the server to send orders
 	// While we are on stopped mode, keep cheking the server
 	while (global_status == S_stopped) {
@@ -376,6 +336,28 @@ void loop() {
 	*/
 }
 
+
+
+void setup_pins () {
+	// Setp all pins
+	pinMode (PSupply, OUTPUT);  
+	digitalWrite(PSupply, HIGH);	// Disable power supply at de begining
+	pinMode (enable, OUTPUT);  
+	digitalWrite (enable, HIGH);	// Disable motors before start
+	pinMode (sleep, OUTPUT);  
+	digitalWrite(sleep, LOW);		// Put drivers in sleep mode
+	// Define Outputs
+	pinMode (solenoid1, OUTPUT); 
+	pinMode (solenoid2, OUTPUT); 
+	pinMode (pump, OUTPUT); 
+	pinMode (extraoutput, OUTPUT); 
+	// Define Inputs
+	pinMode (sensE, INPUT);
+	pinMode (sensF, INPUT); 
+	pinMode (sensG, INPUT); 
+	pinMode (sensH, INPUT);
+	pinMode (sensI, INPUT);
+}
 
 
 void chec_sensorF () {

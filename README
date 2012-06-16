@@ -4,6 +4,10 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V4.0.3 - 16/06/2012
+**  * Added Debug motors function. It will ignore any fail in sensors and run as if everey sensor works normal.
+**  * Cleaned setup process
+**
 **  V4.0.2 - 15/06/2012
 **  * Added function "get_positions_from_server" 
 **  * Added function "receive_server_data"
