@@ -39,7 +39,7 @@ void setup_network() {
 	
 	Serial.print("\r\nChange server and port? [y/n]\r\n");
 	
-	if (YN_question ()) {
+	if (YN_question (5)) {
 		receive_server_IP ();
 		receive_server_PORT ();
 	}
@@ -52,7 +52,7 @@ boolean check_server()
 {
 	int timeout =0;
 	// Convert this time oput in a real timeout 
-	while ((!connected_to_server) && (timeout < 60)) {
+	while ((!connected_to_server) && (timeout < 10)) {
 		connected_to_server = connect_to_server ();
 		delay (50);
 		timeout ++; 
@@ -78,11 +78,23 @@ boolean check_server()
 	}else{
 		// We got a timeout connecting
 		Serial.println("Timeout Connecting to the server...");
+		Serial.println("Contact the network administrator or press a key to try again.");
+		press_button_to_continue (0);		// Press any key to continue
 		return false;
 	}
 	return true;
 }
 
+
+// Basic routine to keep trying until gets connected
+void server_connect () {
+	boolean connected=false;
+	while (!connected) {
+		if (check_server()) {
+			connected = true;
+		}
+	} 
+}
 
 
 

@@ -4,6 +4,9 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V4.0.4 - 16/06/2012
+**  * Improved start-up routine. Mandatory a connection to the server before any setup process...
+**
 **  V4.0.3 - 16/06/2012
 **  * Added Debug motors function. It will ignore any fail in sensors and run as if everey sensor works normal.
 **  * Cleaned setup process

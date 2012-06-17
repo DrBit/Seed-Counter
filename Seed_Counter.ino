@@ -5,7 +5,7 @@
 #include <network_config.h>		// NEDED?
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "V4.0.3"
+#define version_prog "V4.0.4"
 #define lib_version 14
 #define M_ID 1
 
@@ -161,9 +161,7 @@ void setup() {
 	init_serial();			// INIT Serial
 	setup_pins ();			// Setup IO pins
 	setup_network();		// First thing we do is set up the network
-	if (!check_server()) {	// We check if the server is available
-		// Here , if we cannot connect we should have a MANUAL mode;
-	}
+	server_connect();		// Now we try to stablish a connection
 	send_status_to_server (S_setting_up);	// here we comunicate the server that we begin the set-up process	
 	check_library_version ();	// Check library Version. If different STOP
 	speed_cntr_Init_Timer1();	// Initiate the Timer1 config function in order to prepare the timing functions of motor acceleration

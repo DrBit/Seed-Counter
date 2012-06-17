@@ -78,8 +78,15 @@ void press_button_to_continue (int button_number) {
 		break;
 		default: 
 			// if nothing else matches, do the default
-			// default is optional
-			start_idle_timer (true);
+			// default is any key
+			while (pause) {
+				if (Serial.available() > 0) {
+					Serial.read();
+					pause = false;
+				}
+
+			}
+			check_idle_timer (true);
 		break;
 	}
 	end_idle_timer ();
@@ -300,8 +307,26 @@ boolean inTestMenu = true;
 
 // Simple YES/NO Question
 boolean YN_question () {
+	start_idle_timer (default_idle_time);
 	while (true) {
-		if (Serial.available ()) {
+		if (Serial.available () > 0) {
+			char C = Serial.read ();
+			if (C == 'y' || C == 'Y') {
+				end_idle_timer ();
+				return true;
+			}else if (C == 'n' || C == 'N') {
+				end_idle_timer ();
+				return false;
+			}
+		}
+		check_idle_timer (true);
+	}
+}
+
+// Simple YES/NO Question
+boolean YN_question (int timeout) {
+	while (timeout > 0) {
+		if (Serial.available () > 0) {
 			char C = Serial.read ();
 			if (C == 'y' || C == 'Y') {
 				return true;
@@ -309,6 +334,8 @@ boolean YN_question () {
 				return false;
 			}
 		}
+		delay (1000);
+		timeout --;
 	}
 }
 
@@ -833,22 +860,29 @@ boolean check_idle_timer (boolean message) {
 		return false;
 	} else if (idle_time_counter == desired_idle_time) {
 		idle_time_counter++;
-		if (message) Serial.println ("Sleep Time!");
-		send_action_to_server(enter_idle);
-		pump_disable ();
-		
-		if (idle_time_counter == (desired_idle_time + default_off_time)) {
-			if (message) Serial.println ("Switching OFF!");
-			// Sleep motors
-			// Switch off!!!
-			motors_sleep ();	// Awake motors
-			delay (2000);
-			motors_disable ();	// Enable motors
-			delay (2000);
-			PSupply_ON ();		// Switch Power supply ON
-			delay (2000);
+		if (get_pump_state () == true) {		// Disable pump only if it was previously enabled
+			if (message) Serial.println ("Sleep Time!");
+			send_action_to_server(enter_idle);
+			pump_disable ();
 		}
 		
+		if (idle_time_counter == (desired_idle_time + default_off_time)) {
+
+			if (get_motor_sleep_state () == true) {
+				motors_sleep ();	// Awake motors
+				delay (2000);
+			}
+			
+			if (get_motor_enable_state () == true) {
+				motors_disable ();	// Enable motors
+				delay (2000);
+			}
+			
+			if (get_power_state () == true) {
+				PSupply_OFF ();		// Switch Power supply ON
+				if (message) Serial.println ("Switching OFF!");
+			}
+		}
 		return true;
 	}
 	return false;
