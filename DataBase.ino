@@ -13,7 +13,8 @@
 
 DB db;
 
-#define MY_TBL 1
+#define MY_TBL 3
+#define NET_TBL 1
 #define number_of_positions 23
 
 struct MyRec {
@@ -226,4 +227,24 @@ void manual_data_write () {
 	//=========================================================
 	*/
 	
+}
+
+
+struct MyRec1 {
+	// Containig
+	byte LOCAL_IP[4];				// example: {10,250,1,8}
+	byte UI_IP[4];					// example: {10,250,1,8}
+	unsigned int UI_port;			// example: 8000
+	byte machine_id;				// example: 1
+} config;
+// When changing the structure data in the eeprom needs to be rewritten
+
+void init_NET_DB () {
+	db.create(NET_TBL,sizeof(config),1);
+	db.open(NET_TBL);
+	db.read(1, DB_REC config);			// Read configuration (1rst line)
+}
+
+void NET_DB_REC () {
+	db.write(1, DB_REC config);
 }

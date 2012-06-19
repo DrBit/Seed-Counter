@@ -7,7 +7,6 @@
 
 #define version_prog "V4.0.5"
 #define lib_version 14
-#define M_ID 1
 
 /********************************************
 **  Name: Seed Counter 
@@ -33,6 +32,9 @@
 
 // Stop Watch Timer
 StopWatch MySW;
+
+// Machine ID
+byte M_ID=1;
 
 // ***********************
 // ** DEFINES PIN MAP

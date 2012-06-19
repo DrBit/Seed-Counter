@@ -4,6 +4,9 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V4.0.6 - 19/06/2012
+**  *Added recordings to the EEPROM of basic config og local IP, server IP, server PORT and MAchine ID
+**
 **  V4.0.5 - 19/06/2012
 **  * Preparing for deployment, fixed bugs. Still someting to fix before functional
 **

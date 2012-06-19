@@ -20,7 +20,22 @@ char received_msg[bufferSize];
 EthernetClient client;
 
 
+
+
 void setup_network() {
+	
+	init_NET_DB ();				// Open DB of network config
+	M_ID = config.machine_id;
+	server[0] = config.UI_IP[0];
+	server[1] = config.UI_IP[1];
+	server[2] = config.UI_IP[2];
+	server[3] = config.UI_IP[3];
+	local_ip[0] = config.LOCAL_IP[0];
+	local_ip[1] = config.LOCAL_IP[1];
+	local_ip[2] = config.LOCAL_IP[2];
+	local_ip[3] = config.LOCAL_IP[3];
+	port = config.UI_port;
+	
 	// start the Ethernet connection:
 	Ethernet.begin(mac, local_ip);
 	// give the Ethernet shield a second to initialize:
@@ -37,12 +52,30 @@ void setup_network() {
 	Serial.print ("Default User Interface server port: ");
 	Serial.println(port);
 	
-	Serial.print("\r\nChange server and port? [y/n]\r\n");
+	Serial.print(F("\r\nChange server, port and ID? [y/n]\r\n"));
 	
 	if (YN_question (5)) {
+		receive_local_IP ();
 		receive_server_IP ();
 		receive_server_PORT ();
-	}
+		receive_M_ID ();
+		
+		Serial.print(("\r\nSave server, port and ID to internal EEPROM memory? [y/n]\r\n"));
+		
+		if (YN_question (20)) {
+			config.machine_id = M_ID;
+			config.UI_IP [0] = server[0];
+			config.UI_IP [1] = server[1];
+			config.UI_IP [2] = server[2];
+			config.UI_IP [3] = server[3];
+			config.LOCAL_IP[0] = local_ip[0];
+			config.LOCAL_IP[1] = local_ip[1];
+			config.LOCAL_IP[2] = local_ip[2];
+			config.LOCAL_IP[3] = local_ip[3];
+			config.UI_port = port;
+			NET_DB_REC ();
+		}
+	}	
 	// Here we dont need to connect yet, just prepare everything
 	// connected_to_server = connect_to_server ();
 }
@@ -401,6 +434,56 @@ const char* ip_to_str(const uint8_t* ipAddr)
 	return buf;
 }
 
+void receive_local_IP () {
+	Serial.print ("Type local ip: ");
+	Serial.flush ();
+	int buf_ip =17; // 17 is the maximum numbers an IP can contain (including dots) 
+	char localIP[buf_ip]; 
+	recevie_data (localIP,buf_ip);
+	// Serial.println (printerIP);
+	// Staring of script
+	String SprinterIP = localIP;
+	// convert into -> byte printer_ipAddr[4]
+	// ip 10.11.12.13
+	int firstDot = SprinterIP.indexOf('.');
+	int secondDot = SprinterIP.indexOf('.', firstDot + 1 );
+	int thirdDot = SprinterIP.indexOf('.', secondDot + 1 );
+	int lastChar = SprinterIP.length();
+
+
+	int num = 0; 
+	// when you cast the individual chars to ints you will get their ascii table equivalents 
+	// Since the ascii values of the digits 1-9 are off by 48 (0 is 48, 9 is 57), 
+	// you can correct by subtracting 48 when you cast your chars to ints.
+	for (int i = (firstDot-1); i>=0 ; i--) {
+		num = atoi(&localIP[i]);
+	}
+	//Serial.println (num);
+	local_ip[0] = (byte) num;
+	num = 0;
+	for (int i = (secondDot-1); i>=(firstDot+1) ; i--) {
+		num = atoi(&localIP[i]);
+	}
+	//Serial.println (num);
+	local_ip[1] = (byte) num;
+	num = 0;
+	for (int i = (thirdDot-1); i>=(secondDot+1) ; i--) {
+		num = atoi(&localIP[i]);
+	}
+	//Serial.println (num);
+	local_ip[2] = (byte) num;
+	num = 0;
+	for (int i = (lastChar-1); i>=(thirdDot+1) ; i--) {
+		num = atoi(&localIP[i]);
+	}
+	//Serial.println (num);
+	local_ip[3] = (byte) num;
+
+
+	Serial.println (ip_to_str(local_ip));
+}
+
+
 void receive_server_IP () {
 	Serial.print ("Type server ip: ");
 	Serial.flush ();
@@ -459,6 +542,17 @@ void receive_server_PORT () {
 	char * thisChar = printerPort;
 	port = atoi(thisChar);
 	Serial.println (port);
+}
+
+void receive_M_ID () {
+	Serial.print ("Type machine ID: ");
+	Serial.flush ();
+	const int buf_id = 3;
+	char tempID[buf_id];
+	recevie_data (tempID,buf_id);
+	char * thisChar = tempID;
+	M_ID = atoi(thisChar);
+	Serial.println (M_ID);
 }
 
 
