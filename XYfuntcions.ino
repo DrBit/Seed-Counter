@@ -64,7 +64,7 @@ boolean XYaxes_init () {
 	skip_x = true;
 #endif
 #if defined Ymotor_debug
-	skip_x = false;
+	skip_y = true;
 #endif
 	
 	// We should move the motors at this point in mode 1 at top speed
@@ -142,7 +142,7 @@ boolean XYaxes_init () {
 		}else{
 			delayMicroseconds(19);
 		}
-		if ((!Xaxis.sensor_check() || skip_x) && (!Yaxis.sensor_check() || skip_y)) {
+		if ((!Xaxis.sensor_check() || (skip_x)) && (!Yaxis.sensor_check() || (skip_y))) {
 			// When both sensors are NOT activated means we are inside the safe zone, now we can correctly init the axes
 			both_sensors = true;
 		}

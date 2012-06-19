@@ -167,10 +167,10 @@ void pickup_seed() {
 			if (counter.sensor_check() && !sensor_skip){			// We got a seed and we are not supose to have one here!!
 				send_error_to_server(counter_sensor_failed);
 				// Something whent wrong!!!!
-				Serial.println ("\n\n **** Something whent wrong. Detected seed where it shouldn't");
-				Serial.println (" Probably counter motor missed some steps");
-				Serial.println ("\n ***Press 1 to try auto-fix or reset the machine.");
-				Serial.println ("\n ***CHECK CURRENT BLISTER FOR DOUBLE SEEDS OR EMPTY SEEDS!");
+				Serial.println (F("\n\n **** Something whent wrong. Detected seed where it shouldn't"));
+				Serial.println (F(" Probably counter motor missed some steps"));
+				Serial.println (F("\n ***Press 1 to try auto-fix or reset the machine."));
+				Serial.println (F("\n ***CHECK CURRENT BLISTER FOR DOUBLE SEEDS OR EMPTY SEEDS!"));
 				int button_pressed = return_pressed_button ();
 				if (button_pressed == 1) {
 					counter_autofix ();
@@ -252,7 +252,7 @@ void end_of_batch () {
 		Serial.println (option);
 		switch (option) {
 			case 1	:
-				Serial.println("Go to brush position");
+				Serial.println(F("Go to brush position"));
 				go_to_memory_position (20);
 				// just continue
 				ready = true;
@@ -266,7 +266,7 @@ void end_of_batch () {
 	
 	send_action_to_server (batch_end);
 	
-	Serial.println ("**** BATCH FINISHED! Close this windows and open again to restart *****");
+	Serial.println (F("**** BATCH FINISHED! Close this windows and open again to restart *****"));
 	
 	start_idle_timer (1500);	// 1500 = 20minutes
 	while (true) {

@@ -2,10 +2,10 @@
 #include <avr/pgmspace.h>
 #include <StopWatch.h>
 
-#include <network_config.h>		// NEDED?
+//#include <network_config.h>		// NEDED?
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "V4.0.4"
+#define version_prog "V4.0.5"
 #define lib_version 14
 #define M_ID 1
 
@@ -22,9 +22,9 @@
 */
 
 // #define DEBUG		// Remove / Add"//" to enable / disbale DEBUG mode
-// #define Cmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
-// #define Xmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
-// #define Ymotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
+#define Cmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
+#define Xmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
+#define Ymotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 
 // example debug:
 // #if defined DEBUG
@@ -185,15 +185,19 @@ void setup() {
 	// INIT SYSTEM, and CHECK for ERRORS
 	init_all_motors ();
 	
+
 	// Updating Database from info staroed in the server
 	get_positions_from_server (P0);					// receives all positions from server
-	get_info_from_server (get_default_idle_time);	// gets default IDLE time
-	get_info_from_server (get_default_off_time);	// gets default off time
-	
+	//get_info_from_server (get_default_idle_time);	// gets default IDLE time
+	//get_info_from_server (get_default_off_time);	// gets default off time
+        
 	// END of setup
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	send_status_to_server (S_stopped);	// here we wait for the server to send orders
+        mem_check();
+        Serial.println(F("Machine Stopped, waiting for a change on status from server"));
+ 
 	// While we are on stopped mode, keep cheking the server
 	while (global_status == S_stopped) {
 		check_server();	
@@ -216,7 +220,7 @@ void setup() {
 // * X5 * X4 * X3 * X2 * X1 *
 void loop() {
 
-	Serial.println("\n ************ ");
+	Serial.println(F("\n ************ "));
 	
 	get_and_release_blister ();
 	
@@ -224,52 +228,52 @@ void loop() {
 	if (blister_mode == seeds10) {
 	
 		// START FILLING BLISTER
-		Serial.print("1rst hole");
+		Serial.print(F("1rst hole"));
 		go_to_memory_position (5);			// first hole
 		pickup_seed ();
 		//delay (5000);
 		
-		Serial.print(" - 2nd hole");
+		Serial.print(F(" - 2nd hole"));
 		go_to_memory_position (6);			// 2nd hole
 		pickup_seed ();
 		//delay (5000);
 		
-		Serial.print(" - 3th hole");
+		Serial.print(F(" - 3th hole"));
 		go_to_memory_position (7);			//3th hole
 		pickup_seed ();
 		//delay (5000);
 		
-		Serial.print(" - 4rd hole");
+		Serial.print(F(" - 4rd hole"));
 		go_to_memory_position (8);			// 4d hole
 		pickup_seed ();
 		//delay (5000);
 
-		Serial.println(" - 5th hole");
+		Serial.println(F(" - 5th hole"));
 		go_to_memory_position (9);			// 5th hole
 		pickup_seed ();
 		//delay (5000);
 		
-		Serial.print("6th hole");
+		Serial.print(F("6th hole"));
 		go_to_memory_position (10);			// 6th hole
 		pickup_seed ();
 		//delay (5000);
 		
-		Serial.print(" - 7th hole");
+		Serial.print(F(" - 7th hole"));
 		go_to_memory_position (11);			// 7th hole
 		pickup_seed ();
 		//delay (5000);
 		
-		Serial.print(" - 8th hole");
+		Serial.print(F(" - 8th hole"));
 		go_to_memory_position (12);			// 8th hole
 		pickup_seed ();
 		//delay (5000);
 		
-		Serial.print(" - 9th hole");
+		Serial.print(F(" - 9th hole"));
 		go_to_memory_position (13);			// 9th hole
 		pickup_seed ();
 		//delay (5000);
 		
-		Serial.println(" - 10th hole");
+		Serial.println(F(" - 10th hole"));
 		go_to_memory_position (14);			// 10th hole
 		pickup_seed ();
 		//delay (5000);
@@ -277,42 +281,42 @@ void loop() {
 	} else if (blister_mode == seeds5) {		// 5 Seeds mode
 
 		// START FILLING BLISTER
-		Serial.print("1rst hole");
+		Serial.print(F("1rst hole"));
 		go_to_memory_position (6);			// 2nd hole
 		pickup_seed ();
 		
-		Serial.print(" - 2nd hole");
+		Serial.print(F(" - 2nd hole"));
 		go_to_memory_position (7);			//3th hole
 		pickup_seed ();
 
-		Serial.println(" - 3th hole");
+		Serial.println(F(" - 3th hole"));
 		go_to_memory_position (10);			// 6th hole
 		pickup_seed ();
 		
-		Serial.print(" - 4th hole");
+		Serial.print(F(" - 4th hole"));
 		go_to_memory_position (11);			// 7th hole
 		pickup_seed ();
 		
-		Serial.print(" - 5th hole");
+		Serial.print(F(" - 5th hole"));
 		go_to_memory_position (14);			// 10th hole
 		pickup_seed ();
 		
 	}
 
-	Serial.println("Goto print position");
+	Serial.println(F("Goto print position"));
 	go_to_memory_position (3);			// Print position
 	
 	print_and_release_label ();
 
 	
-	Serial.println("Go to exit");
+	Serial.println(F("Go to exit"));
 	go_to_memory_position (4);			// Exit
 	
 	
-	Serial.print ("Counted seeds: ");
+	Serial.print (F("Counted seeds: "));
 	Serial.println (counter_s);
 	
-	Serial.print ("Elapsed time: ");
+	Serial.print (F("Elapsed time: "));
 	unsigned long total_ms = MySW.value();
 	print_time(total_ms);
 	

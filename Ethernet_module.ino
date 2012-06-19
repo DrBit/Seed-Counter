@@ -88,10 +88,10 @@ boolean check_server()
 
 // Basic routine to keep trying until gets connected
 void server_connect () {
-	boolean connected=false;
-	while (!connected) {
-		if (check_server()) {
-			connected = true;
+	boolean _connected=false;
+	while (!_connected) {
+		if (connect_to_server()) {
+			_connected = true;
 		}
 	} 
 }
@@ -118,9 +118,10 @@ boolean connect_to_server () {
 void get_info_from_server (byte command) {
 	sprintf(message, "%dI%d\r\n", M_ID, command);
 	client.print(message);
+        Serial.print(message);
 	// we have to receive information
 	if (!receive_server_data ()) {
-		Serial.print ("OK not received or error on sended command I");
+		Serial.print ("-OK not received or error on sended command I");
 		Serial.println (command);
 	}
 }
@@ -130,9 +131,10 @@ void send_status_to_server (byte command) {
 	global_status = command;					// Updates actual status
     sprintf(message, "%dS%d\r\n", M_ID, command);
     client.print(message);
+    Serial.print(message);
 
     if (!receive_server_data ()) {
-		Serial.print ("OK not received or error on sended command S");
+		Serial.print ("-OK not received or error on sended command S");
 		Serial.println (command);
 	}
 }
@@ -141,9 +143,10 @@ void send_action_to_server(byte command) {		// Inform server that an action has 
 	//require an OK back from the server
     sprintf(message, "%dA%d\r\n", M_ID, command);
     client.print(message);
+    Serial.print(message);
 
     if (!receive_server_data ()) {
-		Serial.print ("OK not received or error on sended command A");
+		Serial.print ("-OK not received or error on sended command A");
 		Serial.println (command);
 	}
 }
@@ -152,9 +155,10 @@ void send_error_to_server (byte command) {		// Inform server that an error has o
 	//require an OK back from the server
     sprintf(message, "%dE%d\r\n", M_ID, command);
     client.print(message);
+    Serial.print(message);
 
     if (!receive_server_data ()) {
-		Serial.print ("OK not received or error on sended command E");
+		Serial.print ("-OK not received or error on sended command E");
 		Serial.println (command);
 	}
 }
@@ -163,9 +167,10 @@ void send_position_to_server (byte command) {	// Inform server that we are going
 	//require an OK back from the server
     sprintf(message, "%dG%d\r\n", M_ID, command);
     client.print(message);
+    Serial.print(message);
 
     if (!receive_server_data ()) {
-		Serial.print ("OK not received or error on sended command G");
+		Serial.print ("-OK not received or error on sended command G");
 		Serial.println (command);
 	}
 }	
@@ -174,16 +179,22 @@ void get_positions_from_server (byte command) {	// Receive position information 
 	if (command == 0) {  // Ask for all positions
 		sprintf(message, "%dP*\r\n", M_ID);
 		client.print(message);
+                Serial.print(message);
+                 if (!receive_server_data ()) {
+			Serial.print ("-OK not received or error on sended command P");
+			Serial.println (command);
+		}
 	}else{
 		sprintf(message, "%dP%d\r\n", M_ID, command);
 		client.print(message);
+                Serial.print(message);
 		// we have to receive one position
 		// this means P + number equal the one we have asked for
 		// puls 4 numbers that form the data of the position
 		
 		// so...
 		if (!receive_server_data ()) {
-			Serial.print ("OK not received or error on sended command P");
+			Serial.print ("-OK not received or error on sended command P");
 			Serial.println (command);
 		}
 	}
@@ -195,9 +206,9 @@ boolean receive_server_data (){
 	clean_buffer (received_msg,bufferSize);		// Prepare buffer
 	
 	// wait 3 seconds for incoming data before a time out
-	int timeout =0;
-	while ((client.available() == 0) && (timeout < 60)) {
-		delay (50);
+	int timeout = 0;
+	while (!(client.available() > 0) && (timeout < 60)) {
+		delay (800);
 		timeout ++;
 	}			
 	
@@ -207,11 +218,13 @@ boolean receive_server_data (){
 		
 		switch (inChar) {
 			case 'O': {
+                                Serial.print (inChar);
 				receivedO = true;
 			break; }
 			
 			case 'K': {
-				return true;
+                                Serial.print (inChar);
+                                return true;
 			break; }
 			
 			case 'X': {
@@ -321,7 +334,7 @@ boolean receive_server_data (){
 					db.write(receiving_position, DB_REC mposition);
 					Serial.println (" - Updated!");
 				}else{
-					Serial.println (" - OK");
+					Serial.println (" - Correct!");
 				}
 				
 				// Finished. go back to the origin. If we receive another command we will sense it there.
@@ -339,6 +352,14 @@ boolean receive_server_data (){
 			break; }
 		}
 	}
+        if (timeout >= 60) Serial.print("*timeout answer*");
+        
+        int a = client.peek();
+        while ((a == 13) || (a == 10)) {
+            client.read();
+            a = client.peek();
+            Serial.print("*10||13*");
+        }
 	return false;
 	// DONE!
 }
