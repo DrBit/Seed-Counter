@@ -5,7 +5,7 @@
 //#include <network_config.h>		// NEDED?
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "V4.0.5"
+#define version_prog "V4.0.6"
 #define lib_version 14
 #define M_ID 1
 
@@ -25,6 +25,8 @@
 #define Cmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 #define Xmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 #define Ymotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
+
+#define Server_com_debug	// Debug communications witht the server
 
 // example debug:
 // #if defined DEBUG
@@ -188,8 +190,8 @@ void setup() {
 
 	// Updating Database from info staroed in the server
 	get_positions_from_server (P0);					// receives all positions from server
-	//get_info_from_server (get_default_idle_time);	// gets default IDLE time
-	//get_info_from_server (get_default_off_time);	// gets default off time
+	get_info_from_server (get_default_idle_time);	// gets default IDLE time
+	get_info_from_server (get_default_off_time);	// gets default off time
         
 	// END of setup
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -142,20 +142,22 @@ boolean XYaxes_init () {
 		}else{
 			delayMicroseconds(19);
 		}
+               // Serial.print ("skip_Y = "); Serial.println ((!Xaxis.sensor_check() || (skip_x)) && (!Yaxis.sensor_check() || (skip_y)));
 		if ((!Xaxis.sensor_check() || (skip_x)) && (!Yaxis.sensor_check() || (skip_y))) {
 			// When both sensors are NOT activated means we are inside the safe zone, now we can correctly init the axes
 			both_sensors = true;
 		}
+            //Serial.print ("both_sensors = "); Serial.println (both_sensors);
 		delayMicroseconds(motor_speed_XY);		// here we go at minimum speed so we asure we wont lose any step and we will achieve maximum acuracy
 		
 		// Error checking, if we cannot reach a point where we dont hit the sensor meands that there is a problem
 		temp_counter++;
-		if (max_insensor_stepsError > Yaxis_cycles_limit) {			// recheck the limit of revolutions
+		if (temp_counter > max_insensor_stepsError) {			// recheck the limit of revolutions
 			send_error_to_server (init_Y2_fail);				//still to implement an error message system
 			return false;
-			}
+                }
 		
-		if (max_insensor_stepsError > Xaxis_cycles_limit) {			// recheck the limit of revolutions
+		if (temp_counter > max_insensor_stepsError) {			// recheck the limit of revolutions
 			send_error_to_server (init_X2_fail);				//still to implement an error message system
 			return false;
 		}
@@ -182,7 +184,7 @@ boolean XYaxes_init () {
 ** Basic Positions:
 ** 
 ** 1. X - INIT POSITION						Y - INIT POSITION
-** 2. X - Right before the blisters			Y - INIT POSITION
+** 2. X - Right before the blisters			        Y - INIT POSITION
 ** 3. X - Printer position					Y - Printer position
 ** 4. X - Exit position						Y - Exit position
 **
