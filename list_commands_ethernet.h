@@ -139,6 +139,7 @@
 //////////////////////////
 // get_config_from_server (configuration); (C)
 
+#define C_All 0                               // Asks for all the configurations
 #define Cget_default_idle_time 1		// Defaul idle time to go to sleep on user input 120 = 2 minutes.
 #define Cget_default_off_time 2	               // Defaul off time to shutdown after idle is activated 120 = 2 minutes.
 #define Cblisters_steps_limit 	3	        // Max steps to release one blister (default 300)
@@ -151,13 +152,13 @@
 #define Cfails_max_end 10				// Max number of fails before 100 seeds to reach the complet batch to create an error (since we are close to the end we dont need to go to 1000)
 #define Cinit_turns_till_error 11   		// Number of times the counter will try to get a seed at INITIATION before giving an error
 #define Cmax_batch_count 12	                // Tipical number of seeds in a batch
-#define Xaxis_cycles_limit 13
-#define Yaxis_cycles_limit 14
-#define max_insensor_stepsError 15		// When init
-#define default_directionX 16
-#define default_directionY 17
-#define default_directionB 18
-#define default_directionC 19
+#define CXaxis_cycles_limit 13
+#define CYaxis_cycles_limit 14
+#define Cmax_insensor_stepsError 15		// When init
+#define Cdefault_directionX 16
+#define Cdefault_directionY 17
+#define Cdefault_directionB 18
+#define Cdefault_directionC 19
 
 /* To implement in the future
 // List of all parameters of the code, for now due to the complexity of it

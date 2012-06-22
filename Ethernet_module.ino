@@ -216,6 +216,37 @@ void get_positions_from_server (byte command) {	// Receive position information 
 	}
 }
 
+
+void get_config_from_server (byte command) {	// Receive configuration information stored in the server
+	if (command == 0) {  // Ask for all configuration
+		sprintf(message, "%dC*\r\n", M_ID);
+		client.print(message);
+#if defined Server_com_debug
+                Serial.print(message);
+#endif
+                 if (!receive_server_data ()) {
+			Serial.print ("-OK not received or error on sended command C");
+			Serial.println (command);
+		}
+	}else{
+		sprintf(message, "%dC%d\r\n", M_ID, command);
+		client.print(message);
+#if defined Server_com_debug
+                Serial.print(message);
+#endif
+		// we have to receive one position
+		// this means P + number equal the one we have asked for
+		// puls 4 numbers that form the data of the position
+		
+		// so...
+		if (!receive_server_data ()) {
+			Serial.print ("-OK not received or error on sended command C");
+			Serial.println (command);
+		}
+	}
+}
+ 
+
 //////////////////////////////////////////////////////////////////////////////////////////
 boolean receive_server_data (){
 
@@ -306,18 +337,18 @@ boolean receive_server_data (){
                         case 'C': {	// CONFIGURATION
                                 recevie_data_telnet (received_msg,bufferSize);
 				char * thisChar = received_msg;
-				int receiving_conifg = atoi(thisChar);
+				int receiving_config = atoi(thisChar);
 				
 				switch (receiving_config) {	// What info are we going to receive? 
 					
-					case get_default_idle_time: {
+					case Cget_default_idle_time: {
 						recevie_data_telnet (received_msg,bufferSize);
 						char * thisChar = received_msg;
 						unsigned int receiving_idle_time = atoi(thisChar);
 						default_idle_time = receiving_idle_time;
 					break; }
 					
-					case get_default_off_time: {
+					case Cget_default_off_time: {
 						recevie_data_telnet (received_msg,bufferSize);
 						char * thisChar = received_msg;
 						unsigned int receiving_off_time = atoi(thisChar);

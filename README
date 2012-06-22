@@ -8,6 +8,7 @@
 **  * Fixed bug with comunication
 **  * Adding new command C for (config) (in process of implementation)
 **  * Added debug net comunications
+**  * Increased number of Database lines
 **
 **  V4.0.5 - 19/06/2012
 **  * Preparing for deployment, fixed bugs. Still something to fix before functional
