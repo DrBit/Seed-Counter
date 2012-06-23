@@ -5,7 +5,7 @@
 //#include <network_config.h>		// NEDED?
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "V4.0.5"
+#define version_prog "V4.0.6"
 #define lib_version 14
 
 /********************************************
@@ -24,6 +24,8 @@
 #define Cmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 #define Xmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 #define Ymotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
+
+#define Server_com_debug	// Debug communications witht the server
 
 // example debug:
 // #if defined DEBUG
@@ -184,14 +186,15 @@ void setup() {
 	Yaxis.set_speed_in_slow_mode (350);
 	Yaxis.set_accel_profile(950, 13, 7, 15);
 	
+	// Get all configuration from the server
+	get_config_from_server (C_All);	// gets default IDLE time
+
 	// INIT SYSTEM, and CHECK for ERRORS
 	init_all_motors ();
 	
 
 	// Updating Database from info staroed in the server
 	get_positions_from_server (P0);					// receives all positions from server
-	//get_info_from_server (get_default_idle_time);	// gets default IDLE time
-	//get_info_from_server (get_default_off_time);	// gets default off time
         
 	// END of setup
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////

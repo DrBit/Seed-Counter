@@ -4,11 +4,15 @@
 *********************************************
 **  REVISIONS from:
 **
-**  V4.0.6 - 19/06/2012
-**  *Added recordings to the EEPROM of basic config og local IP, server IP, server PORT and MAchine ID
+**  V4.0.6 - 22/06/2012
+**  * Fixed bug with comunication
+**  * Adding new command C for (config) (in process of implementation)
+**  * Added debug net comunications
+**  * Increased number of Database lines
+**  * Added recordings to the EEPROM of basic config og local IP, server IP, server PORT and MAchine ID
 **
 **  V4.0.5 - 19/06/2012
-**  * Preparing for deployment, fixed bugs. Still someting to fix before functional
+**  * Preparing for deployment, fixed bugs. Still something to fix before functional
 **
 **  V4.0.4 - 16/06/2012
 **  * Improved start-up routine. Mandatory a connection to the server before any setup process...

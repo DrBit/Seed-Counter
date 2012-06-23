@@ -6,8 +6,7 @@
 ////////////////////////
 // get_info_from_server (info); (I)
 #define get_seeds_mode 1			// 5 or 10 seeds per blister
-#define get_default_idle_time 2		// Defaul idle time to go to sleep on user input 120 = 2 minutes.
-#define get_default_off_time 3		// Defaul off time to shutdown after idle is activated 120 = 2 minutes.
+
 
 //////////////////////////
 // LIST OF STATUS
@@ -135,38 +134,35 @@
 #define P50 50 // Go to position 50
 
 
+//////////////////////////
+// LIST OF POSITIONS
+//////////////////////////
+// get_config_from_server (configuration); (C)
+
+#define C_All 0                               // Asks for all the configurations
+#define Cget_default_idle_time 1		// Defaul idle time to go to sleep on user input 120 = 2 minutes.
+#define Cget_default_off_time 2	               // Defaul off time to shutdown after idle is activated 120 = 2 minutes.
+#define Cblisters_steps_limit 	3	        // Max steps to release one blister (default 300)
+#define Cblisters_steps_absoulut_limit 4        // Max of steps needed to get from min to max (default 1000)
+#define Csteps_to_move_when_blister_falls 5     // Steps that Y axis will move to fit the blister in the conveier (default 800)
+#define Csteps_from_sensor_to_init_clockwise 6  			// Number of steps (based in mode 8) to go forward from the sensor to the init position
+#define Csteps_from_sensor_to_start_moving_when_seed 7		// Number of steps (based in mode 8) away form the pick a seed point to start moving the axis when we got a seed.
+#define Cmargin_steps_to_detect_seed 8		// Its the steps margin in wich the sensor will check if we have a seed
+#define Cfails_max_normal 9			// Max number of tries to pick a seed before software will create an error
+#define Cfails_max_end 10				// Max number of fails before 100 seeds to reach the complet batch to create an error (since we are close to the end we dont need to go to 1000)
+#define Cinit_turns_till_error 11   		// Number of times the counter will try to get a seed at INITIATION before giving an error
+#define Cmax_batch_count 12	                // Tipical number of seeds in a batch
+#define CXaxis_cycles_limit 13
+#define CYaxis_cycles_limit 14
+#define Cmax_insensor_stepsError 15		// When init
+#define Cdefault_directionX 16
+#define Cdefault_directionY 17
+#define Cdefault_directionB 18
+#define Cdefault_directionC 19
+
 /* To implement in the future
 // List of all parameters of the code, for now due to the complexity of it
 // we leave them as they are
-
-// Internal parameters
-////////////////////////
-
-// Blisters
-#define blisters_steps_limit 		// Max steps to release one blister (default 300)
-#define blisters_steps_absoulut_limit // Max of steps needed to get from min to max (default 1000)
-#define steps_to_move_when_blister_falls // Steps that Y axis will move to fit the blister in the conveier (default 800)
-// Counter
-#define steps_from_sensor_to_init_clockwise 1150  			// Number of steps (based in mode 8) to go forward from the sensor to the init position
-#define steps_from_sensor_to_start_moving_when_seed 0		// Number of steps (based in mode 8) away form the pick a seed point to start moving the axis when we got a seed.
-#define margin_steps_to_detect_seed 80		// Its the steps margin in wich the sensor will check if we have a seed
-#define fails_max_normal 40				// Max number of tries to pick a seed before software will create an error
-#define fails_max_end 20				// Max number of fails before 100 seeds to reach the complet batch to create an error (since we are close to the end we dont need to go to 1000)
-#define init_turns_till_error 40   		// Number of times the counter will try to get a seed at INITIATION before giving an error
-unsigned int max_batch_count = 1100;	// Tipical number of seeds in a batch
-
-// ***********************
-// ** Physical limits of the motors
-// ***********************
-#define Xaxis_cycles_limit 280
-#define Yaxis_cycles_limit 12
-#define max_insensor_stepsError 700		// When init
-
-// Defining default directions of motors (in case we change the wiring or the position of motors)
-#define default_directionX true
-#define default_directionY false
-#define default_directionB true
-#define default_directionC false
 
 // Speeds
 // MAX speed!
