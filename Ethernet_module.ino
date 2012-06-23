@@ -87,7 +87,7 @@ boolean check_server()
 	// Convert this time oput in a real timeout 
 	while ((!connected_to_server) && (timeout < 10)) {
 		connected_to_server = connect_to_server ();
-		delay (50);
+		delay (3000);
 		timeout ++; 
 	}
 	
@@ -288,7 +288,7 @@ boolean receive_server_data (){
 	// wait 3 seconds for incoming data before a time out
 	int timeout = 0;
 	while (!(client.available() > 0) && (timeout < 5)) {
-		delay (50);
+		delay (550);
 		timeout ++;
 	}			
 	
@@ -300,20 +300,20 @@ boolean receive_server_data (){
 		switch (inChar) {
 			case 'O': {
 #if defined Server_com_debug
-                                Serial.print (inChar);
+				Serial.print (inChar);
 #endif
 				receivedO = true;
 			break; }
 			
 			case 'K': {
 #if defined Server_com_debug
-                                Serial.print (inChar);
+				Serial.print (inChar);
 #endif
-                                receivedK = true;
+				receivedK = true;
 			break; }
                         
-                        case 'E': {
-                                Serial.print ("Error received: ");
+			case 'E': {
+				Serial.print ("Error received: ");
 				Serial.print (inChar);
 				recevie_data_telnet (received_msg,bufferSize);
 				char * thisChar = received_msg;
