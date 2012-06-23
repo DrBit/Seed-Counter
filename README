@@ -4,6 +4,10 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V4.0.7 - 23/06/2012
+**  * Fixed bug in the DB memory assignment
+**  * Speed up comunications wetween the server significantly
+**
 **  V4.0.6 - 22/06/2012
 **  * Fixed bug with comunication
 **  * Adding new command C for (config) (in process of implementation)

@@ -39,26 +39,12 @@ void release_blister () {
 		delayMicroseconds (motor_speed_blisters);
 	} 
 	
-	/*
-
-	// SHAKE to fit the blister (2 is blister position)
-	int tempYcycles = get_cycle_Ypos_from_index(2);
-	int tempYsteps = get_step_Ypos_from_index(2); 
-	
-	Yaxis.got_to_position (tempYcycles, tempYsteps+steps_to_move_when_blister_falls);
-	delay (100);
-	Yaxis.got_to_position (tempYcycles, tempYsteps-steps_to_move_when_blister_falls);
-	delay (100);
-	Yaxis.got_to_position (tempYcycles, tempYsteps);
-	*/
-	
 	blisters.set_direction (default_directionB);
 	for (int i = 0 ; i< steps_to_do + 50; i++) {
 		blisters.do_step();
 		delayMicroseconds (motor_speed_blisters);
 	}
-	
-	
+
 	// Check if we are out of blisters
 	check_out_of_blisters ();
 
@@ -66,6 +52,11 @@ void release_blister () {
 
 
 boolean check_blister_realeased () {
+	boolean skip_sensor_blister = false;
+#if defined Sensor_blister
+	skip_sensor_blister = true;
+#endif
+	
 	
 	boolean p21_correct = false;
 	boolean p22_correct = false;
@@ -78,7 +69,7 @@ boolean check_blister_realeased () {
 	go_to_memory_position (21);			// check blister (after begining, we shoud read OFF)
 	
 	boolean sensor_state = digitalRead (sensF); 
-	if (!sensor_state) {
+	if (!sensor_state || skip_sensor_blister) {
 		p21_correct = true;
 	}else{
 		Serial.print(" - OFF state incorrect  ");
@@ -89,7 +80,7 @@ boolean check_blister_realeased () {
 	go_to_memory_position (22);			// check blister (begining, we should read ON)
 
 	sensor_state = digitalRead (sensF); 
-	if (sensor_state) {
+	if (sensor_state || skip_sensor_blister) {
 		p22_correct = true;
 	}else{
 		Serial.print(" - ON state incorrect ");
@@ -107,11 +98,16 @@ boolean check_blister_realeased () {
 
 
 void check_out_of_blisters () {
+	boolean skip_sensor_blister = false;
+#if defined Sensor_blister
+	skip_sensor_blister = true;
+#endif
+
 	// Check if we are out of blisters
 	boolean out_of_blsiters = false;
 	
 	byte sensorC_state = digitalRead (sensC); 
-	if (sensorC_state) out_of_blsiters = true;
+	if (sensorC_state && !skip_sensor_blister) out_of_blsiters = true;
 	while (out_of_blsiters) {
 		// We got emty blisters, stop process
 		Serial.println("OUT OF Blisters, please refill.");

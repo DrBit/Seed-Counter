@@ -5,7 +5,7 @@
 //#include <network_config.h>		// NEDED?
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "V4.0.6"
+#define version_prog "V4.0.7"
 #define lib_version 14
 
 /********************************************
@@ -24,7 +24,8 @@
 #define Cmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 #define Xmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 #define Ymotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
-
+#define Sensor_printer		// Disable sensor printer
+#define Sensor_blister		// Disable sensor blisters
 #define Server_com_debug	// Debug communications witht the server
 
 // example debug:
@@ -203,12 +204,15 @@ void setup() {
         mem_check();
         Serial.println(F("Machine Stopped, waiting for a change on status from server"));
  
-	// While we are on stopped mode, keep cheking the server
-	while (global_status == S_stopped) {
+	// While we are not on run mode, keep cheking the server
+	while (global_status != S_running) {
 		check_server();	
 	}	//When ready....
 
-	get_info_from_server (get_seeds_mode);			// Gets seed mode (5 or 10 seeds per blister)
+	// if we haven't received seeds mode ask for it:
+	if (blister_mode == 0) {
+		get_info_from_server (get_seeds_mode);			// Gets seed mode (5 or 10 seeds per blister)
+	}
 	MySW.start();									// Start timer for statistics
 	// Ready to start with the process
 }

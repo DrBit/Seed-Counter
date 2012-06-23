@@ -288,7 +288,7 @@ boolean receive_server_data (){
 	// wait 3 seconds for incoming data before a time out
 	int timeout = 0;
 	while (!(client.available() > 0) && (timeout < 5)) {
-		delay (3000);
+		delay (50);
 		timeout ++;
 	}			
 	
@@ -367,20 +367,20 @@ boolean receive_server_data (){
 				Serial.println(receiving_info);
 			break; }
                         
-                        case 'C': {	// CONFIGURATION
-                                recevie_data_telnet (received_msg,bufferSize);
+			case 'C': {	// CONFIGURATION
+				recevie_data_telnet (received_msg,bufferSize);
 				char * thisChar = received_msg;
 				int receiving_config = atoi(thisChar);
-				
+
 				switch (receiving_config) {	// What info are we going to receive? 
-					
+
 					case Cget_default_idle_time: {
 						recevie_data_telnet (received_msg,bufferSize);
 						char * thisChar = received_msg;
 						unsigned int receiving_idle_time = atoi(thisChar);
 						default_idle_time = receiving_idle_time;
 					break; }
-					
+
 					case Cget_default_off_time: {
 						recevie_data_telnet (received_msg,bufferSize);
 						char * thisChar = received_msg;
