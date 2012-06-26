@@ -76,7 +76,7 @@ void setup_network() {
 			NET_DB_REC ();
 		}
 	}	
-	// Here we dont need to connect yet, just prepare everything
+	// Here we don't need to connect yet, just prepare everything
 	// connected_to_server = connect_to_server ();
 }
 
@@ -84,7 +84,7 @@ void setup_network() {
 boolean check_server()
 {
 	int timeout =0;
-	// Convert this time oput in a real timeout 
+	// Convert this time out in a real timeout (with millis)
 	while ((!connected_to_server) && (timeout < 10)) {
 		connected_to_server = connect_to_server ();
 		delay (3000);
@@ -158,7 +158,7 @@ void get_info_from_server (byte command) {
 #endif
 	// we have to receive information
 	if (!receive_server_data ()) {
-		Serial.print ("-OK not received or error on sended command I");
+		Serial.print ("-OK not received or error on sent command I");
 		Serial.println (command);
 	}
 }
