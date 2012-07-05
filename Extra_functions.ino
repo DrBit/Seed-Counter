@@ -812,7 +812,7 @@ void pump_enable () {
 	Serial.println ("Enable Pump");
 	send_action_to_server(enable_pump);
 	set_pump_state (true);
-	delay (1000);		// Wait 1 second to build up some pressure
+	//delay (1000);		// Wait 1 second to build up some pressure
 }
 
 void pump_disable () {
@@ -870,12 +870,12 @@ boolean check_idle_timer (boolean message) {
 
 			if (get_motor_sleep_state () == true) {
 				motors_sleep ();	// Awake motors
-				delay (2000);
+				//delay (2000);
 			}
 			
 			if (get_motor_enable_state () == true) {
 				motors_disable ();	// Enable motors
-				delay (2000);
+				//delay (2000);
 			}
 			
 			if (get_power_state () == true) {

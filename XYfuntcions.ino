@@ -51,7 +51,7 @@ boolean XYaxes_init () {
 	unsigned long temp_counter=0;				// Counter for error checking
 	
 	Xaxis.set_direction (!default_directionX);		// Goes back till we find the sensor 
-	Yaxis.set_direction (!default_directionY);		// Goes back till we find the sensor
+	Yaxis.set_direction (false);		// Goes back till we find the sensor
 	// set speed max
 	Xaxis.change_step_mode(4);		// Set stepper mode to 1 (Max speed)
 	Yaxis.change_step_mode(4); 		// Set stepper mode to 1 (Max speed)
@@ -75,7 +75,7 @@ boolean XYaxes_init () {
 			delayMicroseconds(19);
 		}
 
-		if (!Yaxis.sensor_check()) {
+		if (!Yaxis.sensor_check()) { 
 			Yaxis.do_step();
 		}else{
 			delayMicroseconds(19);
@@ -122,7 +122,7 @@ boolean XYaxes_init () {
 	temp_counter = 0;						// Reset the temop counter for error checking next step
 	both_sensors = false;					// Reset sensors variable
 	Xaxis.set_direction (!default_directionX);			// Goes forth till we are not hitting the sensor
-	Yaxis.set_direction (default_directionY);			// Goes forth till we are not hitting the sensor
+	Yaxis.set_direction (true);			// Goes forth till we are not hitting the sensor
 	
 	// set speed max
 	Xaxis.change_step_mode(8);				// Set stepper mode to 8 (Max speed)
@@ -143,7 +143,7 @@ boolean XYaxes_init () {
 			delayMicroseconds(19);
 		}
                // Serial.print ("skip_Y = "); Serial.println ((!Xaxis.sensor_check() || (skip_x)) && (!Yaxis.sensor_check() || (skip_y)));
-		if ((!Xaxis.sensor_check() || (skip_x)) && (!Yaxis.sensor_check() || (skip_y))) {
+		if ((!Xaxis.sensor_check() || skip_x) && (!Yaxis.sensor_check() || skip_y)) {
 			// When both sensors are NOT activated means we are inside the safe zone, now we can correctly init the axes
 			both_sensors = true;
 		}
@@ -167,6 +167,8 @@ boolean XYaxes_init () {
 	// we set init ponts for both sensors
 	Xaxis.set_init_position();
 	Yaxis.set_init_position();
+
+	Yaxis.set_direction(false);
 	// All correct , return true
 	return true;
 }

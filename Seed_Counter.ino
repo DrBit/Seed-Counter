@@ -5,8 +5,8 @@
 //#include <network_config.h>		// NEDED?
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "V4.0.7"
-#define lib_version 14
+#define version_prog "V4.0.8"
+#define lib_version 15
 
 /********************************************
 **  Name: Seed Counter 
@@ -26,7 +26,8 @@
 #define Ymotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 #define Sensor_printer		// Disable sensor printer
 #define Sensor_blister		// Disable sensor blisters
-#define Server_com_debug	// Debug communications witht the server
+//#define Server_com_debug	// Debug communications witht the server
+//#define Server_com_error_debug // Debug errors of communication with the server
 
 // example debug:
 // #if defined DEBUG
@@ -160,6 +161,8 @@ byte previous_status = 0;
 #define default_directionB true
 #define default_directionC false
 
+#define default_Ysensor_HIGH_state true
+#define default_Xsensor_HIGH_state false
 
 void setup() {
 
@@ -178,6 +181,8 @@ void setup() {
 	// Set default directions
 	Xaxis.set_default_direcction (default_directionX);
 	Yaxis.set_default_direcction (default_directionY);
+	Xaxis.set_default_sensor_state (default_Xsensor_HIGH_state);
+	Yaxis.set_default_sensor_state (default_Ysensor_HIGH_state);
 	blisters.set_default_direcction (default_directionB);
 	counter.set_default_direcction (default_directionC);
     
@@ -201,17 +206,24 @@ void setup() {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	send_status_to_server (S_stopped);	// here we wait for the server to send orders
-        mem_check();
-        Serial.println(F("Machine Stopped, waiting for a change on status from server"));
+    mem_check();
+    Serial.println(F("Machine Stopped, waiting for a change on status from server"));
  
 	// While we are not on run mode, keep cheking the server
+	if (false) {
 	while (global_status != S_running) {
 		check_server();	
 	}	//When ready....
+	}
 
 	// if we haven't received seeds mode ask for it:
 	if (blister_mode == 0) {
 		get_info_from_server (get_seeds_mode);			// Gets seed mode (5 or 10 seeds per blister)
+		if (blister_mode == 0) {
+			blister_mode = seeds10;	// If we haven't get any info from the server we set default 10
+			Serial.println(F("No info on seeds mode from server. \nSet seeds per blister to 10 as default"));
+		}
+
 	}
 	MySW.start();									// Start timer for statistics
 	// Ready to start with the process
@@ -231,6 +243,17 @@ void loop() {
 
 	Serial.println(F("\n ************ "));
 	
+
+	//go_to_posXY (int Xcy,int Xst,int Ycy,int Yst)
+	go_to_posXY (0,0,2,0);
+	go_to_posXY (0,0,0,0);
+	go_to_posXY (0,0,2,0);
+	go_to_posXY (0,0,0,0);
+
+	delay (4444444);
+
+
+
 	get_and_release_blister ();
 	
 	// 10 Seeds mode

@@ -5,7 +5,7 @@
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
 byte mac[] = {  0xDE, 0xAD, 0xBA, 0xEF, 0xFE, M_ID };
-byte local_ip[] = { 10,250,1,199 };
+byte local_ip[] = { 10,250,1,199 + M_ID };
 byte server[] = { 10,250,1,3 }; 
 int port = 8888;
 
@@ -94,6 +94,12 @@ boolean check_server()
 	if (connected_to_server) {
 		// if there are incoming bytes available 
 		// from the server, read them and process them:
+		sprintf(message, "%dX\r\n", M_ID);
+		client.print(message);
+#if defined Server_com_debug
+		Serial.print(message);
+#endif
+
 		if (!receive_server_data ()) {
 			// Nothing to do
 		}else{
@@ -123,7 +129,7 @@ boolean check_server()
 void server_connect () {
 	boolean _connected=false;
 	while (!_connected) {
-                connected_to_server = connect_to_server ();
+				connected_to_server = connect_to_server ();
 		if (connected_to_server) {
 			_connected = true;
 		}
@@ -154,7 +160,7 @@ void get_info_from_server (byte command) {
 	sprintf(message, "%dI%d\r\n", M_ID, command);
 	client.print(message);
 #if defined Server_com_debug
-        Serial.print(message);
+		Serial.print(message);
 #endif
 	// we have to receive information
 	if (!receive_server_data ()) {
@@ -166,13 +172,13 @@ void get_info_from_server (byte command) {
 void send_status_to_server (byte command) {
 	previous_status = global_status;		// Stores previous status
 	global_status = command;					// Updates actual status
-    sprintf(message, "%dS%d\r\n", M_ID, command);
-    client.print(message);
+	sprintf(message, "%dS%d\r\n", M_ID, command);
+	client.print(message);
 #if defined Server_com_debug
-        Serial.print(message);
+		Serial.print(message);
 #endif
 
-    if (!receive_server_data ()) {
+	if (!receive_server_data ()) {
 		Serial.print ("-OK not received or error on sended command S");
 		Serial.println (command);
 	}
@@ -180,43 +186,49 @@ void send_status_to_server (byte command) {
 
 void send_action_to_server(byte command) {		// Inform server that an action has been trigered
 	//require an OK back from the server
-    sprintf(message, "%dA%d\r\n", M_ID, command);
-    client.print(message);
+	sprintf(message, "%dA%d\r\n", M_ID, command);
+	client.print(message);
 #if defined Server_com_debug
-        Serial.print(message);
+		Serial.print(message);
 #endif
 
-    if (!receive_server_data ()) {
+	if (!receive_server_data ()) {
+#if defined Server_com_error_debug
 		Serial.print ("-OK not received or error on sended command A");
 		Serial.println (command);
+#endif
 	}
 }
 
 void send_error_to_server (byte command) {		// Inform server that an error has ocurred
 	//require an OK back from the server
-    sprintf(message, "%dE%d\r\n", M_ID, command);
-    client.print(message);
+	sprintf(message, "%dE%d\r\n", M_ID, command);
+	client.print(message);
 #if defined Server_com_debug
-        Serial.print(message);
+		Serial.print(message);
 #endif
 
-    if (!receive_server_data ()) {
+	if (!receive_server_data ()) {
+#if defined Server_com_error_debug
 		Serial.print ("-OK not received or error on sended command E");
 		Serial.println (command);
+#endif
 	}
 }
 
 void send_position_to_server (byte command) {	// Inform server that we are going to a position
 	//require an OK back from the server
-    sprintf(message, "%dG%d\r\n", M_ID, command);
-    client.print(message);
+	sprintf(message, "%dG%d\r\n", M_ID, command);
+	client.print(message);
 #if defined Server_com_debug
-        Serial.print(message);
+		Serial.print(message);
 #endif
 
-    if (!receive_server_data ()) {
+	if (!receive_server_data ()) {
+#if defined Server_com_error_debug
 		Serial.print ("-OK not received or error on sended command G");
 		Serial.println (command);
+#endif
 	}
 }	
 
@@ -225,17 +237,19 @@ void get_positions_from_server (byte command) {	// Receive position information 
 		sprintf(message, "%dP*\r\n", M_ID);
 		client.print(message);
 #if defined Server_com_debug
-                Serial.print(message);
+				Serial.print(message);
 #endif
-                 if (!receive_server_data ()) {
+		if (!receive_server_data ()) {
+#if defined Server_com_error_debug
 			Serial.print ("-OK not received or error on sended command P");
 			Serial.println (command);
+#endif
 		}
 	}else{
 		sprintf(message, "%dP%d\r\n", M_ID, command);
 		client.print(message);
 #if defined Server_com_debug
-                Serial.print(message);
+		Serial.print(message);
 #endif
 		// we have to receive one position
 		// this means P + number equal the one we have asked for
@@ -255,9 +269,9 @@ void get_config_from_server (byte command) {	// Receive configuration informatio
 		sprintf(message, "%dC*\r\n", M_ID);
 		client.print(message);
 #if defined Server_com_debug
-                Serial.print(message);
+				Serial.print(message);
 #endif
-                 if (!receive_server_data ()) {
+				 if (!receive_server_data ()) {
 			Serial.print ("-OK not received or error on sended command C");
 			Serial.println (command);
 		}
@@ -265,7 +279,7 @@ void get_config_from_server (byte command) {	// Receive configuration informatio
 		sprintf(message, "%dC%d\r\n", M_ID, command);
 		client.print(message);
 #if defined Server_com_debug
-                Serial.print(message);
+				Serial.print(message);
 #endif
 		// we have to receive one position
 		// this means P + number equal the one we have asked for
@@ -294,7 +308,7 @@ boolean receive_server_data (){
 	
 	boolean receivedO = false;					// Used to control the first letter of the OK sentence
 	boolean receivedK = false;
-        while (client.available() > 0) {
+		while (client.available() > 0) {
 		char inChar = client.read();				// read
 		
 		switch (inChar) {
@@ -311,7 +325,7 @@ boolean receive_server_data (){
 #endif
 				receivedK = true;
 			break; }
-                        
+						
 			case 'E': {
 				Serial.print ("Error received: ");
 				Serial.print (inChar);
@@ -364,9 +378,11 @@ boolean receive_server_data (){
 					break; }
 				}
 				Serial.print("Received Information: ");
-				Serial.println(receiving_info);
+				Serial.print(receiving_info);
+				Serial.print(" Data: ");
+				Serial.println(blister_mode, DEC);
 			break; }
-                        
+						
 			case 'C': {	// CONFIGURATION
 				recevie_data_telnet (received_msg,bufferSize);
 				char * thisChar = received_msg;
@@ -421,9 +437,11 @@ boolean receive_server_data (){
 				thisChar = received_msg;
 				unsigned int Yf = atoi(thisChar);
 				
+				#if defined Server_com_debug
 				// Inform
 				Serial.print("Received Position: ");
 				Serial.print(receiving_position);
+				#endif
 				// Compare with the real value.. do we have to update??
 				if (Xc != mposition.Xc || Xf != mposition.Xf || Yc != mposition.Yc || Yf != mposition.Yf) {		// If data is different from the eeprom
 					// store data in eeprom, data is different
@@ -432,9 +450,13 @@ boolean receive_server_data (){
 					mposition.Yf = Yf;
 					mposition.Yc = Yc;
 					db.write(receiving_position, DB_REC mposition);
+					#if defined Server_com_debug
 					Serial.println (" - Updated!");
+					#endif
 				}else{
+					#if defined Server_com_debug
 					Serial.println (" - Correct!");
+					#endif
 				}
 				
 				// Finished. go back to the origin. If we receive another command we will sense it there.
@@ -453,13 +475,13 @@ boolean receive_server_data (){
 		}
 	}
 #if defined Server_com_debug
-        if (timeout >= 5) Serial.println("*timeout answer*");
+		if (timeout >= 5) Serial.println("*timeout answer*");
 #endif
-        if (receivedK) {
-            return true;
-        }else{
-            return false;
-        }
+		if (receivedK) {
+			return true;
+		}else{
+			return false;
+		}
 	// DONE!
 }
 

@@ -236,58 +236,58 @@ ISR(TIMER1_COMPA_vect)
 	OCR1A = srd_step_delay;
 
 	switch(srd_run_state) {
-    case STOP:
-      step_count = 0;
-      rest = 0;
-      // Stop Timer/Counter 1.
-      TCCR1B &= ~((1<<CS12)|(1<<CS11)|(1<<CS10));
-      glob_running = false;
-      break;
+	case STOP:
+	  step_count = 0;
+	  rest = 0;
+	  // Stop Timer/Counter 1.
+	  TCCR1B &= ~((1<<CS12)|(1<<CS11)|(1<<CS10));
+	  glob_running = false;
+	  break;
 
-    case ACCEL:
-      sm_driver_StepCounter(srd_dir);
-      step_count++;
-      srd_accel_count++;
-      new_step_delay = srd_step_delay - (((2 * (long)srd_step_delay) + rest)/(4 * srd_accel_count + 1));
-      rest = ((2 * (long)srd_step_delay)+rest)%(4 * srd_accel_count + 1);
-      // Chech if we should start decelration.
-      if(step_count >= srd_decel_start) {
-        srd_accel_count = srd_decel_val;
-        srd_run_state = DECEL;
-      }
-      // Chech if we hitted max speed.
-      else if(new_step_delay <= srd_min_delay) {
-        last_accel_delay = new_step_delay;
-        new_step_delay = srd_min_delay;
-        rest = 0;
-        srd_run_state = RUN;
-      }
-      break;
+	case ACCEL:
+	  sm_driver_StepCounter(srd_dir);
+	  step_count++;
+	  srd_accel_count++;
+	  new_step_delay = srd_step_delay - (((2 * (long)srd_step_delay) + rest)/(4 * srd_accel_count + 1));
+	  rest = ((2 * (long)srd_step_delay)+rest)%(4 * srd_accel_count + 1);
+	  // Chech if we should start decelration.
+	  if(step_count >= srd_decel_start) {
+		srd_accel_count = srd_decel_val;
+		srd_run_state = DECEL;
+	  }
+	  // Chech if we hitted max speed.
+	  else if(new_step_delay <= srd_min_delay) {
+		last_accel_delay = new_step_delay;
+		new_step_delay = srd_min_delay;
+		rest = 0;
+		srd_run_state = RUN;
+	  }
+	  break;
 
-    case RUN:
-      sm_driver_StepCounter(srd_dir);
-      step_count++;
-      new_step_delay = srd_min_delay;
-      // Chech if we should start decelration.
-      if(step_count >= srd_decel_start) {
-        srd_accel_count = srd_decel_val;
-        // Start decelration with same delay as accel ended with.
-        new_step_delay = last_accel_delay;
-        srd_run_state = DECEL;
-      }
-      break;
+	case RUN:
+	  sm_driver_StepCounter(srd_dir);
+	  step_count++;
+	  new_step_delay = srd_min_delay;
+	  // Chech if we should start decelration.
+	  if(step_count >= srd_decel_start) {
+		srd_accel_count = srd_decel_val;
+		// Start decelration with same delay as accel ended with.
+		new_step_delay = last_accel_delay;
+		srd_run_state = DECEL;
+	  }
+	  break;
 
-    case DECEL:
-      sm_driver_StepCounter(srd_dir);
-      step_count++;
-      srd_accel_count++;
-      new_step_delay = srd_step_delay - (((2 * (long)srd_step_delay) + rest)/(4 * srd_accel_count + 1));
-      rest = ((2 * (long)srd_step_delay)+rest)%(4 * srd_accel_count + 1);
-      // Check if we at last step
-      if(srd_accel_count >= 0){
-        srd_run_state = STOP;
-      }
-      break;
+	case DECEL:
+	  sm_driver_StepCounter(srd_dir);
+	  step_count++;
+	  srd_accel_count++;
+	  new_step_delay = srd_step_delay - (((2 * (long)srd_step_delay) + rest)/(4 * srd_accel_count + 1));
+	  rest = ((2 * (long)srd_step_delay)+rest)%(4 * srd_accel_count + 1);
+	  // Check if we at last step
+	  if(srd_accel_count >= 0){
+		srd_run_state = STOP;
+	  }
+	  break;
   }
   srd_step_delay = new_step_delay;
 }

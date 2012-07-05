@@ -140,9 +140,7 @@ void pickup_seed() {
 		if ((counter.get_steps() >= (1600-margin_steps_to_detect_seed)) || (counter.get_steps() <= margin_steps_to_detect_seed)) {				// We check the sensor only when we are in the range of the sensor
 			// Fake sensor in case of debug motors
 			boolean sensor_skip = false;
-#if defined Cmotor_debug
-			sensor_skip = true; 
-#endif
+
 			// Check if we got seed
 			if (counter.sensor_check() || sensor_skip){			// We got a seed!!!
 				seed_detected = true; 
@@ -157,7 +155,9 @@ void pickup_seed() {
 			}
 			// Each time we are here is because we already started moving
 			previous_counted_turns = count_total_turns;			// Avoid giving more than 1 order to turn at the same time
-			
+#if defined Cmotor_debug
+			sensor_skip = true; 
+#endif
 		} else {
 			// Fake sensor in case of debug motors
 			boolean sensor_skip = false;
