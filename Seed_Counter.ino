@@ -5,7 +5,7 @@
 //#include <network_config.h>		// NEDED?
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "V4.0.8"
+#define version_prog "V4.0.9"
 #define lib_version 15
 
 /********************************************
@@ -23,11 +23,12 @@
 // #define DEBUG		// Remove / Add"//" to enable / disbale DEBUG mode
 #define Cmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 #define Xmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
-#define Ymotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
+//#define Ymotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 #define Sensor_printer		// Disable sensor printer
 #define Sensor_blister		// Disable sensor blisters
-//#define Server_com_debug	// Debug communications witht the server
-//#define Server_com_error_debug // Debug errors of communication with the server
+#define Server_com_debug	// Debug communications witht the server
+#define Server_com_error_debug // Debug errors of communication with the server
+#define DEBUG_counter		// Debug counter.. print positions
 
 // example debug:
 // #if defined DEBUG
@@ -120,8 +121,8 @@ const int motor_speed_blisters=1500;
 //ethernet flag
 boolean connected_to_server = false;
 // Blister mode
-#define seeds5 1
-#define seeds10 2
+#define seeds10 1
+#define seeds5 2
 int blister_mode = 0;
 
 // ***********************
@@ -161,8 +162,12 @@ byte previous_status = 0;
 #define default_directionB true
 #define default_directionC false
 
+#define default_sensor_directionX true
+#define default_sensor_directionY false
+
 #define default_Ysensor_HIGH_state true
 #define default_Xsensor_HIGH_state false
+
 
 void setup() {
 
@@ -191,6 +196,8 @@ void setup() {
 	Xaxis.set_accel_profile(900, 17, 9, 20);
 	Yaxis.set_speed_in_slow_mode (350);
 	Yaxis.set_accel_profile(950, 13, 7, 15);
+	//Yaxis.set_speed_in_slow_mode (350);
+	//Yaxis.set_accel_profile(950, 14, 8, 15);
 	
 	// Get all configuration from the server
 	get_config_from_server (C_All);	// gets default IDLE time
@@ -242,16 +249,23 @@ void setup() {
 void loop() {
 
 	Serial.println(F("\n ************ "));
+
+	//while (true) {
+		//testing_motors ();
+	//}
+while (true) {
+
+	// vibrate_solenoid (byte solenoid_number, byte power, byte duration)
 	
+	for (int a = 1; a<=10;a++) {
+		Serial.println(F("power "));
+		Serial.println(a);
+		vibrate_solenoid (solenoid1, a, 50);
+		delay (5000);
+	}
+}
 
-	//go_to_posXY (int Xcy,int Xst,int Ycy,int Yst)
-	go_to_posXY (0,0,2,0);
-	go_to_posXY (0,0,0,0);
-	go_to_posXY (0,0,2,0);
-	go_to_posXY (0,0,0,0);
-
-	delay (4444444);
-
+	
 
 
 	get_and_release_blister ();
@@ -371,6 +385,31 @@ void loop() {
 }
 
 
+void testing_motors () {
+
+	//go_to_posXY (int Xcy,int Xst,int Ycy,int Yst)
+	go_to_posXY (0,0,2,0);
+	go_to_posXY (0,0,0,0);
+	go_to_posXY (0,0,4,0);
+	go_to_posXY (0,0,0,0);
+	go_to_posXY (0,0,6,0);
+	go_to_posXY (0,0,0,0);
+	go_to_posXY (0,0,8,0);
+	go_to_posXY (0,0,0,0);
+	go_to_posXY (0,0,10,0);
+	go_to_posXY (0,0,0,0);
+	go_to_posXY (0,0,12,0);
+	go_to_posXY (0,0,0,0);
+	go_to_posXY (0,0,14,0);
+	go_to_posXY (0,0,0,0);
+	go_to_posXY (0,0,16,0);
+	go_to_posXY (0,0,0,0);
+	go_to_posXY (0,0,18,0);
+
+	Serial.println ("Testing finished, restarting...");
+	delay (1000);
+}
+
 
 void setup_pins () {
 	// Setp all pins
@@ -391,6 +430,22 @@ void setup_pins () {
 	pinMode (sensG, INPUT); 
 	pinMode (sensH, INPUT);
 	pinMode (sensI, INPUT);
+}
+
+
+
+void vibrate_solenoid (byte solenoid_number, byte power, byte duration) {
+
+// power 1 - 10 its the delay of the inner oscilation, the fastes (lowest number) less powerful
+// the slowest (higher number) stronger the vibration
+	for (int c=0; c<duration; c++) {
+		for (int a=0; a < 100; a++) {
+			digitalWrite (solenoid_number, HIGH);
+			delay (power*2);
+			digitalWrite (solenoid_number, LOW);
+			delay (power*2);
+		}
+	}
 }
 
 

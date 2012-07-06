@@ -680,11 +680,11 @@ void init_all_motors () {
 
 	// Prepare to init motors
 	PSupply_ON ();		// Switch Power supply ON
-	delay (2000);
+	//delay (2000);
 	motors_enable ();	// Enable motors
-	delay (2000);
+	//delay (2000);
 	motors_awake ();	// Awake motors
-	delay (2000);
+	//delay (2000);
 	
 	// INIT SYSTEM, and CHECK for ERRORS
 	int temp_err = 0;   // flag for found errors

@@ -64,10 +64,10 @@ boolean Seedcounter_init() {
 void pickup_seed() {
 	motor_select = 0;
 	boolean seed_detected = false;
-#if defined DEBUG
-	Serial.print ("Init position: ");
+#if defined DEBUG_counter
+	Serial.print (F("Init position: "));
 	Serial.print (counter.get_steps_cycles());
-	Serial.print (" - ");
+	Serial.print (F(" - "));
 	Serial.println (counter.get_steps());
 #endif
 	unsigned int previous_counted_turns = count_total_turns;				// Avoid giving more than 1 order to turn at the same time
@@ -120,9 +120,10 @@ void pickup_seed() {
 		if ((counter.get_steps() == steps_from_sensor_to_init_clockwise) && (count_total_turns == previous_counted_turns)){			// If we are at the starting position means we are ready to continue
 			wait_time(50);
 			if (!last_turn) {
+				send_action_to_server(seed_counter_turn);
 				speed_cntr_Move(1600/counter.get_step_accuracy(),accel,speed,accel);	// We do a full turn, NOTICE that the acceleration in this case is lower
 				count_total_turns ++;		// for statistics pourpouses
-				send_action_to_server(seed_counter_turn);
+				
 			}
 			count_error_turns ++;		// for errors pourpous
 			
@@ -130,17 +131,19 @@ void pickup_seed() {
 			first_time_drop = false;
 			wait_time(50);
 			if (!last_turn) {
+				send_action_to_server(seed_counter_turn);
 				speed_cntr_Move(steps_from_sensor_to_init_clockwise/counter.get_step_accuracy(),accel,speed,accel);	// We do a full turn, NOTICE that the acceleration in this case is lower
 				count_total_turns ++;		// for statistics pourpouses
-				send_action_to_server(seed_counter_turn);
 			}
 			count_error_turns ++;		// for errors pourpous
 		}
-		// Check if we are at sensor position
+			
 		if ((counter.get_steps() >= (1600-margin_steps_to_detect_seed)) || (counter.get_steps() <= margin_steps_to_detect_seed)) {				// We check the sensor only when we are in the range of the sensor
 			// Fake sensor in case of debug motors
 			boolean sensor_skip = false;
-
+			#if defined Cmotor_debug
+				sensor_skip = true; 
+			#endif
 			// Check if we got seed
 			if (counter.sensor_check() || sensor_skip){			// We got a seed!!!
 				seed_detected = true; 
@@ -155,15 +158,14 @@ void pickup_seed() {
 			}
 			// Each time we are here is because we already started moving
 			previous_counted_turns = count_total_turns;			// Avoid giving more than 1 order to turn at the same time
-#if defined Cmotor_debug
-			sensor_skip = true; 
-#endif
+			
 		} else {
 			// Fake sensor in case of debug motors
 			boolean sensor_skip = false;
-#if defined Cmotor_debug
-			sensor_skip = true; 
-#endif
+			//Serial.println("NOT in sensor pos");
+			#if defined Cmotor_debug
+				sensor_skip = true; 
+			#endif
 			if (counter.sensor_check() && !sensor_skip){			// We got a seed and we are not supose to have one here!!
 				send_error_to_server(counter_sensor_failed);
 				// Something whent wrong!!!!
@@ -178,6 +180,13 @@ void pickup_seed() {
 			}
 			
 		}
+		// Check if we are at sensor position
+		#if defined DEBUG_counter
+			Serial.print (F("Init position: "));
+			Serial.print (counter.get_steps_cycles());
+			Serial.print (F(" - "));
+			Serial.println (counter.get_steps());
+		#endif
 	}
 }
 

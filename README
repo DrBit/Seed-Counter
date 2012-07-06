@@ -4,6 +4,12 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V4.0.9 - 06/07/2012
+**  * Fixed bug in the counter process when sending data to the server we woul lose events on the sensor
+**  * Fixed Y axis movement directions
+**  * Added configuration of the sensor
+**  * Added function to operate solenoid 1
+**
 **  V4.0.8 - 05/07/2012
 **  * Fixed bug in the process of quering the server
 **  * Implemented new default sensor state

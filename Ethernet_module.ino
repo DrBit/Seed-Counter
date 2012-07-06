@@ -39,7 +39,7 @@ void setup_network() {
 	// start the Ethernet connection:
 	Ethernet.begin(mac, local_ip);
 	// give the Ethernet shield a second to initialize:
-	delay(1000);
+	delay(100);
 
 	Serial.print("Blister blaster id ");
 	Serial.print(M_ID);
@@ -54,7 +54,7 @@ void setup_network() {
 	
 	Serial.print(F("\r\nChange server, port and ID? [y/n]\r\n"));
 	
-	if (YN_question (5)) {
+	if (YN_question (3)) {
 		receive_local_IP ();
 		receive_server_IP ();
 		receive_server_PORT ();
@@ -369,10 +369,10 @@ boolean receive_server_data (){
 						char * thisChar = received_msg;
 						int receiving_seedmode = atoi(thisChar);
 						
-						if (receiving_seedmode == 1) {
+						if (receiving_seedmode == seeds10) {
 							blister_mode = seeds10;
 						}
-						if (receiving_seedmode == 2) {
+						if (receiving_seedmode == seeds5) {
 							blister_mode = seeds5;
 						}
 					break; }
@@ -380,7 +380,7 @@ boolean receive_server_data (){
 				Serial.print("Received Information: ");
 				Serial.print(receiving_info);
 				Serial.print(" Data: ");
-				Serial.println(blister_mode, DEC);
+				Serial.println(blister_mode);
 			break; }
 						
 			case 'C': {	// CONFIGURATION

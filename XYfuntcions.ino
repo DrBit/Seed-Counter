@@ -7,9 +7,9 @@
 // ** Physical limits of the motors
 // ***********************
 // Init the both axes at the same time to save time.
-#define max_insensor_stepsError 700
+#define max_insensor_stepsError 4000
 #define Xaxis_cycles_limit 280
-#define Yaxis_cycles_limit 12
+#define Yaxis_cycles_limit 18
 
 
 boolean XYaxes_init () {
@@ -50,8 +50,8 @@ boolean XYaxes_init () {
 	boolean both_sensors = false;				// Falg for sensor checking
 	unsigned long temp_counter=0;				// Counter for error checking
 	
-	Xaxis.set_direction (!default_directionX);		// Goes back till we find the sensor 
-	Yaxis.set_direction (false);		// Goes back till we find the sensor
+	Xaxis.set_direction (!default_sensor_directionX);		// Goes back till we find the sensor 
+	Yaxis.set_direction (!default_sensor_directionY);		// Goes back till we find the sensor
 	// set speed max
 	Xaxis.change_step_mode(4);		// Set stepper mode to 1 (Max speed)
 	Yaxis.change_step_mode(4); 		// Set stepper mode to 1 (Max speed)
@@ -121,8 +121,8 @@ boolean XYaxes_init () {
 	
 	temp_counter = 0;						// Reset the temop counter for error checking next step
 	both_sensors = false;					// Reset sensors variable
-	Xaxis.set_direction (!default_directionX);			// Goes forth till we are not hitting the sensor
-	Yaxis.set_direction (true);			// Goes forth till we are not hitting the sensor
+	Xaxis.set_direction (!default_sensor_directionX);			// Goes forth till we are not hitting the sensor
+	Yaxis.set_direction (default_sensor_directionY);			// Goes forth till we are not hitting the sensor
 	
 	// set speed max
 	Xaxis.change_step_mode(8);				// Set stepper mode to 8 (Max speed)
