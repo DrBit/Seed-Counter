@@ -64,12 +64,12 @@ boolean Seedcounter_init() {
 void pickup_seed() {
 	motor_select = 0;
 	boolean seed_detected = false;
-#if defined DEBUG_counter
+	#if defined DEBUG_counter
 	Serial.print (F("Init position: "));
 	Serial.print (counter.get_steps_cycles());
 	Serial.print (F(" - "));
 	Serial.println (counter.get_steps());
-#endif
+	#endif
 	unsigned int previous_counted_turns = count_total_turns;				// Avoid giving more than 1 order to turn at the same time
 	unsigned int count_error_turns =0;
 	// Values of the motor acceleration and speed
@@ -115,6 +115,10 @@ void pickup_seed() {
 
 		}
 		check_pause ();				// Enters menu if a button is pressed
+
+		// Vibrate with acording intensity depending in the amount of previous errors
+		byte intensity = count_error_turns%10; 
+		vibrate_solenoid (solenoid1, intensity, 10);	// intensity will be a number of 0 to 10
 		
 		// We are at drop seed position ready to start turning.
 		if ((counter.get_steps() == steps_from_sensor_to_init_clockwise) && (count_total_turns == previous_counted_turns)){			// If we are at the starting position means we are ready to continue

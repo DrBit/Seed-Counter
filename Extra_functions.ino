@@ -964,7 +964,7 @@ void reset_machine () {
 	MySW.reset();
 	MySW.start();
 	mem_check();
-	blister_mode = 0;
+	blister_mode = 0;		// Reset blister mode in case we are reestarting
 }
 
 
