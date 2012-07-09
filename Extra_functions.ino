@@ -28,12 +28,12 @@ int freeRam () {
 
 /***** Pause and wait till a button is pressed  *****/
 void press_button_to_continue (int button_number) {
-	Serial.flush();
-	boolean pause = true;
+	//Serial.flush();
+	boolean _pause = true;
 	start_idle_timer (default_idle_time);		// start timer to calcule when do we have to go IDLE
 	switch (button_number) {
 		case 1:
-			while (pause) {
+			while (_pause) {
                                 /*
 				//Chek if we press the start button
 				if (digitalRead(button1) == HIGH) {
@@ -41,14 +41,14 @@ void press_button_to_continue (int button_number) {
 				}*/
 				if (Serial.available()) {
 					if (Serial.read() == '1') {
-						pause = false;
+						_pause = false;
 					}
 				} 
 				check_idle_timer (true);
 			}
 		break;
 		case 2:
-			while (pause) {
+			while (_pause) {
                                 /*
 				//Chek if we press the start button
 				if (digitalRead(button2) == HIGH) {
@@ -56,21 +56,21 @@ void press_button_to_continue (int button_number) {
 				}*/
 				if (Serial.available()) {
 					 if (Serial.read() == '2') {
-						pause = false;
+						_pause = false;
 					 }
 				}
 				check_idle_timer (true);
 			}
 		break;
 		case 3:
-			while (pause) {
+			while (_pause) {
 				//Chek if we press the start button
 				/*if (digitalRead(button3) == HIGH) {
 					pause = false;   // If we do, unpause
 				}*/
 				if (Serial.available()) {
 					if (Serial.read() == '2') {
-						pause = false;
+						_pause = false;
 					}
 				}
 				check_idle_timer (true);
@@ -79,10 +79,10 @@ void press_button_to_continue (int button_number) {
 		default: 
 			// if nothing else matches, do the default
 			// default is any key
-			while (pause) {
+			while (_pause) {
 				if (Serial.available() > 0) {
 					Serial.read();
-					pause = false;
+					_pause = false;
 				}
 
 			}
@@ -96,53 +96,53 @@ void press_button_to_continue (int button_number) {
 
 /***** Pause and return the number of any button pressed  *****/
 int return_pressed_button () {
-	Serial.flush();
-	boolean pause = true;
+	//Serial.flush();
+	boolean _pause = true;
 	int pressed_button = 0;
 	start_idle_timer (default_idle_time);
-	while(pause) {
+	while(_pause) {
 		// Serial interface
 		if (Serial.available()) {
 			char received_char = Serial.read();
 			if (received_char == '1') {
 				pressed_button = 1;
-				pause = false;
+				_pause = false;
 			}
 			if (received_char == '2') {
 				pressed_button = 2;
-				pause = false;
+				_pause = false;
 			}
 			if (received_char == '3') {
 				pressed_button = 3;
-				pause = false;
+				_pause = false;
 			}
 			if (received_char == '4') {
 				pressed_button = 4;
-				pause = false;
+				_pause = false;
 			}
 			if (received_char == '5') {
 				pressed_button = 5;
-				pause = false;
+				_pause = false;
 			}
 			if (received_char == '6') {
 				pressed_button = 6;
-				pause = false;
+				_pause = false;
 			}
 			if (received_char == '7') {
 				pressed_button = 7;
-				pause = false;
+				_pause = false;
 			}
 			if (received_char == '8') {
 				pressed_button = 8;
-				pause = false;
+				_pause = false;
 			}
 			if (received_char == '9') {
 				pressed_button = 9;
-				pause = false;
+				_pause = false;
 			}
 			if (received_char == '0') {
 				pressed_button = 0;
-				pause = false;
+				_pause = false;
 			}
 		}  
 		check_idle_timer (true);
@@ -150,7 +150,7 @@ int return_pressed_button () {
 	
 	end_idle_timer ();
 	
-	Serial.flush();
+	//Serial.flush();
 	return pressed_button;
 }
 
@@ -505,9 +505,37 @@ int init_blisters_menu () {
     }
 }
 
+void check_stop () {
+	check_server();		// Should we? if it 
+	if (global_status == S_finishing_batch) {
+		// We where finishing the batch. The UI should be locked for now
+		// So we shouldn't have received any other status.
+		// Now we can stop as, we are at the end of the loop.
+		// Next time we start we will start at the beginning
+
+		send_status_to_server (S_stopped);
+	}
+
+	while (global_status == S_stopped) {
+		check_server();
+		if (global_status == S_switch_off) {
+			switch_off_machine ();		// Switch off machine
+			while (global_status == S_switch_off) {
+				// Do nothing while everithing is off
+			}
+			reset_machine ();		// When changes we will switch back ON
+		}
+
+		if (global_status == S_setting_up) {
+			reset_machine ();	
+		}	
+	}
+}
 
 void check_pause () {
 	
+	check_server();
+
 	// Emergency button handler
 	int button_emergency = digitalRead (emergency); // Conected at sens C?????
 	// if (button_emergency) {		// Bypas for now,, re-enable when connected
@@ -529,10 +557,22 @@ void check_pause () {
 		send_status_to_server (previous_status);
 	}
 	
-	
-	if ((Serial.available() || pause) && !manual_enabled) {
+	if ((Serial.available() || pause || global_status == S_pause) && !manual_enabled) {
 		pause = true;
 		MySW.stop();
+		start_idle_timer (60);
+		while(pause) {
+			check_server();
+			check_idle_timer (true);
+			if (global_status != S_pause) {
+				pause = false;
+			}
+		}
+		end_idle_timer ();
+		MySW.start();
+		pause = false;
+
+		/*
 		Serial.flush();
 		Serial.println ("Pause activated ");
 		Serial.println ("Press 1 to resume");
@@ -573,6 +613,7 @@ void check_pause () {
 				
 			}
 		}
+		*/
 	}
 }
 
@@ -581,12 +622,12 @@ void pause_if_any_key_pressed () {
 		// Serial interface
 	if (Serial.available()) {
 		Serial.flush();
-		boolean pause = true;
+		boolean _pause = true;
 		Serial.println(" Press 1 to unpause... ");
-		while(pause) {
+		while(_pause) {
 			char received_char = Serial.read();
 			if (received_char == '1') {
-				pause = false;
+				_pause = false;
 			}
 		}
 	}  
@@ -879,13 +920,67 @@ boolean check_idle_timer (boolean message) {
 			}
 			
 			if (get_power_state () == true) {
+				send_status_to_server (S_switch_off);
 				PSupply_OFF ();		// Switch Power supply ON
 				if (message) Serial.println ("Switching OFF!");
+
 			}
 		}
 		return true;
 	}
 	return false;
+}
+
+void switch_off_machine () {
+	if (get_motor_sleep_state () == true) {
+		motors_sleep ();	// Awake motors
+		//delay (2000);
+	}
+	
+	if (get_motor_enable_state () == true) {
+		motors_disable ();	// Enable motors
+		//delay (2000);
+	}
+	if (get_power_state () == true) {
+		send_status_to_server (S_switch_off);
+		PSupply_OFF ();		// Switch Power supply ON
+		Serial.println ("Switching OFF!");
+
+	}
+
+}
+
+void reset_machine () {
+	send_status_to_server (S_setting_up);	// here we comunicate the server that we begin the set-up process	
+	send_error_to_server (no_error);		// NO ERROR
+		// Get all configuration from the server
+	get_config_from_server (C_All);	// gets default IDLE time
+	// INIT SYSTEM, and CHECK for ERRORS
+	init_all_motors ();
+	// Updating Database from info staroed in the server
+	get_positions_from_server (P0);					// receives all positions from server
+	send_status_to_server (S_stopped);	// here we wait for the server to send orders
+    mem_check();
+    Serial.println(F("Machine Stopped, waiting for a change on status from server"));
+	// While we are not on run mode, keep cheking the server
+	#if defined bypass_server
+		global_status = S_running;
+	#else
+		while (global_status != S_running) {
+			check_server();
+		}	//When ready....
+	#endif
+	// if we haven't received seeds mode ask for it:
+	if (blister_mode == 0) {
+		get_info_from_server (get_seeds_mode);			// Gets seed mode (5 or 10 seeds per blister)
+		if (blister_mode == 0) {
+			blister_mode = seeds10;	// If we haven't get any info from the server we set default 10
+			Serial.println(F("No info on seeds mode from server. \nSet seeds per blister to 10 as default"));
+		}
+
+	}
+	MySW.reset();
+	MySW.start();
 }
 
 void start_idle_timer (unsigned long  seconds) {
@@ -1089,4 +1184,3 @@ void print_counter_pos () {
 	Serial.print (", Counter_steps: ");
 	Serial.println (counter.get_steps());
 }
-

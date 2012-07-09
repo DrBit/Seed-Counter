@@ -15,7 +15,9 @@
 #define S_stopped 1 		// waiting action
 #define S_running 2 		// Running
 #define S_pause 3 			// Pause
-#define S_setting_up 4 		// Setting up machine (one time at the begining)
+#define S_setting_up 4 		// Setting up machine  or resetting the machine
+#define S_finishing_batch 5 // Finishin batch
+#define S_switch_off 6		// Machine is OFF
 
 // The list of status should be as short as possible to make it easyer to handler
 // Statuses are contineous events that when enabled will stay enabled till another change on status
@@ -58,6 +60,7 @@
 // LIST OF ERRORS
 //////////////////////////
 // send_error_to_server (error); (E)
+#define no_error 1 
 #define library_error 11 	// Error at compiling time. Library out of date. Update library and compile again.
 #define init_eth_fail 12 	// Error reseting the ethernet module. Check power, connection mega-uno correct?
 #define init_Y1_fail  13	// Error initializing Y axis. Could not find the sensor after doing the hole phisical path

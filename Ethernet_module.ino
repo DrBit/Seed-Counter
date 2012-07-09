@@ -41,15 +41,15 @@ void setup_network() {
 	// give the Ethernet shield a second to initialize:
 	delay(100);
 
-	Serial.print("Blister blaster id ");
+	Serial.print(F("Blister blaster id "));
 	Serial.print(M_ID);
-	Serial.print(" on IP: ");
+	Serial.print(F(" on IP: "));
 	Serial.println(ip_to_str(local_ip));
 	
-	Serial.print ("Default User Interface server ip: ");
+	Serial.print (F("Default User Interface server ip: "));
 	Serial.println(ip_to_str(server));
 	
-	Serial.print ("Default User Interface server port: ");
+	Serial.print (F("Default User Interface server port: "));
 	Serial.println(port);
 	
 	Serial.print(F("\r\nChange server, port and ID? [y/n]\r\n"));
@@ -60,7 +60,7 @@ void setup_network() {
 		receive_server_PORT ();
 		receive_M_ID ();
 		
-		Serial.print(("\r\nSave server, port and ID to internal EEPROM memory? [y/n]\r\n"));
+		Serial.print(F("\r\nSave server, port and ID to internal EEPROM memory? [y/n]\r\n"));
 		
 		if (YN_question (20)) {
 			config.machine_id = M_ID;
@@ -85,23 +85,26 @@ boolean check_server()
 {
 	int timeout =0;
 	// Convert this time out in a real timeout (with millis)
+	// In case we discconected we no reconnect
 	while ((!connected_to_server) && (timeout < 10)) {
 		connected_to_server = connect_to_server ();
 		delay (3000);
 		timeout ++; 
 	}
 	
+	// If we are already connected to the server...
 	if (connected_to_server) {
 		// if there are incoming bytes available 
 		// from the server, read them and process them:
 		sprintf(message, "%dX\r\n", M_ID);
 		client.print(message);
-#if defined Server_com_debug
+		#if defined Server_com_debug
 		Serial.print(message);
-#endif
+		#endif
 
 		if (!receive_server_data ()) {
 			// Nothing to do
+			// We got a time out so no response
 		}else{
 			// Something has been received
 		}
@@ -109,15 +112,15 @@ boolean check_server()
 	 
 		// if the server's disconnected, stop the client:
 		if (!client.connected()) {
-			Serial.println("Server Disconnected.");
+			Serial.println(F("Server Disconnected."));
 			client.stop();
 			connected_to_server = false;
 		}
 	 
 	}else{
-		// We got a timeout connecting
-		Serial.println("Timeout Connecting to the server...");
-		Serial.println("Contact the network administrator or press a key to try again.");
+		// We got a timeout connecting so we didn't succed 
+		Serial.println(F("Timeout Connecting to the server..."));
+		Serial.println(F("Contact the network administrator or press a key to try again."));
 		press_button_to_continue (0);		// Press any key to continue
 		return false;
 	}
@@ -140,17 +143,17 @@ void server_connect () {
 
 
 boolean connect_to_server () {
-	Serial.print("\nconnecting to: ");
+	Serial.print(F("\nconnecting to: "));
 	Serial.print(ip_to_str(server));
-	Serial.print(":"); Serial.println (port);
+	Serial.print(F(":")); Serial.println (port);
 
 	// if you get a connection, report back via serial:
 	if (client.connect(server, port)) {
-		Serial.println("connected!");
+		Serial.println(F("connected!"));
 		return true;
 	} else {
 		// if you didn't get a connection to the server:
-		Serial.println("connection failed");
+		Serial.println(F("connection failed"));
 	}
 	return false;
 
@@ -159,12 +162,12 @@ boolean connect_to_server () {
 void get_info_from_server (byte command) {
 	sprintf(message, "%dI%d\r\n", M_ID, command);
 	client.print(message);
-#if defined Server_com_debug
+	#if defined Server_com_debug
 		Serial.print(message);
-#endif
+	#endif
 	// we have to receive information
 	if (!receive_server_data ()) {
-		Serial.print ("-OK not received or error on sent command I");
+		Serial.print (F("-OK not received or error on sent command I"));
 		Serial.println (command);
 	}
 }
@@ -174,12 +177,12 @@ void send_status_to_server (byte command) {
 	global_status = command;					// Updates actual status
 	sprintf(message, "%dS%d\r\n", M_ID, command);
 	client.print(message);
-#if defined Server_com_debug
+	#if defined Server_com_debug
 		Serial.print(message);
-#endif
+	#endif
 
 	if (!receive_server_data ()) {
-		Serial.print ("-OK not received or error on sended command S");
+		Serial.print (F("-OK not received or error on sended command S"));
 		Serial.println (command);
 	}
 }
@@ -188,15 +191,15 @@ void send_action_to_server(byte command) {		// Inform server that an action has 
 	//require an OK back from the server
 	sprintf(message, "%dA%d\r\n", M_ID, command);
 	client.print(message);
-#if defined Server_com_debug
+	#if defined Server_com_debug
 		Serial.print(message);
-#endif
+	#endif
 
 	if (!receive_server_data ()) {
-#if defined Server_com_error_debug
-		Serial.print ("-OK not received or error on sended command A");
+		#if defined Server_com_error_debug
+		Serial.print (F("-OK not received or error on sended command A"));
 		Serial.println (command);
-#endif
+		#endif
 	}
 }
 
@@ -204,15 +207,15 @@ void send_error_to_server (byte command) {		// Inform server that an error has o
 	//require an OK back from the server
 	sprintf(message, "%dE%d\r\n", M_ID, command);
 	client.print(message);
-#if defined Server_com_debug
+	#if defined Server_com_debug
 		Serial.print(message);
-#endif
+	#endif
 
 	if (!receive_server_data ()) {
-#if defined Server_com_error_debug
-		Serial.print ("-OK not received or error on sended command E");
+		#if defined Server_com_error_debug
+		Serial.print (F("-OK not received or error on sended command E"));
 		Serial.println (command);
-#endif
+		#endif
 	}
 }
 
@@ -220,15 +223,15 @@ void send_position_to_server (byte command) {	// Inform server that we are going
 	//require an OK back from the server
 	sprintf(message, "%dG%d\r\n", M_ID, command);
 	client.print(message);
-#if defined Server_com_debug
+	#if defined Server_com_debug
 		Serial.print(message);
-#endif
+	#endif
 
 	if (!receive_server_data ()) {
-#if defined Server_com_error_debug
-		Serial.print ("-OK not received or error on sended command G");
+		#if defined Server_com_error_debug
+		Serial.print (F("-OK not received or error on sended command G"));
 		Serial.println (command);
-#endif
+		#endif
 	}
 }	
 
@@ -236,29 +239,31 @@ void get_positions_from_server (byte command) {	// Receive position information 
 	if (command == 0) {  // Ask for all positions
 		sprintf(message, "%dP*\r\n", M_ID);
 		client.print(message);
-#if defined Server_com_debug
-				Serial.print(message);
-#endif
+		#if defined Server_com_debug
+			Serial.print(message);
+		#endif
 		if (!receive_server_data ()) {
-#if defined Server_com_error_debug
-			Serial.print ("-OK not received or error on sended command P");
+			#if defined Server_com_error_debug
+			Serial.print (F("-OK not received or error on sended command P"));
 			Serial.println (command);
-#endif
+			#endif
 		}
 	}else{
 		sprintf(message, "%dP%d\r\n", M_ID, command);
 		client.print(message);
-#if defined Server_com_debug
+		#if defined Server_com_debug
 		Serial.print(message);
-#endif
+		#endif
 		// we have to receive one position
 		// this means P + number equal the one we have asked for
 		// puls 4 numbers that form the data of the position
 		
 		// so...
 		if (!receive_server_data ()) {
-			Serial.print ("-OK not received or error on sended command P");
+			#if defined Server_com_error_debug
+			Serial.print (F("-OK not received or error on sended command P"));
 			Serial.println (command);
+			#endif	
 		}
 	}
 }
@@ -268,27 +273,31 @@ void get_config_from_server (byte command) {	// Receive configuration informatio
 	if (command == 0) {  // Ask for all configuration
 		sprintf(message, "%dC*\r\n", M_ID);
 		client.print(message);
-#if defined Server_com_debug
-				Serial.print(message);
-#endif
-				 if (!receive_server_data ()) {
-			Serial.print ("-OK not received or error on sended command C");
+		#if defined Server_com_debug
+			Serial.print(message);
+		#endif
+		if (!receive_server_data ()) {
+			#if defined Server_com_error_debug
+			Serial.print (F("-OK not received or error on sended command C"));
 			Serial.println (command);
+			#endif
 		}
 	}else{
 		sprintf(message, "%dC%d\r\n", M_ID, command);
 		client.print(message);
-#if defined Server_com_debug
-				Serial.print(message);
-#endif
+		#if defined Server_com_debug
+			Serial.print(message);
+		#endif
 		// we have to receive one position
 		// this means P + number equal the one we have asked for
 		// puls 4 numbers that form the data of the position
 		
 		// so...
 		if (!receive_server_data ()) {
-			Serial.print ("-OK not received or error on sended command C");
+			#if defined Server_com_error_debug
+			Serial.print (F("-OK not received or error on sended command C"));
 			Serial.println (command);
+			#endif
 		}
 	}
 }
@@ -300,9 +309,11 @@ boolean receive_server_data (){
 	clean_buffer (received_msg,bufferSize);		// Prepare buffer
 	
 	// wait 3 seconds for incoming data before a time out
+	// 25ms * 40 = 1s so... 40*3 = 120 time to wait 3 seconds
+	int times_to_try = 120;
 	int timeout = 0;
-	while (!(client.available() > 0) && (timeout < 5)) {
-		delay (550);
+	while (!(client.available() > 0) && (timeout < times_to_try)) {
+		delay (25);
 		timeout ++;
 	}			
 	
@@ -313,21 +324,21 @@ boolean receive_server_data (){
 		
 		switch (inChar) {
 			case 'O': {
-#if defined Server_com_debug
+				#if defined Server_com_debug
 				Serial.print (inChar);
-#endif
+				#endif
 				receivedO = true;
 			break; }
 			
 			case 'K': {
-#if defined Server_com_debug
+				#if defined Server_com_debug
 				Serial.print (inChar);
-#endif
+				#endif
 				receivedK = true;
 			break; }
 						
 			case 'E': {
-				Serial.print ("Error received: ");
+				Serial.print (F("Error received: "));
 				Serial.print (inChar);
 				recevie_data_telnet (received_msg,bufferSize);
 				char * thisChar = received_msg;
@@ -351,10 +362,17 @@ boolean receive_server_data (){
 				recevie_data_telnet (received_msg,bufferSize);
 				char * thisChar = received_msg;
 				int receiving_status = atoi(thisChar);
-				global_status = receiving_status;					// Updates actual status
+				global_status = receiving_status;
+
+									// Updates actual status
+				#if defined Server_com_debug
 				// Inform
-				Serial.print("Received Status: ");
+				Serial.print(F("Received Status: "));
 				Serial.println(receiving_status);
+				#endif
+				if (global_status == S_finishing_batch)
+				// We have to finish the batch and get into stop
+				send_status_to_server (S_finishing_batch);
 			break; }
 			
 			case 'I': {	// INFORMATION
@@ -377,10 +395,12 @@ boolean receive_server_data (){
 						}
 					break; }
 				}
-				Serial.print("Received Information: ");
+				#if defined Server_com_debug
+				Serial.print(F("Received Information: "));
 				Serial.print(receiving_info);
-				Serial.print(" Data: ");
+				Serial.print(F(" Data: "));
 				Serial.println(blister_mode);
+				#endif
 			break; }
 						
 			case 'C': {	// CONFIGURATION
@@ -404,8 +424,10 @@ boolean receive_server_data (){
 						default_off_time = receiving_off_time;
 					break; }
 				}
-				Serial.print("Received Configuration: ");
+				#if defined Server_com_debug
+				Serial.print(F("Received Configuration: "));
 				Serial.println(receiving_config);
+				#endif
 			break; }
 			
 			case 'P': {	// POSITION
@@ -439,7 +461,7 @@ boolean receive_server_data (){
 				
 				#if defined Server_com_debug
 				// Inform
-				Serial.print("Received Position: ");
+				Serial.print(F("Received Position: "));
 				Serial.print(receiving_position);
 				#endif
 				// Compare with the real value.. do we have to update??
@@ -451,11 +473,11 @@ boolean receive_server_data (){
 					mposition.Yc = Yc;
 					db.write(receiving_position, DB_REC mposition);
 					#if defined Server_com_debug
-					Serial.println (" - Updated!");
+					Serial.println (F(" - Updated!"));
 					#endif
 				}else{
 					#if defined Server_com_debug
-					Serial.println (" - Correct!");
+					Serial.println (F(" - Correct!"));
 					#endif
 				}
 				
@@ -464,24 +486,24 @@ boolean receive_server_data (){
 			
 			default: {
 				// Undefined command received
-				Serial.print("Received undefined command: ");
+				Serial.print(F("Received undefined command: "));
 				Serial.println(inChar);
 				recevie_data_telnet (received_msg,bufferSize);
 				char * thisChar = received_msg;
 				// data
-				Serial.print("With Data: ");
+				Serial.print(F("With Data: "));
 				Serial.println(thisChar);
 			break; }
 		}
 	}
-#if defined Server_com_debug
-		if (timeout >= 5) Serial.println("*timeout answer*");
-#endif
-		if (receivedK) {
-			return true;
-		}else{
-			return false;
-		}
+	#if defined Server_com_debug
+		if (timeout >= 5) Serial.println(F("*timeout answer*"));
+	#endif
+	if (receivedK) {
+		return true;
+	}else{
+		return false;
+	}
 	// DONE!
 }
 
@@ -497,9 +519,9 @@ void buffer_char (char character, char* bufferContainer, int max_size) {
 	if (actualLen < len-1) {
 		bufferContainer[actualLen] = temp_char;
 	}else{
-		Serial.print("buffer full, max ");
+		Serial.print(F("buffer full, max "));
 		Serial.print(len-1,DEC);
-		Serial.println(" characters per command.");
+		Serial.println(F(" characters per command."));
 	}
 }
 
@@ -523,7 +545,7 @@ const char* ip_to_str(const uint8_t* ipAddr)
 }
 
 void receive_local_IP () {
-	Serial.print ("Type local ip: ");
+	Serial.print (F("Type local ip: "));
 	Serial.flush ();
 	int buf_ip =17; // 17 is the maximum numbers an IP can contain (including dots) 
 	char localIP[buf_ip]; 
@@ -573,7 +595,7 @@ void receive_local_IP () {
 
 
 void receive_server_IP () {
-	Serial.print ("Type server ip: ");
+	Serial.print (F("Type server ip: "));
 	Serial.flush ();
 	int buf_ip =17; // 17 is the maximum numbers an IP can contain (including dots) 
 	char printerIP[buf_ip]; 
@@ -622,7 +644,7 @@ void receive_server_IP () {
 }
 
 void receive_server_PORT () {
-	Serial.print ("Type server port: ");
+	Serial.print (F("Type server port: "));
 	Serial.flush ();
 	const int buf_port = 6;
 	char printerPort[buf_port];
@@ -633,7 +655,7 @@ void receive_server_PORT () {
 }
 
 void receive_M_ID () {
-	Serial.print ("Type machine ID: ");
+	Serial.print (F("Type machine ID: "));
 	Serial.flush ();
 	const int buf_id = 3;
 	char tempID[buf_id];

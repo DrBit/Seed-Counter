@@ -5,7 +5,7 @@
 //#include <network_config.h>		// NEDED?
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "V4.0.9"
+#define version_prog "V4.0.10"
 #define lib_version 15
 
 /********************************************
@@ -28,7 +28,8 @@
 #define Sensor_blister		// Disable sensor blisters
 #define Server_com_debug	// Debug communications witht the server
 #define Server_com_error_debug // Debug errors of communication with the server
-#define DEBUG_counter		// Debug counter.. print positions
+//#define DEBUG_counter		// Debug counter.. print positions
+#define bypass_server		// Bypass_orders from the servre and stat process stright away
 
 // example debug:
 // #if defined DEBUG
@@ -170,70 +171,17 @@ byte previous_status = 0;
 
 
 void setup() {
-
 	init_serial();			// INIT Serial
 	setup_pins ();			// Setup IO pins
-	setup_network();		// First thing we do is set up the network
-	server_connect();		// Now we try to stablish a connection
-	send_status_to_server (S_setting_up);	// here we comunicate the server that we begin the set-up process	
+
 	check_library_version ();	// Check library Version. If different STOP
 	speed_cntr_Init_Timer1();	// Initiate the Timer1 config function in order to prepare the timing functions of motor acceleration
 	delay (10);  				// Delay to be safe
 	init_DB ();				// Init database
-	// Show_all_records();
-	// manual_data_write();		// UPDATE manually all EEPROOM MEMORY (positions)
 
-	// Set default directions
-	Xaxis.set_default_direcction (default_directionX);
-	Yaxis.set_default_direcction (default_directionY);
-	Xaxis.set_default_sensor_state (default_Xsensor_HIGH_state);
-	Yaxis.set_default_sensor_state (default_Ysensor_HIGH_state);
-	blisters.set_default_direcction (default_directionB);
-	counter.set_default_direcction (default_directionC);
-    
-	// set_accel_profile(init_timing, int ramp_inclination, n_slopes_per_mode, n_steps_per_slope)
-	Xaxis.set_speed_in_slow_mode (400);
-	Xaxis.set_accel_profile(900, 17, 9, 20);
-	Yaxis.set_speed_in_slow_mode (350);
-	Yaxis.set_accel_profile(950, 13, 7, 15);
-	//Yaxis.set_speed_in_slow_mode (350);
-	//Yaxis.set_accel_profile(950, 14, 8, 15);
-	
-	// Get all configuration from the server
-	get_config_from_server (C_All);	// gets default IDLE time
-
-	// INIT SYSTEM, and CHECK for ERRORS
-	init_all_motors ();
-	
-
-	// Updating Database from info staroed in the server
-	get_positions_from_server (P0);					// receives all positions from server
-        
-	// END of setup
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	send_status_to_server (S_stopped);	// here we wait for the server to send orders
-    mem_check();
-    Serial.println(F("Machine Stopped, waiting for a change on status from server"));
- 
-	// While we are not on run mode, keep cheking the server
-	if (false) {
-	while (global_status != S_running) {
-		check_server();	
-	}	//When ready....
-	}
-
-	// if we haven't received seeds mode ask for it:
-	if (blister_mode == 0) {
-		get_info_from_server (get_seeds_mode);			// Gets seed mode (5 or 10 seeds per blister)
-		if (blister_mode == 0) {
-			blister_mode = seeds10;	// If we haven't get any info from the server we set default 10
-			Serial.println(F("No info on seeds mode from server. \nSet seeds per blister to 10 as default"));
-		}
-
-	}
-	MySW.start();									// Start timer for statistics
-	// Ready to start with the process
+	setup_network();		// First thing we do is set up the network
+	server_connect();		// Now we try to stablish a connection
+	reset_machine ();		// Reset machine (motors, data base fetch, ....)
 }
 
 
@@ -250,23 +198,14 @@ void loop() {
 
 	Serial.println(F("\n ************ "));
 
-	//while (true) {
-		//testing_motors ();
-	//}
-while (true) {
-
+	/*
 	// vibrate_solenoid (byte solenoid_number, byte power, byte duration)
-	
 	for (int a = 1; a<=10;a++) {
 		Serial.println(F("power "));
 		Serial.println(a);
-		vibrate_solenoid (solenoid1, a, 50);
+		vibrate_solenoid (solenoid1, a, 30);
 		delay (5000);
-	}
-}
-
-	
-
+	}*/
 
 	get_and_release_blister ();
 	
@@ -367,6 +306,7 @@ while (true) {
 	print_time(total_ms);
 	
 	check_pause ();
+	check_stop ();
 	
 
 	/******** USEFUL FUNCTIONS
@@ -430,6 +370,22 @@ void setup_pins () {
 	pinMode (sensG, INPUT); 
 	pinMode (sensH, INPUT);
 	pinMode (sensI, INPUT);
+
+	// Set default directions for motors
+	Xaxis.set_default_direcction (default_directionX);
+	Yaxis.set_default_direcction (default_directionY);
+	Xaxis.set_default_sensor_state (default_Xsensor_HIGH_state);
+	Yaxis.set_default_sensor_state (default_Ysensor_HIGH_state);
+	blisters.set_default_direcction (default_directionB);
+	counter.set_default_direcction (default_directionC);
+    
+	// set_accel_profile(init_timing, int ramp_inclination, n_slopes_per_mode, n_steps_per_slope)
+	Xaxis.set_speed_in_slow_mode (400);
+	Xaxis.set_accel_profile(900, 17, 9, 20);
+	Yaxis.set_speed_in_slow_mode (350);
+	Yaxis.set_accel_profile(950, 13, 7, 15);
+	//Yaxis.set_speed_in_slow_mode (350);
+	//Yaxis.set_accel_profile(950, 14, 8, 15);
 }
 
 
