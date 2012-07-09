@@ -528,7 +528,8 @@ void check_stop () {
 
 		if (global_status == S_setting_up) {
 			reset_machine ();	
-		}	
+		}
+		delay(500);
 	}
 }
 
@@ -960,16 +961,14 @@ void reset_machine () {
 	// Updating Database from info staroed in the server
 	get_positions_from_server (P0);					// receives all positions from server
 	send_status_to_server (S_stopped);	// here we wait for the server to send orders
-    mem_check();
-    Serial.println(F("Machine Stopped, waiting for a change on status from server"));
-	// While we are not on run mode, keep cheking the server
-	#if defined bypass_server
-		global_status = S_running;
-	#else
-		while (global_status != S_running) {
-			check_server();
-		}	//When ready....
-	#endif
+	MySW.reset();
+	MySW.start();
+	mem_check();
+	blister_mode = 0;
+}
+
+
+void wait_for_blister_info () {
 	// if we haven't received seeds mode ask for it:
 	if (blister_mode == 0) {
 		get_info_from_server (get_seeds_mode);			// Gets seed mode (5 or 10 seeds per blister)
@@ -979,9 +978,8 @@ void reset_machine () {
 		}
 
 	}
-	MySW.reset();
-	MySW.start();
 }
+
 
 void start_idle_timer (unsigned long  seconds) {
 	idle_time_counter = 0;

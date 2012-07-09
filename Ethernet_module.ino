@@ -99,7 +99,7 @@ boolean check_server()
 		sprintf(message, "%dX\r\n", M_ID);
 		client.print(message);
 		#if defined Server_com_debug
-		Serial.print(message);
+		//Serial.print(message);
 		#endif
 
 		if (!receive_server_data ()) {
@@ -167,7 +167,7 @@ void get_info_from_server (byte command) {
 	#endif
 	// we have to receive information
 	if (!receive_server_data ()) {
-		Serial.print (F("-OK not received or error on sent command I"));
+		//Serial.print (F("-OK not received or error on sent command I");
 		Serial.println (command);
 	}
 }
@@ -182,7 +182,7 @@ void send_status_to_server (byte command) {
 	#endif
 
 	if (!receive_server_data ()) {
-		Serial.print (F("-OK not received or error on sended command S"));
+		//Serial.print (F("-OK not received or error on sended command S"));
 		Serial.println (command);
 	}
 }
@@ -229,7 +229,7 @@ void send_position_to_server (byte command) {	// Inform server that we are going
 
 	if (!receive_server_data ()) {
 		#if defined Server_com_error_debug
-		Serial.print (F("-OK not received or error on sended command G"));
+		//Serial.print (F("-OK not received or error on sended command G"));
 		Serial.println (command);
 		#endif
 	}
@@ -244,7 +244,7 @@ void get_positions_from_server (byte command) {	// Receive position information 
 		#endif
 		if (!receive_server_data ()) {
 			#if defined Server_com_error_debug
-			Serial.print (F("-OK not received or error on sended command P"));
+			//Serial.print (F("-OK not received or error on sended command P"));
 			Serial.println (command);
 			#endif
 		}
@@ -278,7 +278,7 @@ void get_config_from_server (byte command) {	// Receive configuration informatio
 		#endif
 		if (!receive_server_data ()) {
 			#if defined Server_com_error_debug
-			Serial.print (F("-OK not received or error on sended command C"));
+			//Serial.print (F("-OK not received or error on sended command C"));
 			Serial.println (command);
 			#endif
 		}
@@ -295,7 +295,7 @@ void get_config_from_server (byte command) {	// Receive configuration informatio
 		// so...
 		if (!receive_server_data ()) {
 			#if defined Server_com_error_debug
-			Serial.print (F("-OK not received or error on sended command C"));
+			//Serial.print (F("-OK not received or error on sended command C"));
 			Serial.println (command);
 			#endif
 		}

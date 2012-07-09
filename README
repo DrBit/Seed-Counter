@@ -6,6 +6,7 @@
 **
 **  V4.0.10 - 09/07/2012
 **  * Implemented pause, stop, and reset functions
+**  * Fixed Database bug, rewriting itself
 **
 **  V4.0.9 - 06/07/2012
 **  * Fixed bug in the counter process when sending data to the server we would lose events on the sensor

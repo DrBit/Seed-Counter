@@ -29,7 +29,7 @@
 #define Server_com_debug	// Debug communications witht the server
 #define Server_com_error_debug // Debug errors of communication with the server
 //#define DEBUG_counter		// Debug counter.. print positions
-#define bypass_server		// Bypass_orders from the servre and stat process stright away
+//#define bypass_server		// Bypass_orders from the servre and stat process stright away // not implemented
 
 // example debug:
 // #if defined DEBUG
@@ -176,11 +176,11 @@ void setup() {
 
 	check_library_version ();	// Check library Version. If different STOP
 	speed_cntr_Init_Timer1();	// Initiate the Timer1 config function in order to prepare the timing functions of motor acceleration
-	delay (10);  				// Delay to be safe
-	init_DB ();				// Init database
+	delay (10);  				// Delay to be safe	
 
 	setup_network();		// First thing we do is set up the network
 	server_connect();		// Now we try to stablish a connection
+	init_DB ();				// Init database.  Needs to be AFTER setup_network cause is using another instance of DB
 	reset_machine ();		// Reset machine (motors, data base fetch, ....)
 }
 
@@ -195,6 +195,10 @@ void setup() {
 // * 09 * 08 * 05 * 04 * 01 * Y1
 // * X5 * X4 * X3 * X2 * X1 *
 void loop() {
+	
+	// INIT procedure
+	check_stop ();
+	wait_for_blister_info ();		// Checks the status, waits until we receive info to proceed
 
 	Serial.println(F("\n ************ "));
 
@@ -306,8 +310,6 @@ void loop() {
 	print_time(total_ms);
 	
 	check_pause ();
-	check_stop ();
-	
 
 	/******** USEFUL FUNCTIONS
 	
