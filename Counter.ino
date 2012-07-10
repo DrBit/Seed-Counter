@@ -91,8 +91,8 @@ void pickup_seed() {
 		// Checks if we did too many turns. Could mean a bottle neck or just out of seeds
 		if (count_error_turns > fails_max_normal) {
 			send_error_to_server(counter_max_turns_normal);
-			Serial.println ("\nError, no more seeds? Empty? Bottleneck? did the world end?");
-			Serial.print ("Press 1 to continue, press 2 to finish batch: ");
+			Serial.println (F("\nError, no more seeds? Empty? Bottleneck? did the world end?"));
+			Serial.print (F("Press 1 to continue, press 2 to finish batch: "));
 			int button_pressed = return_pressed_button ();
 			Serial.println (button_pressed);
 			if (button_pressed == 1) { 
@@ -103,8 +103,8 @@ void pickup_seed() {
 
 		}else if ((count_error_turns > fails_max_end) && (counter_s > (max_batch_count - 200))) {
 			send_error_to_server(counter_max_turns_end);
-			Serial.println ("\nWe might have reached the end, is it?");
-			Serial.print ("Press 1 to continue, press 2 to finilize batch: ");
+			Serial.println (F("\nWe might have reached the end, is it?"));
+			Serial.print (F("Press 1 to continue, press 2 to finilize batch: "));
 			int button_pressed = return_pressed_button ();
 			Serial.println (button_pressed);
 			if (button_pressed == 1) { 
@@ -116,10 +116,13 @@ void pickup_seed() {
 		}
 		check_pause ();				// Enters menu if a button is pressed
 
-		// Vibrate with acording intensity depending in the amount of previous errors
+		// Vibrate acordingly depending on the amount of previous errors
 		byte intensity = count_error_turns%10; 
-		vibrate_solenoid (solenoid1, intensity, 10);	// intensity will be a number of 0 to 10
+		//duration is 10 - intensity
+		byte _duration = 10 - intensity;
+		vibrate_solenoid (solenoid1, intensity, _duration);	// intensity will be a number of 0 to 10
 		
+
 		// We are at drop seed position ready to start turning.
 		if ((counter.get_steps() == steps_from_sensor_to_init_clockwise) && (count_total_turns == previous_counted_turns)){			// If we are at the starting position means we are ready to continue
 			wait_time(50);

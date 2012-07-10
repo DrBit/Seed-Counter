@@ -476,14 +476,16 @@ int init_XY_menu() {
 /***** Init Counter from menu *****/
 int init_counter_menu () {
 	// Init Counter
-	pump_enable ();
+	if (get_pump_state() == false) {
+		pump_enable ();
+	}
     Serial.print("Init Seed counter roll: ");
     if (Seedcounter_init()) {  // Initiates seed counters
-	print_ok();
+		print_ok();
         error_counter = false;
         return 1;
     }else{
-	print_fail();
+		print_fail();
         error_counter = true;
 		pump_disable ();
         return 0;
@@ -505,6 +507,55 @@ int init_blisters_menu () {
     }
 }
 
+void switch_off_machine () {
+	send_action_to_server(power_off);
+	delay (2000);
+
+	if (get_pump_state() == true) {
+		pump_disable();
+	}
+	if (get_motor_sleep_state () == true) {
+		motors_sleep ();	// Awake motors
+	}
+	if (get_motor_enable_state () == true) {
+		motors_disable ();	// Enable motors
+	}
+	if (get_power_state () == true) { 
+		PSupply_OFF ();		// Switch Power supply ON
+		Serial.println ("Switching OFF!");
+	}
+	send_status_to_server (S_switch_off);
+}
+
+void reset_machine () {
+	send_status_to_server (S_setting_up);	// here we comunicate the server that we begin the set-up process	
+	send_error_to_server (no_error);		// NO ERROR
+		// Get all configuration from the server
+	get_config_from_server (C_All);	// gets default IDLE time
+	// INIT SYSTEM, and CHECK for ERRORS
+	init_all_motors ();
+	// Updating Database from info staroed in the server
+	get_positions_from_server (P0);					// receives all positions from server
+	send_status_to_server (S_stopped);	// here we wait for the server to send orders
+	MySW.reset();
+	MySW.start();
+	mem_check();
+	blister_mode = 0;		// Reset blister mode in case we are reestarting
+}
+
+
+void wait_for_blister_info () {
+	// if we haven't received seeds mode ask for it:
+	if (blister_mode == 0) {
+		get_info_from_server (get_seeds_mode);			// Gets seed mode (5 or 10 seeds per blister)
+		if (blister_mode == 0) {
+			blister_mode = seeds10;	// If we haven't get any info from the server we set default 10
+			Serial.println(F("No info on seeds mode from server. \nSet seeds per blister to 10 as default"));
+		}
+
+	}
+}
+
 void check_stop () {
 	check_server();		// Should we? if it 
 	if (global_status == S_finishing_batch) {
@@ -522,7 +573,10 @@ void check_stop () {
 			switch_off_machine ();		// Switch off machine
 			while (global_status == S_switch_off) {
 				// Do nothing while everithing is off
+				check_server();
+				delay (500);
 			}
+			send_action_to_server(power_on); 
 			reset_machine ();		// When changes we will switch back ON
 		}
 
@@ -548,8 +602,7 @@ void check_pause () {
 		start_idle_timer (60);
 		while (button_emergency) {
 			button_emergency = digitalRead (emergency); 
-			delay (1000);
-			
+			delay (500);
 			check_idle_timer (true);
 		}
 		end_idle_timer ();
@@ -572,49 +625,6 @@ void check_pause () {
 		end_idle_timer ();
 		MySW.start();
 		pause = false;
-
-		/*
-		Serial.flush();
-		Serial.println ("Pause activated ");
-		Serial.println ("Press 1 to resume");
-		//Serial.println ("Press 2 Change seed batch code");
-		Serial.println ("Press 3 to print statistics");
-		Serial.println ("Press 4 to reset statistics");
-		Serial.println ("Press 5 to go to main menu");
-		
-		while(pause) {
-			switch (return_pressed_button ()) {			
-				case 1:
-					pause = false;
-					MySW.start();
-				break;
-				
-				case 2:
-					//select_batch_number ();
-					//send_petition_to_configure_network ();
-					//update_network_configuration ();
-				break;
-				
-				case 3:
-					statistics();
-				break;
-				
-				case 4:
-					pause = false;
-					counter_s = 0;
-					count_total_turns = 0;
-					MySW.reset();
-					MySW.start();
-				break;
-				
-				case 5:
-					test_functions();
-				break;
-				
-				
-			}
-		}
-		*/
 	}
 }
 
@@ -721,12 +731,15 @@ void check_library_version () {
 void init_all_motors () {
 
 	// Prepare to init motors
-	PSupply_ON ();		// Switch Power supply ON
-	//delay (2000);
-	motors_enable ();	// Enable motors
-	//delay (2000);
-	motors_awake ();	// Awake motors
-	//delay (2000);
+	if (get_power_state () == false) { 
+		PSupply_ON ();		// Switch Power supply ON
+	}
+	if (get_motor_enable_state () == false) {
+		motors_enable ();	// Enable motors
+	}
+	if (get_motor_sleep_state () == false) {
+		motors_awake ();	// Awake motors
+	}
 	
 	// INIT SYSTEM, and CHECK for ERRORS
 	int temp_err = 0;   // flag for found errors
@@ -931,55 +944,6 @@ boolean check_idle_timer (boolean message) {
 	}
 	return false;
 }
-
-void switch_off_machine () {
-	if (get_motor_sleep_state () == true) {
-		motors_sleep ();	// Awake motors
-		//delay (2000);
-	}
-	
-	if (get_motor_enable_state () == true) {
-		motors_disable ();	// Enable motors
-		//delay (2000);
-	}
-	if (get_power_state () == true) {
-		send_status_to_server (S_switch_off);
-		PSupply_OFF ();		// Switch Power supply ON
-		Serial.println ("Switching OFF!");
-
-	}
-
-}
-
-void reset_machine () {
-	send_status_to_server (S_setting_up);	// here we comunicate the server that we begin the set-up process	
-	send_error_to_server (no_error);		// NO ERROR
-		// Get all configuration from the server
-	get_config_from_server (C_All);	// gets default IDLE time
-	// INIT SYSTEM, and CHECK for ERRORS
-	init_all_motors ();
-	// Updating Database from info staroed in the server
-	get_positions_from_server (P0);					// receives all positions from server
-	send_status_to_server (S_stopped);	// here we wait for the server to send orders
-	MySW.reset();
-	MySW.start();
-	mem_check();
-	blister_mode = 0;		// Reset blister mode in case we are reestarting
-}
-
-
-void wait_for_blister_info () {
-	// if we haven't received seeds mode ask for it:
-	if (blister_mode == 0) {
-		get_info_from_server (get_seeds_mode);			// Gets seed mode (5 or 10 seeds per blister)
-		if (blister_mode == 0) {
-			blister_mode = seeds10;	// If we haven't get any info from the server we set default 10
-			Serial.println(F("No info on seeds mode from server. \nSet seeds per blister to 10 as default"));
-		}
-
-	}
-}
-
 
 void start_idle_timer (unsigned long  seconds) {
 	idle_time_counter = 0;

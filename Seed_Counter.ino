@@ -5,7 +5,7 @@
 //#include <network_config.h>		// NEDED?
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "V4.0.10"
+#define version_prog "V4.0.11"
 #define lib_version 15
 
 /********************************************
