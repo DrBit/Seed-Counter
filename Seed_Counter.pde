@@ -4,7 +4,7 @@
 
 #include <network_config.h>
 
-#define version_prog "V3.12"
+#define version_prog "V3.14"
 #define lib_version 13
 
 
@@ -145,6 +145,8 @@ void setup() {
 	
 	// Controls Pump relay
 	pinMode (pump, OUTPUT);
+	
+	//chec_sensorF ();
 	
 	// Check library Version
 	check_library_version ();		//If different STOP
