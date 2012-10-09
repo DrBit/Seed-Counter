@@ -6,7 +6,7 @@
 //#include <network_config.h>		// NEDED?
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "V4.0.11"
+#define version_prog "V4.0.12"
 #define lib_version 15
 
 /********************************************
@@ -185,7 +185,7 @@ void setup() {
 	speed_cntr_Init_Timer1();	// Initiate the Timer1 config function in order to prepare the timing functions of motor acceleration
 	delay (10);  				// Delay to be safe	
 
-	//servo_test ();
+	// servo_test ();
 
 	setup_network();		// First thing we do is set up the network
 	server_connect();		// Now we try to stablish a connection
@@ -400,8 +400,12 @@ void setup_pins () {
 
 	// Servo configure
 	myservo_right.attach(solenoid2);  // attaches the servo on pin 2 to the servo object
-	myservo_left.attach(extraoutput);  // attaches the servo on pin 2 to the servo object
+	myservo_right.setMinimumPulse(900);
+	myservo_right.setMaximumPulse(2100);
 
+	myservo_left.attach(extraoutput);  // attaches the servo on pin 2 to the servo object
+	myservo_left.setMinimumPulse(900);
+	myservo_left.setMaximumPulse(2100);
 }
 
 
@@ -444,9 +448,31 @@ void chec_sensorF () {
 
 
 void servo_test () {
+	// Prepare to init motors
+	if (get_power_state () == false) { 
+		PSupply_ON ();		// Switch Power supply ON
+	}
+	if (get_motor_enable_state () == false) {
+		motors_enable ();	// Enable motors
+	}
+	if (get_motor_sleep_state () == false) {
+		motors_awake ();	// Awake motors
+	}
 
 	for (int f=0; f<20; f++) {
-		release_blister_servo ();
-		delay (1300);
+		for (int l = 0; l<100; l++) {
+		myservo_left.write(0);                  // sets the servo position according to the scaled value 
+		myservo_right.write(180);
+		delay(15);                           // waits for the servo to get there 
+		SoftwareServo::refresh();
+		}
+
+		for (int l = 0; l<100; l++) {
+		myservo_left.write(180);                  // sets the servo position according to the scaled value 
+		myservo_right.write(0);
+		delay(15);                           // waits for the servo to get there 
+		SoftwareServo::refresh();
+		}
 	}
+	//delay (1300);
 }
