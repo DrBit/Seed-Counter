@@ -50,6 +50,25 @@ void release_blister () {
 
 }
 
+void release_blister_servo () {
+	//send_action_to_server (blister_release);
+	Serial.println("TESTING SERVOOOOO!!!!!!!!!!!");
+	//go_to_memory_position (2);			// blister
+	
+	myservo_left.write(0);                  // sets the servo position according to the scaled value 
+	myservo_right.write(180);
+	delay(15);                           // waits for the servo to get there 
+	SoftwareServo::refresh();
+	myservo_left.write(180);                  // sets the servo position according to the scaled value 
+	myservo_right.write(0);
+	delay(15);                           // waits for the servo to get there 
+	SoftwareServo::refresh();
+	delay(15);
+	// Check if we are out of blisters
+	//check_out_of_blisters ();
+
+}
+
 
 boolean check_blister_realeased () {
 	boolean skip_sensor_blister = false;

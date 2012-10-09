@@ -109,8 +109,13 @@ boolean check_server()
 			// Something has been received
 		}
 		
+boolean skip_server = false;
+#if defined bypass_server
+skip_server = true;
+#endif
 	 
 		// if the server's disconnected, stop the client:
+		//if (!client.connected() && !skip_server) {
 		if (!client.connected()) {
 			Serial.println(F("Server Disconnected."));
 			client.stop();
@@ -147,8 +152,13 @@ boolean connect_to_server () {
 	Serial.print(ip_to_str(server));
 	Serial.print(F(":")); Serial.println (port);
 
+boolean skip_server = false;
+#if defined bypass_server
+skip_server = true;
+#endif
+
 	// if you get a connection, report back via serial:
-	if (client.connect(server, port)) {
+	if (client.connect(server, port) || skip_server) {
 		Serial.println(F("connected!"));
 		return true;
 	} else {
@@ -319,7 +329,7 @@ boolean receive_server_data (){
 	
 	boolean receivedO = false;					// Used to control the first letter of the OK sentence
 	boolean receivedK = false;
-		while (client.available() > 0) {
+	while (client.available() > 0) {
 		char inChar = client.read();				// read
 		
 		switch (inChar) {
