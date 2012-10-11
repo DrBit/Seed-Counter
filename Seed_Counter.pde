@@ -4,7 +4,7 @@
 
 #include <network_config.h>
 
-#define version_prog "V3.14"
+#define version_prog "V3.14.1 Jard Special Edition"
 #define lib_version 13
 
 

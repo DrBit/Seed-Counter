@@ -5,7 +5,8 @@
 **  REVISIONS from:
 **
 **  V3.14 - 17/07/2012
-**  * Added duoble print label. in case it fails. (just one time)
+**  * Added double print label. in case it fails. (just one time)
+**  * V3.14.1 Added double check for blister release. in case it fails. (just one time)
 **
 **  V3.13 - 25/04/2012
 **  * Testing Bug of Yaxis dsiplacement
