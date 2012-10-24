@@ -216,6 +216,7 @@ void print_and_release_label () {
 	// Wait for the printer to print a label
 	boolean released = check_label_realeased (true);
 	
+	/*
 	// One time only. If fails try again automatically if fails again stop
 	if  (!released) {
 		Serial.println("Goto print position");
@@ -223,6 +224,7 @@ void print_and_release_label () {
 		print_one_label ();
 		released = check_label_realeased (true);
 	}
+	*/
 	
 	while (!released) {
 		Serial.println("Label error, remove any label that might be left and press number 1 to try again or 2 to continue.");

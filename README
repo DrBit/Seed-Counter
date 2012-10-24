@@ -4,6 +4,10 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V3.15 - 24/10/2012
+**  * Reset motors every 100 seeds
+**  * Removed double printing on label error
+**
 **  V3.14 - 17/07/2012
 **  * Added double print label. in case it fails. (just one time)
 **  * V3.14.1 Added double check for blister release. in case it fails. (just one time)

@@ -162,6 +162,31 @@ void pick_blister_mode() {
 
 void get_and_release_blister () {
 
+	// If we got already 500 seeds we reset the Y axis as its getting flufy (it shouldn't be like that)
+	if (((counter_s%100) == 0) && (counter_s!=0)) {
+		// Reset axis
+
+		int temp_err = 0;   // flag for found errors
+		if (!init_blocks(2)) temp_err = 1;
+		
+		while (temp_err > 0) { // We found an error, we chek ALL errors and try to initiate correctly
+			temp_err = 0;
+			Serial.println("\nErrors found, press 1 when ready to check again, 2 to bypas the errors");
+			switch (return_pressed_button ()) {
+				//Init XY 
+				case 1:
+					if (error_XY) {
+						if (!init_blocks(2)) temp_err++;
+					}
+				break;
+				
+				case 2:
+					// do nothing so we wond detect any error and we will continue
+				break;
+			}
+		}
+	}
+	
 	Serial.println("Get blister");
 	release_blister ();
 	
