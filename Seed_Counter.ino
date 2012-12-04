@@ -23,7 +23,7 @@
 // #define DEBUG		// Remove / Add"//" to enable / disbale DEBUG mode
 #define Cmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 #define Xmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
-//#define Ymotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
+#define Ymotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 #define Sensor_printer		// Disable sensor printer
 #define Sensor_blister		// Disable sensor blisters
 #define Server_com_debug	// Debug communications witht the server
