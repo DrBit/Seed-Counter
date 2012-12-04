@@ -4,6 +4,14 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V4.0.12 - 10/09/2012
+**  * Added function to bypass server (needs further implementation)
+**  * Changed blister functions to work with servo motors and also stepper (we choose wich ones to use)
+**
+**  V4.0.11 - 10/07/2012
+**  * Fixed bug switch off functions that would prevent a wake up from switch off state
+**  * Improved switch off/on and reset functions
+**
 **  V4.0.10 - 09/07/2012
 **  * Implemented pause, stop, and reset functions
 **  * Fixed Database bug, rewriting itself

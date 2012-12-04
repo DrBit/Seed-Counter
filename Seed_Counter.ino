@@ -1,11 +1,12 @@
 #include <Stepper_ac.h>
 #include <avr/pgmspace.h>
 #include <StopWatch.h>
+#include <SoftwareServo.h> 
 
 //#include <network_config.h>		// NEDED?
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "V4.0.10"
+#define version_prog "V4.0.12"
 #define lib_version 15
 
 /********************************************
@@ -26,10 +27,10 @@
 #define Ymotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 #define Sensor_printer		// Disable sensor printer
 #define Sensor_blister		// Disable sensor blisters
-#define Server_com_debug	// Debug communications witht the server
+#define Server_com_debug	// Debug communications with the server
 #define Server_com_error_debug // Debug errors of communication with the server
 //#define DEBUG_counter		// Debug counter.. print positions
-//#define bypass_server		// Bypass_orders from the servre and stat process stright away // not implemented
+#define bypass_server		// Bypass_orders from the server and stat process stright away // not implemented
 
 // example debug:
 // #if defined DEBUG
@@ -41,6 +42,7 @@ StopWatch MySW;
 
 // Machine ID
 byte M_ID=1;
+
 
 // ***********************
 // ** DEFINES PIN MAP
@@ -107,6 +109,11 @@ Stepper_ac Yaxis(stepB,dirB,sensB,ms1B,ms2B,200,4);
 Stepper_ac blisters(stepC,dirC,0,ms1C,ms2C,200,4);
 // Setting up motor D, step pin, direction pin, sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for wighth step(mode of the stepper driver)
 Stepper_ac counter(stepD,dirD,sensD,ms1D,ms2D,200,4);
+
+// Servo instances
+SoftwareServo myservo_left;  // create servo object to control a servo
+SoftwareServo myservo_right;  // create servo object to control a servo
+
 
 // ***********************
 // ** DEFINES variables
@@ -177,6 +184,8 @@ void setup() {
 	check_library_version ();	// Check library Version. If different STOP
 	speed_cntr_Init_Timer1();	// Initiate the Timer1 config function in order to prepare the timing functions of motor acceleration
 	delay (10);  				// Delay to be safe	
+
+	// servo_test ();
 
 	setup_network();		// First thing we do is set up the network
 	server_connect();		// Now we try to stablish a connection
@@ -363,9 +372,9 @@ void setup_pins () {
 	digitalWrite(sleep, LOW);		// Put drivers in sleep mode
 	// Define Outputs
 	pinMode (solenoid1, OUTPUT); 
-	pinMode (solenoid2, OUTPUT); 
+	//pinMode (solenoid2, OUTPUT); 
 	pinMode (pump, OUTPUT); 
-	pinMode (extraoutput, OUTPUT); 
+	//pinMode (extraoutput, OUTPUT); 
 	// Define Inputs
 	pinMode (sensE, INPUT);
 	pinMode (sensF, INPUT); 
@@ -388,6 +397,15 @@ void setup_pins () {
 	Yaxis.set_accel_profile(950, 13, 7, 15);
 	//Yaxis.set_speed_in_slow_mode (350);
 	//Yaxis.set_accel_profile(950, 14, 8, 15);
+
+	// Servo configure
+	myservo_right.attach(solenoid2);  // attaches the servo on pin 2 to the servo object
+	myservo_right.setMinimumPulse(900);
+	myservo_right.setMaximumPulse(2100);
+
+	myservo_left.attach(extraoutput);  // attaches the servo on pin 2 to the servo object
+	myservo_left.setMinimumPulse(900);
+	myservo_left.setMaximumPulse(2100);
 }
 
 
@@ -427,3 +445,34 @@ void chec_sensorF () {
 	}
 }
 
+
+
+void servo_test () {
+	// Prepare to init motors
+	if (get_power_state () == false) { 
+		PSupply_ON ();		// Switch Power supply ON
+	}
+	if (get_motor_enable_state () == false) {
+		motors_enable ();	// Enable motors
+	}
+	if (get_motor_sleep_state () == false) {
+		motors_awake ();	// Awake motors
+	}
+
+	for (int f=0; f<20; f++) {
+		for (int l = 0; l<100; l++) {
+		myservo_left.write(0);                  // sets the servo position according to the scaled value 
+		myservo_right.write(180);
+		delay(15);                           // waits for the servo to get there 
+		SoftwareServo::refresh();
+		}
+
+		for (int l = 0; l<100; l++) {
+		myservo_left.write(180);                  // sets the servo position according to the scaled value 
+		myservo_right.write(0);
+		delay(15);                           // waits for the servo to get there 
+		SoftwareServo::refresh();
+		}
+	}
+	//delay (1300);
+}

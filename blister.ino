@@ -19,6 +19,14 @@ boolean blisters_init () {
 		delayMicroseconds (motor_speed_blisters);
 	} 
 	blisters.set_init_position();
+
+	// Servo init
+	for (int l = 0; l<100; l++) {
+		myservo_left.write(180);             // sets the servo position according to the scaled value 
+		myservo_right.write(0);
+		delay(15);                           // waits for the servo to get there 
+		SoftwareServo::refresh();
+	}
 	return true;
 }
 
@@ -47,6 +55,30 @@ void release_blister () {
 
 	// Check if we are out of blisters
 	check_out_of_blisters ();
+
+}
+
+void release_blister_servo () {
+	//send_action_to_server (blister_release);
+	Serial.println("TESTING SERVOOOOO");
+	go_to_memory_position (2);			// blister
+	
+	for (int l = 0; l<100; l++) {
+	myservo_left.write(0);                  // sets the servo position according to the scaled value 
+	myservo_right.write(180);
+	delay(15);                           // waits for the servo to get there 
+	SoftwareServo::refresh();
+	}
+
+	for (int l = 0; l<100; l++) {
+	myservo_left.write(180);                  // sets the servo position according to the scaled value 
+	myservo_right.write(0);
+	delay(15);                           // waits for the servo to get there 
+	SoftwareServo::refresh();
+	}
+	// delay(15);
+	// Check if we are out of blisters
+	//check_out_of_blisters ();
 
 }
 

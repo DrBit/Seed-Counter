@@ -60,12 +60,12 @@ boolean XYaxes_init () {
 	
 	boolean skip_x = false;
 	boolean skip_y = false;
-#if defined Xmotor_debug
-	skip_x = true;
-#endif
-#if defined Ymotor_debug
-	skip_y = true;
-#endif
+	#if defined Xmotor_debug
+		skip_x = true;
+	#endif
+	#if defined Ymotor_debug
+		skip_y = true;
+	#endif
 	
 	// We should move the motors at this point in mode 1 at top speed
 	while (!both_sensors) {			// While we dont hit the sensor...
