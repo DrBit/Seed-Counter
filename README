@@ -4,6 +4,9 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V4.0.13 - 06/12/2012
+**  * Finished function bypass server
+**
 **  V4.0.12 - 10/09/2012
 **  * Added function to bypass server (needs further implementation)
 **  * Changed blister functions to work with servo motors and also stepper (we choose wich ones to use)

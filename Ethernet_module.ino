@@ -109,14 +109,14 @@ boolean check_server()
 			// Something has been received
 		}
 		
-boolean skip_server = false;
-#if defined bypass_server
-skip_server = true;
-#endif
+		boolean skip_server = false;
+		#if defined bypass_server
+		skip_server = true;
+		#endif
 	 
 		// if the server's disconnected, stop the client:
-		//if (!client.connected() && !skip_server) {
-		if (!client.connected()) {
+		if (!client.connected() && !skip_server) {
+		// if (!client.connected()) {
 			Serial.println(F("Server Disconnected."));
 			client.stop();
 			connected_to_server = false;

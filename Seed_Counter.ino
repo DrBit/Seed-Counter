@@ -6,7 +6,7 @@
 //#include <network_config.h>		// NEDED?
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "V4.0.12"
+#define version_prog "V4.0.13"
 #define lib_version 15
 
 /********************************************
@@ -22,7 +22,7 @@
 */
 
 // #define DEBUG		// Remove / Add"//" to enable / disbale DEBUG mode
-#define Cmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
+// #define Cmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 #define Xmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 #define Ymotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 #define Sensor_printer		// Disable sensor printer
@@ -30,7 +30,7 @@
 #define Server_com_debug	// Debug communications with the server
 #define Server_com_error_debug // Debug errors of communication with the server
 //#define DEBUG_counter		// Debug counter.. print positions
-#define bypass_server		// Bypass_orders from the server and stat process stright away // not implemented
+#define bypass_server		// Bypass_orders from the server and stat process straight away // not implemented
 
 // example debug:
 // #if defined DEBUG
@@ -78,12 +78,12 @@ byte M_ID=1;
 #define sensB 48
 #define sensC 46  // Emergency button?
 // Analog sensors
-#define sensD 8
-#define sensE 9
-#define sensF 10
-#define sensG 11
-#define sensH 12
-#define sensI 13
+#define sensD A8
+#define sensE A9
+#define sensF A10
+#define sensG A11
+#define sensH A12
+#define sensI A13
 #define emergency sensC  // Change in case connected at another input
 // Outputs
 #define PSupply 47
@@ -102,13 +102,13 @@ byte M_ID=1;
 // ** CONFIG MOTOR PINS
 // ***********************
 // Setting up motor A, step pin, direction pin, sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for eighth step(mode of the stepper driver)
-Stepper_ac Xaxis(stepA,dirA,sensA,ms1A,ms2A,200,8);
+Stepper_ac Xaxis(stepA,dirA,sensD,ms1A,ms2A,200,8);
 // Setting up motor B, step pin, direction pin, sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for wighth step(mode of the stepper driver)
-Stepper_ac Yaxis(stepB,dirB,sensB,ms1B,ms2B,200,4);
+Stepper_ac Yaxis(stepB,dirB,sensE,ms1B,ms2B,200,4);
 // Setting up motor C, step pin, direction pin, NO sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for wighth step(mode of the stepper driver)
 Stepper_ac blisters(stepC,dirC,0,ms1C,ms2C,200,4);
 // Setting up motor D, step pin, direction pin, sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for wighth step(mode of the stepper driver)
-Stepper_ac counter(stepD,dirD,sensD,ms1D,ms2D,200,4);
+Stepper_ac counter(stepD,dirD,sensF,ms1D,ms2D,200,4);
 
 // Servo instances
 SoftwareServo myservo_left;  // create servo object to control a servo
