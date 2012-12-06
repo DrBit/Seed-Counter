@@ -22,6 +22,8 @@ Example of commands sended:
 1G56	(Goto position)
 1E2	(Error)
 
+for a list of all possible comands check file list_commands_ethernet.h
+
 ///////////
 NETWORK
 ///////////

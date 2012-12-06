@@ -514,8 +514,8 @@ void switch_off_machine () {
 	if (get_pump_state() == true) {
 		pump_disable();
 	}
-	if (get_motor_sleep_state () == true) {
-		motors_sleep ();	// Awake motors
+	if (get_motor_sleep_state () == false) {
+		motors_sleep ();	// Sleep motors
 	}
 	if (get_motor_enable_state () == true) {
 		motors_disable ();	// Enable motors
@@ -557,7 +557,10 @@ void wait_for_blister_info () {
 }
 
 void check_stop () {
-	check_server();		// Should we? if it 
+	check_server();		// Should we?
+	#if defined bypass_server 
+	global_status = S_running;
+	#endif
 	if (global_status == S_finishing_batch) {
 		// We where finishing the batch. The UI should be locked for now
 		// So we shouldn't have received any other status.
@@ -566,15 +569,17 @@ void check_stop () {
 
 		send_status_to_server (S_stopped);
 	}
-
+	
+	start_idle_timer (3);
 	while (global_status == S_stopped) {
+		Serial.println(F("\n **Checking server global status :"));
 		check_server();
 		if (global_status == S_switch_off) {
 			switch_off_machine ();		// Switch off machine
 			while (global_status == S_switch_off) {
 				// Do nothing while everithing is off
 				check_server();
-				delay (500);
+				delay (1500);
 			}
 			send_action_to_server(power_on); 
 			reset_machine ();		// When changes we will switch back ON
@@ -583,8 +588,10 @@ void check_stop () {
 		if (global_status == S_setting_up) {
 			reset_machine ();	
 		}
-		delay(500);
+		delay(1000);
+		check_idle_timer (true);
 	}
+	end_idle_timer ();
 }
 
 void check_pause () {
@@ -599,7 +606,7 @@ void check_pause () {
 		Serial.println ("Emergency Enabled");
 		MySW.stop();
 		// Send error
-		start_idle_timer (60);
+		start_idle_timer (10);
 		while (button_emergency) {
 			button_emergency = digitalRead (emergency); 
 			delay (500);
@@ -737,7 +744,7 @@ void init_all_motors () {
 	if (get_motor_enable_state () == false) {
 		motors_enable ();	// Enable motors
 	}
-	if (get_motor_sleep_state () == false) {
+	if (get_motor_sleep_state () == true) {
 		motors_awake ();	// Awake motors
 	}
 	
@@ -907,6 +914,7 @@ void boring_messages () {
 }
 
 
+// Needs to be changed into real timer....
 boolean check_idle_timer (boolean message) {
 
 	if (idle_time_counter < desired_idle_time) {
@@ -923,8 +931,8 @@ boolean check_idle_timer (boolean message) {
 		
 		if (idle_time_counter == (desired_idle_time + default_off_time)) {
 
-			if (get_motor_sleep_state () == true) {
-				motors_sleep ();	// Awake motors
+			if (get_motor_sleep_state () == false) {
+				motors_sleep ();	// Sleep motors
 				//delay (2000);
 			}
 			

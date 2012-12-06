@@ -39,6 +39,7 @@ boolean Seedcounter_init() {
 		if (counter.sensor_check()) {
 			// If the sensor is true means we found the position of the sensor
 			seed_sensor = true;
+			//Serial.println ("Counter sensor is HIGH");  // for debug
 		}
 		// This delay slows down the velocity so we won't miss any step
 		// Thats because we are not using acceleration in this case
@@ -114,21 +115,27 @@ void pickup_seed() {
 			if (button_pressed == 2) end_of_batch ();
 
 		}
-		check_pause ();				// Enters menu if a button is pressed
 
 		// Vibrate acordingly depending on the amount of previous errors
 		byte intensity = count_error_turns%10; 
 		//duration is 10 - intensity
 		byte _duration = 10 - intensity;
-		vibrate_solenoid (solenoid1, intensity, _duration);	// intensity will be a number of 0 to 10
+		//vibrate_solenoid (solenoid1, intensity, _duration);	// intensity will be a number of 0 to 10
 		
 
 		// We are at drop seed position ready to start turning.
 		if ((counter.get_steps() == steps_from_sensor_to_init_clockwise) && (count_total_turns == previous_counted_turns)){			// If we are at the starting position means we are ready to continue
+			check_pause ();				// Enters menu if a button is pressed
+			// We check for pause in here because here we are time safe. Outside this is time criticall and any delay would crash de counter
 			wait_time(50);
 			if (!last_turn) {
 				send_action_to_server(seed_counter_turn);
-				speed_cntr_Move(1600/counter.get_step_accuracy(),accel,speed,accel);	// We do a full turn, NOTICE that the acceleration in this case is lower
+				if (default_directionC) {
+					speed_cntr_Move(-(1600/counter.get_step_accuracy()),accel,speed,accel);	// We do a full turn, NOTICE that the acceleration in this case is lower
+				}else{
+					speed_cntr_Move(1600/counter.get_step_accuracy(),accel,speed,accel);	// We do a full turn, NOTICE that the acceleration in this case is lower
+
+				}
 				count_total_turns ++;		// for statistics pourpouses
 				
 			}
@@ -139,7 +146,11 @@ void pickup_seed() {
 			wait_time(50);
 			if (!last_turn) {
 				send_action_to_server(seed_counter_turn);
-				speed_cntr_Move(steps_from_sensor_to_init_clockwise/counter.get_step_accuracy(),accel,speed,accel);	// We do a full turn, NOTICE that the acceleration in this case is lower
+				if (default_directionC) {
+					speed_cntr_Move(-(steps_from_sensor_to_init_clockwise/counter.get_step_accuracy()),accel,speed,accel);	// We do a full turn, NOTICE that the acceleration in this case is lower
+				} else {
+					speed_cntr_Move(steps_from_sensor_to_init_clockwise/counter.get_step_accuracy(),accel,speed,accel);	// We do a full turn, NOTICE that the acceleration in this case is lower
+				}
 				count_total_turns ++;		// for statistics pourpouses
 			}
 			count_error_turns ++;		// for errors pourpous
@@ -154,7 +165,6 @@ void pickup_seed() {
 			// Check if we got seed
 			if (counter.sensor_check() || sensor_skip){			// We got a seed!!!
 				seed_detected = true; 
-				send_action_to_server(seed_released);
 				counter_s ++;						// For statistics pourpouse
 				while (!(counter.get_steps() == (steps_from_sensor_to_init_clockwise-steps_from_sensor_to_start_moving_when_seed)))	// If we are not finished moving...
 				{
@@ -162,6 +172,7 @@ void pickup_seed() {
 					// We are waiting to reach a position where the seed is about to fall. At that speed the motor will start acelerating while the seeds
 					// lower the steps_from_sensor_to_start_moving_when_seed in order to wait more to start moving the X or Y motors before the seed falls.
 				}
+				send_action_to_server(seed_released);
 			}
 			// Each time we are here is because we already started moving
 			previous_counted_turns = count_total_turns;			// Avoid giving more than 1 order to turn at the same time
@@ -183,6 +194,8 @@ void pickup_seed() {
 				int button_pressed = return_pressed_button ();
 				if (button_pressed == 1) {
 					counter_autofix ();
+					previous_counted_turns = count_total_turns;			// Avoid giving more than 1 order to turn at the same time
+					first_time_drop = true;
 				}
 			}
 			

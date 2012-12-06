@@ -23,13 +23,13 @@
 
 // #define DEBUG		// Remove / Add"//" to enable / disbale DEBUG mode
 // #define Cmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
-#define Xmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
-#define Ymotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
+// #define Xmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
+// #define Ymotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 #define Sensor_printer		// Disable sensor printer
 #define Sensor_blister		// Disable sensor blisters
 #define Server_com_debug	// Debug communications with the server
 #define Server_com_error_debug // Debug errors of communication with the server
-//#define DEBUG_counter		// Debug counter.. print positions
+// #define DEBUG_counter		// Debug counter.. print positions
 #define bypass_server		// Bypass_orders from the server and stat process straight away // not implemented
 
 // example debug:
@@ -150,7 +150,7 @@ boolean pause = false;
 boolean manual_enabled = false;				// Flag to overwrite the pause flag
 // Set the default times (they might be overwrited in the code)
 int default_idle_time = 120;				// Defaul idle time to go to sleep on user input 120 = 2 minutes.
-int default_off_time = 120;					// Defaul off time to go to sleep on user input 120 = 2 minutes.
+int default_off_time = 60;					// Defaul off time to go to sleep on user input 120 = 2 minutes.
 // Used forinternal pourpouses
 unsigned long  idle_time_counter = 0;
 unsigned long  desired_idle_time = 0;		// Time in seconds 120s = 2 minutes
@@ -165,15 +165,17 @@ byte previous_status = 0;
 // ** Default Direcctions MOTORS
 // ***********************
 // Defining default directions of motors (in case we change the wiring or the position of motors)
-#define default_directionX true
+#define default_directionX false
 #define default_directionY false
 #define default_directionB true
-#define default_directionC false
+#define default_directionC true
 
+// Defines in which direction of the motor we will find the sensors
 #define default_sensor_directionX true
-#define default_sensor_directionY false
+#define default_sensor_directionY true
 
-#define default_Ysensor_HIGH_state true
+// Defines the default HIGH (or enabled) state of the sesor
+#define default_Ysensor_HIGH_state false
 #define default_Xsensor_HIGH_state false
 
 
@@ -186,11 +188,17 @@ void setup() {
 	delay (10);  				// Delay to be safe	
 
 	// servo_test ();
-
+	
+	Serial.println(F("\n **Setup Network :"));
 	setup_network();		// First thing we do is set up the network
+	Serial.println(F("\n **Connect to server :"));
 	server_connect();		// Now we try to stablish a connection
+	Serial.println(F("\n **Init DB :"));
 	init_DB ();				// Init database.  Needs to be AFTER setup_network cause is using another instance of DB
+	Serial.println(F("\n **Reset :"));
 	reset_machine ();		// Reset machine (motors, data base fetch, ....)
+	
+	Serial.println(F("\n **Loop :"));
 }
 
 
@@ -206,7 +214,9 @@ void setup() {
 void loop() {
 	
 	// INIT procedure
+	Serial.println(F("\n **Check Stop"));
 	check_stop ();
+	Serial.println(F("\n **Get Blister Info"));
 	wait_for_blister_info ();		// Checks the status, waits until we receive info to proceed
 
 	Serial.println(F("\n ************ "));
@@ -389,6 +399,9 @@ void setup_pins () {
 	Yaxis.set_default_sensor_state (default_Ysensor_HIGH_state);
 	blisters.set_default_direcction (default_directionB);
 	counter.set_default_direcction (default_directionC);
+	
+	// Default sensor HIGH state
+	counter.set_default_sensor_state (false);
     
 	// set_accel_profile(init_timing, int ramp_inclination, n_slopes_per_mode, n_steps_per_slope)
 	Xaxis.set_speed_in_slow_mode (400);

@@ -88,7 +88,9 @@ boolean check_server()
 	// In case we discconected we no reconnect
 	while ((!connected_to_server) && (timeout < 10)) {
 		connected_to_server = connect_to_server ();
+		#if not defined bypass_server
 		delay (3000);
+		#endif
 		timeout ++; 
 	}
 	
@@ -321,6 +323,9 @@ boolean receive_server_data (){
 	// wait 3 seconds for incoming data before a time out
 	// 25ms * 40 = 1s so... 40*3 = 120 time to wait 3 seconds
 	int times_to_try = 120;
+	#if defined bypass_server
+	times_to_try = 1;
+	#endif
 	int timeout = 0;
 	while (!(client.available() > 0) && (timeout < times_to_try)) {
 		delay (25);
@@ -507,6 +512,9 @@ boolean receive_server_data (){
 		}
 	}
 	#if defined Server_com_debug
+		#if defined bypass_server
+		timeout = 5;
+		#endif
 		if (timeout >= 5) Serial.println(F("*timeout answer*"));
 	#endif
 	if (receivedK) {
