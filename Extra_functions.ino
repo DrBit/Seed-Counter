@@ -528,6 +528,7 @@ void switch_off_machine () {
 }
 
 void reset_machine () {
+	send_status_to_server (S_stopped);		// First send status as stop to refresh // TESTING
 	send_status_to_server (S_setting_up);	// here we comunicate the server that we begin the set-up process	
 	send_error_to_server (no_error);		// NO ERROR
 		// Get all configuration from the server

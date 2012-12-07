@@ -16,7 +16,7 @@
 #define S_running 2 		// Running
 #define S_pause 3 			// Pause
 #define S_setting_up 4 		// Setting up machine  or resetting the machine
-#define S_finishing_batch 5 // Finishin batch
+#define S_finishing_batch 5 // Finishing batch
 #define S_switch_off 6		// Machine is OFF
 
 // The list of status should be as short as possible to make it easyer to handler
