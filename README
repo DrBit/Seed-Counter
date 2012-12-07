@@ -4,6 +4,9 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V4.0.14 - 07/12/2012
+**  * Changed Idle timer into more realistic mills() counter.
+**
 **  V4.0.13 - 06/12/2012
 **  * Finished function bypass server
 **  * Added Idle timer in the check pause function

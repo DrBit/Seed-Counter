@@ -6,7 +6,7 @@
 //#include <network_config.h>		// NEDED?
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "V4.0.13"
+#define version_prog "V4.0.14"
 #define lib_version 15
 
 /********************************************
@@ -149,10 +149,10 @@ unsigned long counter_s = 0;
 boolean pause = false;
 boolean manual_enabled = false;				// Flag to overwrite the pause flag
 // Set the default times (they might be overwrited in the code)
-int default_idle_time = 120;				// Defaul idle time to go to sleep on user input 120 = 2 minutes.
-int default_off_time = 60;					// Defaul off time to go to sleep on user input 120 = 2 minutes.
+int default_idle_time = 20;				// Defaul idle time to go to sleep on user input 120 = 2 minutes.
+int default_off_time = 20;					// Defaul off time to go to sleep on user input 120 = 2 minutes.
 // Used forinternal pourpouses
-unsigned long  idle_time_counter = 0;
+unsigned long  idle_counter_start_time = 0;
 unsigned long  desired_idle_time = 0;		// Time in seconds 120s = 2 minutes
 
 // ***********************

@@ -571,7 +571,7 @@ void check_stop () {
 		send_status_to_server (S_stopped);
 	}
 	
-	start_idle_timer (3);
+	start_idle_timer (default_idle_time);
 	while (global_status == S_stopped) {
 		Serial.println(F("\n **Checking server global status :"));
 		check_server();
@@ -607,7 +607,7 @@ void check_pause () {
 		Serial.println ("Emergency Enabled");
 		MySW.stop();
 		// Send error
-		start_idle_timer (10);
+		start_idle_timer (default_idle_time);
 		while (button_emergency) {
 			button_emergency = digitalRead (emergency); 
 			delay (500);
@@ -622,7 +622,7 @@ void check_pause () {
 	if ((Serial.available() || pause || global_status == S_pause) && !manual_enabled) {
 		pause = true;
 		MySW.stop();
-		start_idle_timer (60);
+		start_idle_timer (default_idle_time);
 		while(pause) {
 			check_server();
 			check_idle_timer (true);
@@ -915,62 +915,61 @@ void boring_messages () {
 }
 
 
-// Needs to be changed into real timer....
 boolean check_idle_timer (boolean message) {
 
-	if (idle_time_counter < desired_idle_time) {
-		idle_time_counter ++;
-		delay (100);
-		return false;
-	} else if (idle_time_counter == desired_idle_time) {
-		idle_time_counter++;
+	// Check time
+	if ((unsigned long)(millis() - desired_idle_time) >= idle_counter_start_time) {
+		// We are above the time limit. lets go IDLE.
+
 		if (get_pump_state () == true) {		// Disable pump only if it was previously enabled
 			if (message) Serial.println ("Sleep Time!");
 			send_action_to_server(enter_idle);
 			pump_disable ();
 		}
 		
-		if (idle_time_counter == (desired_idle_time + default_off_time)) {
+		// Check if we are long time in IDLE (default_off_time) and we should switch off completely
+		if ((unsigned long)(millis() - desired_idle_time - (default_off_time*1000)) >= idle_counter_start_time) {
 
 			if (get_motor_sleep_state () == false) {
 				motors_sleep ();	// Sleep motors
-				//delay (2000);
 			}
 			
 			if (get_motor_enable_state () == true) {
-				motors_disable ();	// Enable motors
-				//delay (2000);
+				motors_disable ();	// Disable motors
 			}
 			
 			if (get_power_state () == true) {
 				send_status_to_server (S_switch_off);
 				PSupply_OFF ();		// Switch Power supply ON
 				if (message) Serial.println ("Switching OFF!");
-
 			}
 		}
 		return true;
+	}else{
+		// We are not in IDLE time
+		return false;
 	}
-	return false;
 }
 
 void start_idle_timer (unsigned long  seconds) {
-	idle_time_counter = 0;
-	desired_idle_time = seconds*10;
+	idle_counter_start_time = millis();				// Reset main counter
+	desired_idle_time = seconds*1000;				// Convert seconds into imlliseconds
 }
 
 void end_idle_timer () {
-
-	if (idle_time_counter >= (desired_idle_time + default_off_time + 1)) {
-		if (message) Serial.println ("Switching ON!");
-		
-		// init_all_motors () 
-
+	// if motors are sleep or disbaled means we went IDLE so restart...
+	if (get_motor_sleep_state() || !get_motor_enable_state()) {
+		Serial.println ("Switching ON!");
+		init_all_motors ();		// Restart
 	}
-	if (idle_time_counter >= desired_idle_time+1) {
+
+	if (idle_counter_start_time >= desired_idle_time+1) {
 		Serial.println ("Wake UP!");
 		send_action_to_server(resume_from_idle);
-		pump_enable ();
+		// Enable pump in case is off
+		if (!get_pump_state ()) {
+			pump_enable ();
+		}
 	}
 }
 
