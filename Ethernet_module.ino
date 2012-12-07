@@ -441,7 +441,17 @@ boolean receive_server_data (){
 				}
 				#if defined Server_com_debug
 				Serial.print(F("Received Configuration: "));
-				Serial.println(receiving_config);
+				Serial.print(receiving_config);
+				switch (receiving_config) {	// What info are we going to receive? 
+					case Cget_default_idle_time: {
+						Serial.print(F(" - default_idle_time: "));
+						Serial.println(default_idle_time);
+					break; }
+					case Cget_default_off_time: {
+						Serial.print(F(" - default_off_time: "));
+						Serial.println (default_off_time);
+					break; }
+				}
 				#endif
 			break; }
 			

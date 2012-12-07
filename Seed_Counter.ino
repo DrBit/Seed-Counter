@@ -22,7 +22,7 @@
 */
 
 // #define DEBUG		// Remove / Add"//" to enable / disbale DEBUG mode
-// #define Cmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
+#define Cmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 // #define Xmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 // #define Ymotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 #define Sensor_printer		// Disable sensor printer
@@ -30,7 +30,7 @@
 #define Server_com_debug	// Debug communications with the server
 #define Server_com_error_debug // Debug errors of communication with the server
 // #define DEBUG_counter		// Debug counter.. print positions
-#define bypass_server		// Bypass_orders from the server and stat process straight away // not implemented
+// #define bypass_server		// Bypass_orders from the server and stat process straight away // not implemented
 
 // example debug:
 // #if defined DEBUG
