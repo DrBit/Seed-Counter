@@ -89,7 +89,7 @@ boolean check_server()
 	while ((!connected_to_server) && (timeout < 10)) {
 		connected_to_server = connect_to_server ();
 		#if not defined bypass_server
-		delay (3000);
+		delay (2000);
 		#endif
 		timeout ++; 
 	}
@@ -101,7 +101,8 @@ boolean check_server()
 		sprintf(message, "%dX\r\n", M_ID);
 		client.print(message);
 		#if defined Server_com_debug
-		//Serial.print(message);
+			Serial.print("Send:")
+			Serial.print(message);
 		#endif
 
 		if (!receive_server_data ()) {
@@ -113,7 +114,7 @@ boolean check_server()
 		
 		boolean skip_server = false;
 		#if defined bypass_server
-		skip_server = true;
+			skip_server = true;
 		#endif
 	 
 		// if the server's disconnected, stop the client:

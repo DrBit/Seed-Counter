@@ -189,16 +189,16 @@ void setup() {
 
 	// servo_test ();
 	
-	Serial.println(F("\n **Setup Network :"));
+	// Serial.println(F("\n **Setup Network :"));
 	setup_network();		// First thing we do is set up the network
-	Serial.println(F("\n **Connect to server :"));
+	// Serial.println(F("\n **Connect to server :"));
 	server_connect();		// Now we try to stablish a connection
-	Serial.println(F("\n **Init DB :"));
+	// Serial.println(F("\n **Init DB :"));
 	init_DB ();				// Init database.  Needs to be AFTER setup_network cause is using another instance of DB
-	Serial.println(F("\n **Reset :"));
+	// Serial.println(F("\n **Reset :"));
 	reset_machine ();		// Reset machine (motors, data base fetch, ....)
 	
-	Serial.println(F("\n **Loop :"));
+	//Serial.println(F("\n **Loop :"));
 }
 
 
@@ -214,9 +214,9 @@ void setup() {
 void loop() {
 	
 	// INIT procedure
-	Serial.println(F("\n **Check Stop"));
+	//Serial.println(F("\n **Check Stop"));
 	check_stop ();
-	Serial.println(F("\n **Get Blister Info"));
+	//Serial.println(F("\n **Get Blister Info"));
 	wait_for_blister_info ();		// Checks the status, waits until we receive info to proceed
 
 	Serial.println(F("\n ************ "));
@@ -239,53 +239,43 @@ void loop() {
 		Serial.print(F("1rst hole"));
 		go_to_memory_position (5);			// first hole
 		pickup_seed ();
-		//delay (5000);
 		
 		Serial.print(F(" - 2nd hole"));
 		go_to_memory_position (6);			// 2nd hole
 		pickup_seed ();
-		//delay (5000);
 		
 		Serial.print(F(" - 3th hole"));
 		go_to_memory_position (7);			//3th hole
 		pickup_seed ();
-		//delay (5000);
-		
+
 		Serial.print(F(" - 4rd hole"));
 		go_to_memory_position (8);			// 4d hole
 		pickup_seed ();
-		//delay (5000);
 
 		Serial.println(F(" - 5th hole"));
 		go_to_memory_position (9);			// 5th hole
 		pickup_seed ();
-		//delay (5000);
 		
 		Serial.print(F("6th hole"));
 		go_to_memory_position (10);			// 6th hole
 		pickup_seed ();
-		//delay (5000);
 		
 		Serial.print(F(" - 7th hole"));
 		go_to_memory_position (11);			// 7th hole
 		pickup_seed ();
-		//delay (5000);
 		
 		Serial.print(F(" - 8th hole"));
 		go_to_memory_position (12);			// 8th hole
 		pickup_seed ();
-		//delay (5000);
 		
 		Serial.print(F(" - 9th hole"));
 		go_to_memory_position (13);			// 9th hole
 		pickup_seed ();
-		//delay (5000);
 		
 		Serial.println(F(" - 10th hole"));
 		go_to_memory_position (14);			// 10th hole
 		pickup_seed ();
-		//delay (5000);
-	
+		
 	} else if (blister_mode == seeds5) {		// 5 Seeds mode
 
 		// START FILLING BLISTER

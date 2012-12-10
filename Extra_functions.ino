@@ -573,7 +573,9 @@ void check_stop () {
 	
 	start_idle_timer (default_idle_time);
 	while (global_status == S_stopped) {
+		#if defined Server_com_debug
 		Serial.println(F("\n **Checking server global status :"));
+		#endif
 		check_server();
 		if (global_status == S_switch_off) {
 			switch_off_machine ();		// Switch off machine

@@ -4,6 +4,9 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V4.0.15 - 10/12/2012
+**  * Added some debug tags
+**
 **  V4.0.14 - 07/12/2012
 **  * Changed Idle timer into more realistic mills() counter.
 **
