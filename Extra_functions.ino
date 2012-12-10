@@ -528,7 +528,7 @@ void switch_off_machine () {
 }
 
 void reset_machine () {
-	send_status_to_server (S_stopped);		// First send status as stop to refresh // TESTING
+	//send_status_to_server (S_stopped);		// First send status as stop to refresh // TESTING
 	send_status_to_server (S_setting_up);	// here we comunicate the server that we begin the set-up process	
 	send_error_to_server (no_error);		// NO ERROR
 		// Get all configuration from the server
@@ -549,10 +549,12 @@ void wait_for_blister_info () {
 	// if we haven't received seeds mode ask for it:
 	if (blister_mode == 0) {
 		get_info_from_server (get_seeds_mode);			// Gets seed mode (5 or 10 seeds per blister)
+		#if defined bypass_server 
 		if (blister_mode == 0) {
 			blister_mode = seeds10;	// If we haven't get any info from the server we set default 10
 			Serial.println(F("No info on seeds mode from server. \nSet seeds per blister to 10 as default"));
 		}
+		#endif
 
 	}
 }
@@ -920,7 +922,7 @@ void boring_messages () {
 boolean check_idle_timer (boolean message) {
 
 	// Check time
-	if ((unsigned long)(millis() - desired_idle_time) >= idle_counter_start_time) {
+	if ((millis() - desired_idle_time) <= idle_counter_start_time) {
 		// We are above the time limit. lets go IDLE.
 
 		if (get_pump_state () == true) {		// Disable pump only if it was previously enabled
@@ -930,7 +932,8 @@ boolean check_idle_timer (boolean message) {
 		}
 		
 		// Check if we are long time in IDLE (default_off_time) and we should switch off completely
-		if ((unsigned long)(millis() - desired_idle_time - (default_off_time*1000)) >= idle_counter_start_time) {
+		unsigned long temp_default_off_time = default_off_time*1000;
+		if ((millis() - desired_idle_time - temp_default_off_time) <= idle_counter_start_time) {
 
 			if (get_motor_sleep_state () == false) {
 				motors_sleep ();	// Sleep motors
