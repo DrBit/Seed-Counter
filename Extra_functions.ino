@@ -579,7 +579,7 @@ void check_stop () {
 			case S_stopped: {
 				while (global_status == S_stopped) {
 					#if defined Server_com_debug
-					Serial.println(F("\n **STOP - Checking server global status :"));
+					Serial.print(F("\n **STOP - Checking server global status... "));
 					#endif
 					delay(1000);
 					check_server();
@@ -592,7 +592,7 @@ void check_stop () {
 				while (global_status == S_switch_off) {
 					// Do nothing while everithing is off
 					#if defined Server_com_debug
-					Serial.println(F("\n **OFF - Checking server global status :"));
+					Serial.print(F("\n **OFF - Checking server global status... "));
 					#endif
 					check_server();
 					delay (5000);

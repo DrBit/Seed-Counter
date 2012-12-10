@@ -40,6 +40,7 @@ void PSupply_OFF () {
 		Serial.println ("Power Supply OFF");
 		send_action_to_server(power_off);
 		set_power_state (false);
+	}
 }
 
 void pump_enable () {

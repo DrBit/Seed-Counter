@@ -8,6 +8,7 @@
 **  * Added some debug tags
 **  * Reformed function check_stop
 **  * Added new file power_saving.ino
+**  * Added G command
 **
 **  V4.0.14 - 07/12/2012
 **  * Changed Idle timer into more realistic mills() counter.

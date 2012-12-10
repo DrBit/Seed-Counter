@@ -102,6 +102,7 @@ boolean check_server()
 		client.print(message);
 		#if defined Server_com_debug
 			Serial.print("Send:");
+			sprintf(message, "%dX - ", M_ID);
 			Serial.print(message);
 		#endif
 
@@ -177,7 +178,7 @@ void get_info_from_server (byte command) {
 	client.print(message);
 	#if defined Server_com_debug
 		Serial.print(F("Get Info:"));
-		sprintf(message, "%dI%d", M_ID, command);
+		sprintf(message, "%dI%d - ", M_ID, command);
 		Serial.print(message);
 	#endif
 	// we have to receive information
@@ -194,7 +195,7 @@ void send_status_to_server (byte command) {
 	client.print(message);
 	#if defined Server_com_debug
 		Serial.print(F("Send Status:"));
-		sprintf(message, "%dS%d", M_ID, command);
+		sprintf(message, "%dS%d - ", M_ID, command);
 		Serial.print(message);
 	#endif
 
@@ -210,7 +211,7 @@ void send_action_to_server(byte command) {		// Inform server that an action has 
 	client.print(message);
 	#if defined Server_com_debug
 		Serial.print(F("Send Action:"));
-		sprintf(message, "%dA%d - Answer:", M_ID, command);
+		sprintf(message, "%dA%d - ", M_ID, command);
 		Serial.print(message);
 	#endif
 
@@ -228,7 +229,7 @@ void send_error_to_server (byte command) {		// Inform server that an error has o
 	client.print(message);
 	#if defined Server_com_debug
 		Serial.print(F("Send Error:"));
-		sprintf(message, "%dE%d", M_ID, command);
+		sprintf(message, "%dE%d - ", M_ID, command);
 		Serial.print(message);
 	#endif
 
@@ -247,7 +248,7 @@ void send_position_to_server (byte command) {	// Inform server that we are going
 	#if defined Server_com_debug
 		Serial.print(F("Send actual position:"));
 		Serial.print(message);
-		sprintf(message, "%dG%d", M_ID, command);
+		sprintf(message, "%dG%d - ", M_ID, command);
 	#endif
 
 	if (!receive_server_data ()) {
@@ -264,7 +265,6 @@ void get_positions_from_server (byte command) {	// Receive position information 
 		client.print(message);
 		#if defined Server_com_debug
 			Serial.print(F("Get ALL positions from server:"));
-			sprintf(message, "%dP*", M_ID);
 			Serial.print(message);
 		#endif
 		if (!receive_server_data ()) {
@@ -278,7 +278,7 @@ void get_positions_from_server (byte command) {	// Receive position information 
 		client.print(message);
 		#if defined Server_com_debug
 			Serial.print(F("Get position from server:"));
-			sprintf(message, "%dP%d", M_ID, command);
+			sprintf(message, "%dP%d - ", M_ID, command);
 			Serial.print(message);
 		#endif
 		// we have to receive one position
@@ -302,7 +302,6 @@ void get_config_from_server (byte command) {	// Receive configuration informatio
 		client.print(message);
 		#if defined Server_com_debug
 			Serial.print(F("Get ALL config from server:"));
-			sprintf(message, "%dC*", M_ID);
 			Serial.print(message);
 		#endif
 		if (!receive_server_data ()) {
@@ -316,7 +315,7 @@ void get_config_from_server (byte command) {	// Receive configuration informatio
 		client.print(message);
 		#if defined Server_com_debug
 			Serial.print(F("Get config from server:"));
-			sprintf(message, "%dC%d", M_ID, command);
+			sprintf(message, "%dC%d - ", M_ID, command);
 			Serial.print(message);
 		#endif
 		// we have to receive one position
@@ -340,14 +339,14 @@ boolean receive_server_data (){
 	clean_buffer (received_msg,bufferSize);		// Prepare buffer
 	
 	// wait 3 seconds for incoming data before a time out
-	// 25ms * 40 = 1s so... 40*3 = 120 time to wait 3 seconds
-	int times_to_try = 120;
+	// 100ms * 10 = 1s so... 100*20 = 2000 (time to wait 2 seconds)
+	int times_to_try = 20;
 	#if defined bypass_server
 	times_to_try = 1;
 	#endif
 	int timeout = 0;
 	while (!(client.available() > 0) && (timeout < times_to_try)) {
-		delay (25);
+		delay (100);
 		timeout ++;
 	}			
 	
@@ -366,7 +365,7 @@ boolean receive_server_data (){
 			
 			case 'K': {
 				#if defined Server_com_debug
-				Serial.print (inChar);
+				Serial.println (inChar);
 				#endif
 				receivedK = true;
 			break; }
@@ -526,6 +525,50 @@ boolean receive_server_data (){
 				}
 				
 				// Finished. go back to the origin. If we receive another command we will sense it there.
+			break; }
+
+			case 'G': {	// GO, command sended from the server that say to the machine where to go (exact position)	
+				
+				// We will receive data and go where the server tell us to go
+
+				// receive Xc /////////////////////////////////////////
+				recevie_data_telnet (received_msg,bufferSize);
+				thisChar = received_msg;
+				unsigned int Xc = atoi(thisChar);
+				// receive Xf /////////////////////////////////////////
+				recevie_data_telnet (received_msg,bufferSize);
+				thisChar = received_msg;
+				unsigned int Xf = atoi(thisChar);
+				// receive Yc /////////////////////////////////////////
+				recevie_data_telnet (received_msg,bufferSize);
+				thisChar = received_msg;
+				unsigned int Yc = atoi(thisChar);
+				// receive Yf /////////////////////////////////////////
+				recevie_data_telnet (received_msg,bufferSize);
+				thisChar = received_msg;
+				unsigned int Yf = atoi(thisChar);
+				
+				#if defined Server_com_debug
+				// Inform
+					Serial.print(F("Received GoTo: "));
+					Serial.print (Xc);
+					Serial.print(F(","));
+					Serial.print (Xf);
+					Serial.print(F(","));
+					Serial.print (Yc);
+					Serial.print(F(","));
+					Serial.print (Yf);
+				#endif
+
+				if (global_status == S_test) {
+					// Go to the defined position
+					go_to_posXY (Xc,Xf,Yc,Yf);
+					Serial.print(F(" ... Done!"));
+				}else{
+					// we are not in TEST mode so we shouldn move
+					Serial.println(F(" ... Error not in TEST mode, WRONG STATUS** NOT MOVING"));
+				}
+
 			break; }
 			
 			default: {
