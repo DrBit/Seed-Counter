@@ -401,7 +401,8 @@ boolean receive_server_data (){
 				#if defined Server_com_debug
 				// Inform
 				Serial.print(F("Received Status: "));
-				Serial.println(receiving_status);
+				Serial.print(receiving_status);
+				Serial.print(F(" - "));
 				#endif
 				if (global_status == S_finishing_batch)
 				// We have to finish the batch and get into stop
@@ -428,7 +429,8 @@ boolean receive_server_data (){
 						}
 						#if defined Server_com_debug
 							Serial.print(F("Received Information Blister mode: "));
-							Serial.println(blister_mode);
+							Serial.print(blister_mode);
+							Serial.print(F(" - "));
 						#endif
 					break; }
 				}
