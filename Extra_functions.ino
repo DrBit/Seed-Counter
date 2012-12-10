@@ -555,48 +555,59 @@ void wait_for_blister_info () {
 			Serial.println(F("No info on seeds mode from server. \nSet seeds per blister to 10 as default"));
 		}
 		#endif
-
 	}
 }
 
 void check_stop () {
 	check_server();		// Should we?
+	
 	#if defined bypass_server 
 	global_status = S_running;
 	#endif
-	if (global_status == S_finishing_batch) {
-		// We where finishing the batch. The UI should be locked for now
-		// So we shouldn't have received any other status.
-		// Now we can stop as, we are at the end of the loop.
-		// Next time we start we will start at the beginning
-
-		send_status_to_server (S_stopped);
-	}
 	
 	start_idle_timer (default_idle_time);
-	while (global_status == S_stopped) {
-		#if defined Server_com_debug
-		Serial.println(F("\n **Checking server global status :"));
-		#endif
-		check_server();
-		if (global_status == S_switch_off) {
-			switch_off_machine ();		// Switch off machine
-			while (global_status == S_switch_off) {
-				// Do nothing while everithing is off
-				check_server();
-				delay (1500);
-			}
-			send_action_to_server(power_on); 
-			reset_machine ();		// When changes we will switch back ON
-		}
 
-		if (global_status == S_setting_up) {
-			reset_machine ();	
+	while (global_status == S_finishing_batch || global_status == S_stopped || global_status == S_switch_off) {
+		switch (global_status) {
+
+			case S_finishing_batch: {
+				// Since we go in here only when we are at the beginning of the process
+				// We know now that we shouldn continue and change status to stopped
+				send_status_to_server (S_stopped);
+			break;}
+
+			case S_stopped: {
+				while (global_status == S_stopped) {
+					#if defined Server_com_debug
+					Serial.println(F("\n **STOP - Checking server global status :"));
+					#endif
+					delay(1000);
+					check_server();
+					check_idle_timer (true);
+				}
+			break;}
+
+			case S_switch_off: {
+				switch_off_machine ();		// Switch off machine
+				while (global_status == S_switch_off) {
+					// Do nothing while everithing is off
+					#if defined Server_com_debug
+					Serial.println(F("\n **OFF - Checking server global status :"));
+					#endif
+					check_server();
+					delay (5000);
+				}
+				send_action_to_server(power_on); 
+				reset_machine ();		// When changes we will switch back ON
+				start_idle_timer (default_idle_time);		// Reset the timings for IDLE as we are not leaving this hole while
+			break;}
 		}
-		delay(1000);
-		check_idle_timer (true);
 	}
-	end_idle_timer ();
+
+	//end_idle_timer ();
+	//if (global_status == S_setting_up) {
+	//reset_machine ();	
+	//}
 }
 
 void check_pause () {
@@ -623,18 +634,21 @@ void check_pause () {
 		send_status_to_server (previous_status);
 	}
 	
+	// Checking pause in the software
 	if ((Serial.available() || pause || global_status == S_pause) && !manual_enabled) {
 		pause = true;
 		MySW.stop();
-		start_idle_timer (default_idle_time);
+		// We don't have a timer here cause we can not reestart after unpause
+		// Must be enabled and disable by a user.
+		pump_disable ();		// We do only switch off the pump
 		while(pause) {
 			check_server();
-			check_idle_timer (true);
 			if (global_status != S_pause) {
 				pause = false;
 			}
+			delay (1000);
 		}
-		end_idle_timer ();
+		pump_enable ();
 		MySW.start();
 		pause = false;
 	}
@@ -922,7 +936,9 @@ void boring_messages () {
 boolean check_idle_timer (boolean message) {
 
 	// Check time
-	if ((millis() - desired_idle_time) <= idle_counter_start_time) {
+	Serial.print ("Passed ms: ");
+	Serial.println (millis() - idle_counter_start_time);
+	if ((millis() - idle_counter_start_time) >= desired_idle_time) {
 		// We are above the time limit. lets go IDLE.
 
 		if (get_pump_state () == true) {		// Disable pump only if it was previously enabled
@@ -932,8 +948,8 @@ boolean check_idle_timer (boolean message) {
 		}
 		
 		// Check if we are long time in IDLE (default_off_time) and we should switch off completely
-		unsigned long temp_default_off_time = default_off_time*1000;
-		if ((millis() - desired_idle_time - temp_default_off_time) <= idle_counter_start_time) {
+		unsigned long temp_default_off_time = (unsigned long)default_off_time * 1000;
+		if ((millis() - idle_counter_start_time) >= (desired_idle_time + temp_default_off_time)){
 
 			if (get_motor_sleep_state () == false) {
 				motors_sleep ();	// Sleep motors
@@ -958,7 +974,11 @@ boolean check_idle_timer (boolean message) {
 
 void start_idle_timer (unsigned long  seconds) {
 	idle_counter_start_time = millis();				// Reset main counter
-	desired_idle_time = seconds*1000;				// Convert seconds into imlliseconds
+	desired_idle_time = seconds*1000;				// Convert seconds into milliseconds
+	Serial.print ("Set IDLE timer to: ");
+	Serial.println (desired_idle_time);
+	Serial.print ("Set OFF timer to: ");
+	Serial.println (desired_idle_time + ((unsigned long)default_off_time * 1000));
 }
 
 void end_idle_timer () {

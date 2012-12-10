@@ -18,6 +18,7 @@
 #define S_setting_up 4 		// Setting up machine  or resetting the machine
 #define S_finishing_batch 5 // Finishing batch
 #define S_switch_off 6		// Machine is OFF
+#define S_test 7			// Machine is in test mode (mainly testing positions)
 
 // The list of status should be as short as possible to make it easyer to handler
 // Statuses are contineous events that when enabled will stay enabled till another change on status
@@ -33,7 +34,7 @@
 #define counter_init 3				// Init Counter Motor
 #define new_batch 4		 			// new batch selected (not used in arduino, needed???)
 #define batch_end 5 				// finished batch, going IDLE
-
+#define NOTHING 6 					// Nothing going on
 #define starting_machine 7 			// Starting machine
 #define try_counter_autofix	8		// Try counter autofix, re-init counter wheel.
 #define needed_blisters_refill 9	// Required user to refill blisters

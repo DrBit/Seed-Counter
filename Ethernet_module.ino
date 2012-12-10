@@ -101,7 +101,7 @@ boolean check_server()
 		sprintf(message, "%dX\r\n", M_ID);
 		client.print(message);
 		#if defined Server_com_debug
-			Serial.print("Send:")
+			Serial.print("Send:");
 			Serial.print(message);
 		#endif
 
@@ -176,12 +176,14 @@ void get_info_from_server (byte command) {
 	sprintf(message, "%dI%d\r\n", M_ID, command);
 	client.print(message);
 	#if defined Server_com_debug
+		Serial.print(F("Get Info:"));
+		sprintf(message, "%dI%d", M_ID, command);
 		Serial.print(message);
 	#endif
 	// we have to receive information
 	if (!receive_server_data ()) {
 		//Serial.print (F("-OK not received or error on sent command I");
-		Serial.println (command);
+		//Serial.println (command);
 	}
 }
 
@@ -191,12 +193,14 @@ void send_status_to_server (byte command) {
 	sprintf(message, "%dS%d\r\n", M_ID, command);
 	client.print(message);
 	#if defined Server_com_debug
+		Serial.print(F("Send Status:"));
+		sprintf(message, "%dS%d", M_ID, command);
 		Serial.print(message);
 	#endif
 
 	if (!receive_server_data ()) {
 		//Serial.print (F("-OK not received or error on sended command S"));
-		Serial.println (command);
+		//Serial.println (command);
 	}
 }
 
@@ -205,6 +209,8 @@ void send_action_to_server(byte command) {		// Inform server that an action has 
 	sprintf(message, "%dA%d\r\n", M_ID, command);
 	client.print(message);
 	#if defined Server_com_debug
+		Serial.print(F("Send Action:"));
+		sprintf(message, "%dA%d - Answer:", M_ID, command);
 		Serial.print(message);
 	#endif
 
@@ -221,6 +227,8 @@ void send_error_to_server (byte command) {		// Inform server that an error has o
 	sprintf(message, "%dE%d\r\n", M_ID, command);
 	client.print(message);
 	#if defined Server_com_debug
+		Serial.print(F("Send Error:"));
+		sprintf(message, "%dE%d", M_ID, command);
 		Serial.print(message);
 	#endif
 
@@ -237,7 +245,9 @@ void send_position_to_server (byte command) {	// Inform server that we are going
 	sprintf(message, "%dG%d\r\n", M_ID, command);
 	client.print(message);
 	#if defined Server_com_debug
+		Serial.print(F("Send actual position:"));
 		Serial.print(message);
+		sprintf(message, "%dG%d", M_ID, command);
 	#endif
 
 	if (!receive_server_data ()) {
@@ -253,6 +263,8 @@ void get_positions_from_server (byte command) {	// Receive position information 
 		sprintf(message, "%dP*\r\n", M_ID);
 		client.print(message);
 		#if defined Server_com_debug
+			Serial.print(F("Get ALL positions from server:"));
+			sprintf(message, "%dP*", M_ID);
 			Serial.print(message);
 		#endif
 		if (!receive_server_data ()) {
@@ -265,7 +277,9 @@ void get_positions_from_server (byte command) {	// Receive position information 
 		sprintf(message, "%dP%d\r\n", M_ID, command);
 		client.print(message);
 		#if defined Server_com_debug
-		Serial.print(message);
+			Serial.print(F("Get position from server:"));
+			sprintf(message, "%dP%d", M_ID, command);
+			Serial.print(message);
 		#endif
 		// we have to receive one position
 		// this means P + number equal the one we have asked for
@@ -287,18 +301,22 @@ void get_config_from_server (byte command) {	// Receive configuration informatio
 		sprintf(message, "%dC*\r\n", M_ID);
 		client.print(message);
 		#if defined Server_com_debug
+			Serial.print(F("Get ALL config from server:"));
+			sprintf(message, "%dC*", M_ID);
 			Serial.print(message);
 		#endif
 		if (!receive_server_data ()) {
 			#if defined Server_com_error_debug
 			//Serial.print (F("-OK not received or error on sended command C"));
-			Serial.println (command);
+			//Serial.println (command);
 			#endif
 		}
 	}else{
 		sprintf(message, "%dC%d\r\n", M_ID, command);
 		client.print(message);
 		#if defined Server_com_debug
+			Serial.print(F("Get config from server:"));
+			sprintf(message, "%dC%d", M_ID, command);
 			Serial.print(message);
 		#endif
 		// we have to receive one position
@@ -309,7 +327,7 @@ void get_config_from_server (byte command) {	// Receive configuration informatio
 		if (!receive_server_data ()) {
 			#if defined Server_com_error_debug
 			//Serial.print (F("-OK not received or error on sended command C"));
-			Serial.println (command);
+			//Serial.println (command);
 			#endif
 		}
 	}
