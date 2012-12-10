@@ -19,7 +19,7 @@ following variables are common for the main program:
 Example of commands sended:
 1A6	(action)
 1S20	(Status)
-1G56	(Goto position)
+1G56	(Goto position)  <-- Eliminated
 1E2	(Error)
 
 for a list of all possible comands check file list_commands_ethernet.h
@@ -49,8 +49,6 @@ A for actions
 E for errors
 I for info
 I1 means blister mode (Two tipes 1 for 10seeds per blister or 2 for 5 seeds per blister)
-I2 means idle_time (time the machine will go idle if no user input is detected) (in seconds - 120 for 2 minutes)
-I3 means shutdown_time (time the machine will fo off after idle activated) (120 for 2 minutes)
 
 ////////////
 Receiving commands
@@ -64,12 +62,12 @@ P-number (to send changed positions)
 !!! needs to be followed with 4 numbers line feeded or return after each one.(OK at the end if nothing elses is expected)
 
 I-command (to submit information...)
-DATA needs to follow one only number foer the selected command
+DATA needs to follow one only number for the selected command
 
 
 EXAMPLE of data arduino can receive:
 
-(updating Positions 3 and 4 and changing IDLE time to 200)
+(updating Positions 3 and 4)
 P3
 123
 234
@@ -80,8 +78,6 @@ P4
 623
 123
 3
-I2
-200
 OK
 
 as observerd there is no need for an X at the begining of the transmit as arduino will be looking for predefined letters (P or I at the moment, and OK for ending)

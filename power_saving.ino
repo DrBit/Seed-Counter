@@ -150,8 +150,8 @@ void boring_messages () {
 boolean check_idle_timer (boolean message) {
 
 	// Check time
-	Serial.print ("Passed ms: ");
-	Serial.println (millis() - idle_counter_start_time);
+	//Serial.print ("Passed ms: ");
+	//Serial.println (millis() - idle_counter_start_time);
 	if ((millis() - idle_counter_start_time) >= desired_idle_time) {
 		// We are above the time limit. lets go IDLE.
 

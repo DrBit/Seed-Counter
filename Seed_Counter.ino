@@ -217,7 +217,7 @@ void loop() {
 	//Serial.println(F("\n **Check Stop"));
 	check_stop ();
 	//Serial.println(F("\n **Get Blister Info"));
-	wait_for_blister_info ();		// Checks the status, waits until we receive info to proceed
+	
 
 	Serial.println(F("\n ************ "));
 

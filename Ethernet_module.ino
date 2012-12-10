@@ -426,14 +426,12 @@ boolean receive_server_data (){
 						if (receiving_seedmode == seeds5) {
 							blister_mode = seeds5;
 						}
+						#if defined Server_com_debug
+							Serial.print(F("Received Information Blister mode: "));
+							Serial.println(blister_mode);
+						#endif
 					break; }
 				}
-				#if defined Server_com_debug
-				Serial.print(F("Received Information: "));
-				Serial.print(receiving_info);
-				Serial.print(F(" Data: "));
-				Serial.println(blister_mode);
-				#endif
 			break; }
 						
 			case 'C': {	// CONFIGURATION
@@ -533,7 +531,7 @@ boolean receive_server_data (){
 
 				// receive Xc /////////////////////////////////////////
 				recevie_data_telnet (received_msg,bufferSize);
-				thisChar = received_msg;
+				char * thisChar = received_msg;
 				unsigned int Xc = atoi(thisChar);
 				// receive Xf /////////////////////////////////////////
 				recevie_data_telnet (received_msg,bufferSize);

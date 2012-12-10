@@ -75,7 +75,7 @@
 #define counter_sensor_failed 20 	// Counter sensor has detected a seed and the wheel was not in the sensor position. This could mean that wheel has skiped steps, sensor malcfunction or dirty sensor.
 #define label_timeout  21			// Label not printed or timeout
 #define blister_release_fail 22 	// Blister not released correctly, remove any blister on the belt and press number 1 to try again. Check the sensor if error persist.
-
+#define missing_blister_info 23		// The blister information I1 has not been supplied by the server (5 or 10 seeds per blister). Machine can not continue whitout this information
 
 
 

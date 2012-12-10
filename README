@@ -9,6 +9,7 @@
 **  * Reformed function check_stop
 **  * Added new file power_saving.ino
 **  * Added G command
+**  * Changed blister mode behaviour
 **
 **  V4.0.14 - 07/12/2012
 **  * Changed Idle timer into more realistic mills() counter.

@@ -511,19 +511,11 @@ void switch_off_machine () {
 	send_action_to_server(power_off);
 	delay (2000);
 
-	if (get_pump_state() == true) {
-		pump_disable();
-	}
-	if (get_motor_sleep_state () == false) {
-		motors_sleep ();	// Sleep motors
-	}
-	if (get_motor_enable_state () == true) {
-		motors_disable ();	// Enable motors
-	}
-	if (get_power_state () == true) { 
-		PSupply_OFF ();		// Switch Power supply ON
-		Serial.println ("Switching OFF!");
-	}
+	pump_disable();
+	motors_sleep ();	// Sleep motors
+	motors_disable ();	// Enable motors
+	PSupply_OFF ();		// Switch Power supply ON
+	Serial.println ("Switching OFF!");
 	send_status_to_server (S_switch_off);
 }
 
@@ -544,17 +536,26 @@ void reset_machine () {
 	blister_mode = 0;		// Reset blister mode in case we are reestarting
 }
 
-
 void wait_for_blister_info () {
 	// if we haven't received seeds mode ask for it:
 	if (blister_mode == 0) {
-		get_info_from_server (get_seeds_mode);			// Gets seed mode (5 or 10 seeds per blister)
-		#if defined bypass_server 
-		if (blister_mode == 0) {
-			blister_mode = seeds10;	// If we haven't get any info from the server we set default 10
-			Serial.println(F("No info on seeds mode from server. \nSet seeds per blister to 10 as default"));
+			Serial.println(F("Waiting for Blister mode (I1)..."));
+			unsigned int info_timeout = 0;
+		while (blister_mode == 0) {
+			// get_info_from_server (get_seeds_mode);			// Gets seed mode (5 or 10 seeds per blister)
+			check_server();		// Should we?
+			delay (500);
+			info_timeout++;
+
+			#if defined bypass_server
+				if (info_timeout == 100) {
+					Serial.println(F("Blister mode (I1) not defined. Impossible to continue. Please ask administrator..."));
+					send_error_to_server(missing_blister_info);
+					pump_disable();
+				}
+			#endif
 		}
-		#endif
+		pump_enable();
 	}
 }
 
@@ -567,7 +568,7 @@ void check_stop () {
 	
 	start_idle_timer (default_idle_time);
 
-	while (global_status == S_finishing_batch || global_status == S_stopped || global_status == S_switch_off) {
+	while (global_status == S_finishing_batch || global_status == S_stopped || global_status == S_switch_off ) {
 		switch (global_status) {
 
 			case S_finishing_batch: {
@@ -604,11 +605,10 @@ void check_stop () {
 		}
 	}
 
-	//end_idle_timer ();
-	//if (global_status == S_setting_up) {
-	//reset_machine ();	
-	//}
+	// If we got here means we are ready to start. But before that we will check if we got all needed info from the server
+	wait_for_blister_info ();		// Checks the status, waits until we receive info to proceed
 }
+
 
 void check_pause () {
 	
