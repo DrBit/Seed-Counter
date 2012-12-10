@@ -146,7 +146,6 @@ void boring_messages () {
 // Timer functions
 /////////////////////////
 
-
 boolean check_idle_timer (boolean message) {
 
 	// Check time
