@@ -132,6 +132,7 @@ boolean connected_to_server = false;
 #define seeds10 1
 #define seeds5 2
 int blister_mode = 0;
+boolean IDLE_mode = false;
 
 // ***********************
 // ** Error FLAGS
@@ -191,7 +192,8 @@ void setup() {
 	setup_network();		// First thing we do is set up the network
 	server_connect();		// Now we try to stablish a connection
 	init_DB ();				// Init database.  Needs to be AFTER setup_network cause is using another instance of DB
-	reset_machine ();		// Reset machine (motors, data base fetch, ....)
+	//reset_machine ();		// Reset machine (motors, data base fetch, ....)
+	// disbale reset machine, just to see what happens
 }
 
 
@@ -210,15 +212,6 @@ void loop() {
 	check_stop ();
 
 	Serial.println(F("\n ************ "));
-
-	/*
-	// vibrate_solenoid (byte solenoid_number, byte power, byte duration)
-	for (int a = 1; a<=10;a++) {
-		Serial.println(F("power "));
-		Serial.println(a);
-		vibrate_solenoid (solenoid1, a, 30);
-		delay (5000);
-	}*/
 
 	get_and_release_blister ();
 	
@@ -416,6 +409,16 @@ void vibrate_solenoid (byte solenoid_number, byte power, byte duration) {
 		}
 	}
 }
+
+
+/*
+// vibrate_solenoid (byte solenoid_number, byte power, byte duration)
+for (int a = 1; a<=10;a++) {
+	Serial.println(F("power "));
+	Serial.println(a);
+	vibrate_solenoid (solenoid1, a, 30);
+	delay (5000);
+}*/
 
 
 void chec_sensorF () {
