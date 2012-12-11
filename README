@@ -9,6 +9,7 @@
 **  * Improved function wait_for_blister_info
 **  * Cleaned Power handling functions
 **  * File name changed Power_handling
+**  * Added setting up function inside Stop state
 **
 **  V4.0.15 - 10/12/2012
 **  * Added some debug tags

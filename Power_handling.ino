@@ -62,7 +62,6 @@ void reset_machine () {
 	send_status_to_server (S_stopped);	// here we wait for the server to send orders
 	MySW.reset();
 	MySW.start();
-	mem_check();
 	blister_mode = 0;		// Reset blister mode in case we are reestarting
 }
 
@@ -116,7 +115,7 @@ void PSupply_OFF () {
 }
 
 void pump_enable () {
-	if (get_pump_state == false) {
+	if (get_pump_state () == false) {
 		Serial.println ("Enable Pump");
 		send_action_to_server(enable_pump);
 		set_pump_state (true);
@@ -125,7 +124,7 @@ void pump_enable () {
 }
 
 void pump_disable () {
-	if (get_pump_state == true) {
+	if (get_pump_state () == true) {
 		Serial.println ("Disable Pump");
 		send_action_to_server(disable_pump);
 		set_pump_state (false);
@@ -256,6 +255,7 @@ void start_idle_timer (unsigned long  seconds) {
 	Serial.println (desired_idle_time);
 	Serial.print ("Set OFF timer to: ");
 	Serial.println (desired_idle_time + ((unsigned long)default_off_time * 1000));
+	IDLE_mode = false;
 }
 
 void end_idle_timer () {

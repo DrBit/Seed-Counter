@@ -25,8 +25,8 @@
 #define Cmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 // #define Xmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 // #define Ymotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
-#define Sensor_printer		// Disable sensor printer
-#define Sensor_blister		// Disable sensor blisters
+// #define Sensor_printer		// Disable sensor printer
+// #define Sensor_blister		// Disable sensor blisters
 #define Server_com_debug	// Debug communications with the server
 #define Server_com_error_debug // Debug errors of communication with the server
 // #define DEBUG_counter		// Debug counter.. print positions
@@ -166,8 +166,8 @@ byte previous_status = 0;
 // ** Default Direcctions MOTORS
 // ***********************
 // Defining default directions of motors (in case we change the wiring or the position of motors)
-#define default_directionX false
-#define default_directionY false
+#define default_directionX true
+#define default_directionY true
 #define default_directionB true
 #define default_directionC true
 
@@ -192,8 +192,12 @@ void setup() {
 	setup_network();		// First thing we do is set up the network
 	server_connect();		// Now we try to stablish a connection
 	init_DB ();				// Init database.  Needs to be AFTER setup_network cause is using another instance of DB
-	//reset_machine ();		// Reset machine (motors, data base fetch, ....)
-	// disbale reset machine, just to see what happens
+	get_config_from_server (C_All);			// Fetch all information from the database
+
+	// We start the machine in OFF state
+	switch_off_machine ();
+	mem_check();
+	//chec_sensorG ();
 }
 
 
@@ -421,9 +425,11 @@ for (int a = 1; a<=10;a++) {
 }*/
 
 
-void chec_sensorF () {
+void chec_sensorG () {
+	PSupply_ON ();
 	while (true) {
-		int sensor_state = digitalRead (sensF); 
+		int sensor_state = digitalRead (sensH); 
+		Serial.println (analogRead (sensH));
 		if (sensor_state) {
 			// We got the begining of the blister
 			print_ok();

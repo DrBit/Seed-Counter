@@ -542,7 +542,7 @@ void check_stop () {
 	
 	start_idle_timer (default_idle_time);
 
-	while (global_status == S_finishing_batch || global_status == S_stopped || global_status == S_switch_off || global_status == S_test ) {
+	while (global_status != S_running && global_status != S_pause) {
 		switch (global_status) {
 
 			case S_finishing_batch: {
@@ -588,6 +588,21 @@ void check_stop () {
 					check_server();
 					// check_idle_timer (true);
 				}
+			break;}
+
+			case S_setting_up: {
+				#if defined Server_com_debug
+				Serial.print(F("\n ** Setting UP"));
+				#endif
+				reset_machine ();
+				start_idle_timer (default_idle_time);		// We restart the timer as there was a call inside reset_machine
+			break;}
+
+			default: {
+				#if defined send_error_to_server
+				Serial.print(F("\n ** Status not recognized: "));
+				Serial.println(global_status);
+				#endif
 			break;}
 		}
 	}
