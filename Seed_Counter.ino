@@ -188,17 +188,10 @@ void setup() {
 	delay (10);  				// Delay to be safe	
 
 	// servo_test ();
-	
-	// Serial.println(F("\n **Setup Network :"));
 	setup_network();		// First thing we do is set up the network
-	// Serial.println(F("\n **Connect to server :"));
 	server_connect();		// Now we try to stablish a connection
-	// Serial.println(F("\n **Init DB :"));
 	init_DB ();				// Init database.  Needs to be AFTER setup_network cause is using another instance of DB
-	// Serial.println(F("\n **Reset :"));
 	reset_machine ();		// Reset machine (motors, data base fetch, ....)
-	
-	//Serial.println(F("\n **Loop :"));
 }
 
 
@@ -214,10 +207,7 @@ void setup() {
 void loop() {
 	
 	// INIT procedure
-	//Serial.println(F("\n **Check Stop"));
 	check_stop ();
-	//Serial.println(F("\n **Get Blister Info"));
-	
 
 	Serial.println(F("\n ************ "));
 

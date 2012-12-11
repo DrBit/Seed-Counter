@@ -4,13 +4,16 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V4.0.16 - 11/12/2012
+**  * Cleaning of code
+**
 **  V4.0.15 - 10/12/2012
 **  * Added some debug tags
 **  * Reformed function check_stop
 **  * Added new file power_saving.ino
 **  * Added G command
 **  * Changed blister mode behaviour
-**  * Changed some lgging cosmetics
+**  * Changed some logging cosmetics
 **
 **  V4.0.14 - 07/12/2012
 **  * Changed Idle timer into more realistic mills() counter.
