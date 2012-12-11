@@ -53,8 +53,8 @@
 #define sleep_motors 22     // Sleep motor drivers, sleep on
 #define enable_motors 23    // Enable motor drivers
 #define disable_motors 24   // Disable motor drivers
-#define power_on 25  // Power on internal circuits (Motors, solenoids, pump_switch)
-#define power_off 26 // Power off internal circuits
+#define power_on 25  		// Power on internal circuits (Motors, solenoids, pump_switch)
+#define power_off 26 		// Power off internal circuits
 
 
 //////////////////////////

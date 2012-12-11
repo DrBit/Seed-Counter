@@ -539,7 +539,9 @@ void reset_machine () {
 void wait_for_blister_info () {
 	// if we haven't received seeds mode ask for it:
 	if (blister_mode == 0) {
+			#if defined Server_com_debug
 			Serial.println(F("Waiting for Blister mode (I1)..."));
+			#endif
 			unsigned int info_timeout = 0;
 		while (blister_mode == 0) {
 			// get_info_from_server (get_seeds_mode);			// Gets seed mode (5 or 10 seeds per blister)
@@ -549,7 +551,9 @@ void wait_for_blister_info () {
 
 			#if defined bypass_server
 				if (info_timeout == 100) {
+					#if defined send_error_to_server
 					Serial.println(F("Blister mode (I1) not defined. Impossible to continue. Please ask administrator..."));
+					#endif
 					send_error_to_server(missing_blister_info);
 					pump_disable();
 				}

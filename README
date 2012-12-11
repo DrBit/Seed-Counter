@@ -6,6 +6,7 @@
 **
 **  V4.0.16 - 11/12/2012
 **  * Cleaning of code
+**  * improved function wait_for_blister_info
 **
 **  V4.0.15 - 10/12/2012
 **  * Added some debug tags
