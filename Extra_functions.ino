@@ -609,6 +609,7 @@ void check_stop () {
 	// global_status MUST be ready to get here
 	// If we got here means we are ready to start. But before that we will check if we got all needed info from the server
 	wait_for_blister_info ();		// Checks the status, waits until we receive info to proceed
+	end_idle_timer();
 }
 
 
@@ -637,7 +638,7 @@ void check_pause () {
 	}
 	
 	// Checking pause in the software
-	if ((Serial.available() || pause || global_status == S_pause) && !manual_enabled) {
+	if ((pause || global_status == S_pause) && !manual_enabled) {
 		pause = true;
 		MySW.stop();
 		// We don't have a timer here cause we can not reestart after unpause

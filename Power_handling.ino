@@ -227,19 +227,23 @@ boolean check_idle_timer (boolean message) {
 	// Check time, if time passed go IDLE
 	if ((millis() - idle_counter_start_time) >= desired_idle_time) {
 		// We are above the time limit. lets go IDLE.
-		if (message) Serial.println ("Sleep Time!");		
-		send_action_to_server(enter_idle);
-		IDLE_mode = true;
-		pump_disable ();
+		if (!IDLE_mode){
+			if (message) Serial.println ("Sleep Time!");		
+			send_action_to_server(enter_idle);
+			IDLE_mode = true;
+			pump_disable ();
+		}	
 		
 		// Check if we are long time in IDLE (default_off_time) and we should switch off completely
 		unsigned long temp_default_off_time = (unsigned long)default_off_time * 1000;
 		if ((millis() - idle_counter_start_time) >= (desired_idle_time + temp_default_off_time)){
-			motors_sleep ();	// Sleep motors
-			motors_disable ();	// Disable motors
-			PSupply_OFF ();		// Switch Power supply ON
-			send_status_to_server (S_switch_off);				// Send status 
-			if (message) Serial.println ("Switching OFF!");		// Print if nedeed
+			if (get_motor_enable_state() || !get_motor_sleep_state() || get_power_state()) {
+				motors_sleep ();	// Sleep motors
+				motors_disable ();	// Disable motors
+				PSupply_OFF ();		// Switch Power supply ON
+				send_status_to_server (S_switch_off);				// Send status 
+				if (message) Serial.println ("Switching OFF!");		// Print if nedeed
+			}
 		}
 		return true;
 	}else{
@@ -263,7 +267,11 @@ void end_idle_timer () {
 	if (IDLE_mode) {
 		Serial.println ("Recovering from ILDE!");
 		send_action_to_server(resume_from_idle);
-		init_all_motors ();		// Restart
+		if (!get_power_state() || get_motor_sleep_state() || !get_motor_enable_state()) {
+			init_all_motors ();		// Restart
+		}
+		pump_enable ();	// True that if we init all motors pump will be already enabled
+		// but if we come from state IDLE but we didnt shut down power we need to enable only pumps here.
 		IDLE_mode = false;
 	}
 }

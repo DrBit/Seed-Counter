@@ -54,7 +54,7 @@ void release_blister () {
 	}
 
 	// Check if we are out of blisters
-	check_out_of_blisters ();
+	// check_out_of_blisters ();
 
 }
 
@@ -100,7 +100,7 @@ boolean check_blister_realeased () {
 	// In this position we should detect the blister, so if we do, something whent wrong
 	go_to_memory_position (21);			// check blister (after begining, we shoud read OFF)
 	
-	boolean sensor_state = digitalRead (sensF); 
+	boolean sensor_state = digitalRead (SensBlister); 
 	if (!sensor_state || skip_sensor_blister) {
 		p21_correct = true;
 	}else{
@@ -111,7 +111,7 @@ boolean check_blister_realeased () {
 	// Here we should detect it, if we dont something whent wrong
 	go_to_memory_position (22);			// check blister (begining, we should read ON)
 
-	sensor_state = digitalRead (sensF); 
+	sensor_state = digitalRead (SensBlister); 
 	if (sensor_state || skip_sensor_blister) {
 		p22_correct = true;
 	}else{
@@ -138,7 +138,7 @@ void check_out_of_blisters () {
 	// Check if we are out of blisters
 	boolean out_of_blsiters = false;
 	
-	byte sensorC_state = digitalRead (sensC); 
+	byte sensorC_state = digitalRead (SensOutBlisters); 
 	if (sensorC_state && !skip_sensor_blister) out_of_blsiters = true;
 	while (out_of_blsiters) {
 		// We got emty blisters, stop process
@@ -150,7 +150,7 @@ void check_out_of_blisters () {
 		
 		// Check whether the sensor changes state
 		while (sensorC_state) {
-			sensorC_state = digitalRead (sensC);
+			sensorC_state = digitalRead (SensOutBlisters);
 			delay (2000);
 		}
 		
@@ -159,7 +159,7 @@ void check_out_of_blisters () {
 		delay (10000);
 		
 		// Recheck the sensor if not enabled proceed to continue
-		sensorC_state = digitalRead (sensC); 
+		sensorC_state = digitalRead (SensOutBlisters); 
 		if (!sensorC_state) {
 			out_of_blsiters = false;
 			send_action_to_server (blister_refilled);

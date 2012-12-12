@@ -30,11 +30,12 @@ boolean check_label_realeased (boolean print) {
 	if (print) Serial.print("Label released: ");
 	
 	// Check if we got a label, or we timeout
-	while ((!label && !timeout_label) || !skip_print_sens) {
-		label = digitalRead (sensE); 
+	while (!label && !timeout_label) {
+		label = digitalRead (SensLabel); 
 		count ++;
 		if (count == 200) timeout_label = true;
-		delay (50);
+		delay (80);
+		if (skip_print_sens) count == 199;
 	}
 	
 	
@@ -44,7 +45,7 @@ boolean check_label_realeased (boolean print) {
 		delay (500);		// Just give sometime to the printer to finsh the job before we move
 		Serial.println("Go to brush position");
 		go_to_memory_position (20);
-		label = digitalRead (sensE);		// After moving we check the label again, could be that wasn't completely stiked and moved on the way.
+		label = digitalRead (SensLabel);		// After moving we check the label again, could be that wasn't completely stiked and moved on the way.
 		if (!label && !skip_print_sens) return false;
 		return true;
 	}

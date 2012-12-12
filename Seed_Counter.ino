@@ -22,12 +22,12 @@
 */
 
 // #define DEBUG		// Remove / Add"//" to enable / disbale DEBUG mode
-#define Cmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
+// #define Cmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 // #define Xmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 // #define Ymotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 // #define Sensor_printer		// Disable sensor printer
 // #define Sensor_blister		// Disable sensor blisters
-#define Server_com_debug	// Debug communications with the server
+// #define Server_com_debug	// Debug communications with the server
 #define Server_com_error_debug // Debug errors of communication with the server
 // #define DEBUG_counter		// Debug counter.. print positions
 // #define bypass_server		// Bypass_orders from the server and stat process straight away // not implemented
@@ -80,11 +80,14 @@ byte M_ID=1;
 // Analog sensors
 #define sensD A8
 #define sensE A9
-#define sensF A10
+#define sensF A10		
 #define sensG A11
 #define sensH A12
 #define sensI A13
 #define emergency sensC  // Change in case connected at another input
+#define SensBlister sensG
+#define SensLabel sensH
+#define SensOutBlisters sensI
 // Outputs
 #define PSupply 47
 #define solenoid1 5
@@ -192,12 +195,9 @@ void setup() {
 	setup_network();		// First thing we do is set up the network
 	server_connect();		// Now we try to stablish a connection
 	init_DB ();				// Init database.  Needs to be AFTER setup_network cause is using another instance of DB
-	get_config_from_server (C_All);			// Fetch all information from the database
-
-	// We start the machine in OFF state
-	switch_off_machine ();
+	// get_config_from_server (C_All);			// Fetch all information from the database
+	reset_machine ();
 	mem_check();
-	//chec_sensorG ();
 }
 
 
@@ -425,11 +425,13 @@ for (int a = 1; a<=10;a++) {
 }*/
 
 
-void chec_sensorG () {
+void check_sensorG () {
 	PSupply_ON ();
-	while (true) {
-		int sensor_state = digitalRead (sensH); 
-		Serial.println (analogRead (sensH));
+	boolean test = true;
+	int count = 0;
+	while (test) {
+		int sensor_state = digitalRead (SensLabel); 
+		Serial.println (analogRead (SensLabel));
 		if (sensor_state) {
 			// We got the begining of the blister
 			print_ok();
@@ -443,7 +445,9 @@ void chec_sensorG () {
 			// lister not detected, send error
 			// press_button_to_continue (1);
 		}
-		delay (700);
+		delay (500);
+		count ++;
+		if (count > 25) test = false;
 	}
 }
 
