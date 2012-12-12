@@ -359,6 +359,7 @@ void check_stop () {
 			break;}
 
 			case S_stopped: {
+				go_to_memory_position (2);		// We go to a safe place so we can disconect
 				while (global_status == S_stopped) {
 					#if defined Server_com_debug
 					Serial.print(F("\n **STOP - Checking server global status... "));
@@ -370,6 +371,7 @@ void check_stop () {
 			break;}
 
 			case S_switch_off: {
+				go_to_memory_position (2);		// We go to a safe place so we can disconect
 				switch_off_machine ();		// Switch off machine
 				while (global_status == S_switch_off) {
 					// Do nothing while everithing is off
