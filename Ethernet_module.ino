@@ -572,6 +572,12 @@ boolean receive_server_data (){
 			break; }
 			
 			default: {
+				// If command is not a letter means we ara handling raw data
+				// just print it
+				//if (inChar != is_a_letter) {
+					// Serial.print(inChar);
+
+				// }
 				// Undefined command received
 				Serial.print(F("Received undefined command: "));
 				Serial.println(inChar);

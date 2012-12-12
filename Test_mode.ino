@@ -27,35 +27,6 @@ for (int a = 1; a<=10;a++) {
 }*/
 
 
-void check_sensorG () {
-	PSupply_ON ();
-	boolean test = true;
-	int count = 0;
-	while (test) {
-		int sensor_state = digitalRead (SensLabel); 
-		Serial.println (analogRead (SensLabel));
-		if (sensor_state) {
-			// We got the begining of the blister
-			print_ok();
-			// We got a blisters
-			// Now we know that we have just a few left
-			// We start counting
-			// How can we reset this count when blisters are refilled? Database?
-				// In database case. Check database, if refilled reset state.
-		}else{
-			print_fail ();
-			// lister not detected, send error
-			// press_button_to_continue (1);
-		}
-		delay (500);
-		count ++;
-		if (count > 25) test = false;
-	}
-}
-
-
-
-
 void testing_motors () {
 
 	//go_to_posXY (int Xcy,int Xst,int Ycy,int Yst)
@@ -291,6 +262,7 @@ void enter_main_menu() {
 
 /***** Prints the sensor status *****/
 void print_sensor_stats() {
+	PSupply_ON ();
 	// Print X
 	Serial.print ("\nX axis sensor [");
 	if (Xaxis.sensor_check()) {
@@ -315,6 +287,84 @@ void print_sensor_stats() {
 		Serial.print ("FALSE");
 	}
 	Serial.println ("]");
+}
+
+void check_label_sens () {
+	PSupply_ON ();
+	boolean test = true;
+	int count = 0;
+	while (test) {
+		int sensor_state = digitalRead (SensLabel); 
+		Serial.println (analogRead (SensLabel));
+		if (sensor_state) {
+			// We got the begining of the blister
+			print_ok();
+			// We got a blisters
+			// Now we know that we have just a few left
+			// We start counting
+			// How can we reset this count when blisters are refilled? Database?
+				// In database case. Check database, if refilled reset state.
+		}else{
+			print_fail ();
+			// lister not detected, send error
+			// press_button_to_continue (1);
+		}
+		delay (500);
+		count ++;
+		if (count > 25) test = false;
+	}
+}
+
+void check_blister_sens () {
+	PSupply_ON ();
+	boolean test = true;
+	int count = 0;
+	while (test) {
+		int sensor_state = digitalRead (SensBlister); 
+		Serial.println (analogRead (SensBlister));
+		if (sensor_state) {
+			// We got the begining of the blister
+			print_ok();
+			// We got a blisters
+			// Now we know that we have just a few left
+			// We start counting
+			// How can we reset this count when blisters are refilled? Database?
+				// In database case. Check database, if refilled reset state.
+		}else{
+			print_fail ();
+			// lister not detected, send error
+			// press_button_to_continue (1);
+		}
+		delay (500);
+		count ++;
+		if (count > 25) test = false;
+	}
+}
+
+void check_emptyblister_sens () {
+	PSupply_ON ();
+	boolean test = true;
+	int count = 0;
+	while (test) {
+		int sensor_state = digitalRead (SensOutBlisters); 
+		Serial.println (analogRead (SensOutBlisters));
+		if (sensor_state) {
+			// We got the begining of the blister
+			print_ok();
+			// We got a blisters
+			// Now we know that we have just a few left
+			// We start counting
+			// How can we reset this count when blisters are refilled? Database?
+				// In database case. Check database, if refilled reset state.
+		}else{
+			print_fail ();
+			// lister not detected, send error
+			// press_button_to_continue (1);
+		}
+		delay (500);
+		count ++;
+		if (count > 25) test = false;
+	}
 }
 
 // ************************************************************

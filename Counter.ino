@@ -5,7 +5,7 @@
 
 // #define steps_from_sensor_to_init 1200  	// Number of steps (based in mode 8) to go backward from the sensor to the init position (not used)
 #define steps_from_sensor_to_init_clockwise 1150  			// Number of steps (based in mode 8) to go forward from the sensor to the init position
-#define steps_from_sensor_to_start_moving_when_seed 0		// Number of steps (based in mode 8) away form the pick a seed point to start moving the axis when we got a seed.
+#define steps_from_sensor_to_start_moving_when_seed 0		// Number of steps (based in mode 8) away fro 	m the pick a seed point to start moving the axis when we got a seed.
 #define margin_steps_to_detect_seed 80		// Its the steps margin in wich the sensor will check if we have a seed
 
 #define fails_max_normal 40				// Max number of tries to pick a seed before software will create an error
@@ -53,7 +53,31 @@ boolean Seedcounter_init() {
 	}
 
 	counter.set_init_position();  
-	first_time_drop = true;		// State that the first time we drop a seed has to be different because we just INIT and the wheel is in a different posuition than by default
+
+	// CHOOSE BETWEEN STANDARD AND EXPERIMENTAL INIT
+	if (false) {
+		first_time_drop = true;		// State that the first time we drop a seed has to be different because we just INIT and the wheel is in a different posuition than by default
+	}else{
+		// go back to the first place
+		int steps_to_do = (1600 - steps_from_sensor_to_init_clockwise) / counter.get_step_accuracy();
+		counter.set_direction (!default_directionC);   // Set direction
+		#if defined DEBUG_counter
+		Serial.print (F("Steps to do to go to pick up seed point: "));
+		Serial.println (steps_to_do);
+		#endif
+		for (int a = 1; a <= steps_to_do; a++){
+			counter.do_step();	
+			delayMicroseconds(motor_speed_counter*5);		// we do it 5 times slower to avoid breaking anything
+		}
+		#if defined DEBUG_counter
+		Serial.print (F("Init position: "));
+		Serial.print (counter.get_steps_cycles());
+		Serial.print (F(" - "));
+		Serial.println (counter.get_steps());
+		#endif
+		first_time_drop = true;
+	}
+
 	return true;
 }
 
@@ -147,9 +171,10 @@ void pickup_seed() {
 			if (!last_turn) {
 				send_action_to_server(seed_counter_turn);
 				if (default_directionC) {
-					speed_cntr_Move(-(steps_from_sensor_to_init_clockwise/counter.get_step_accuracy()),accel,speed,accel);	// We do a full turn, NOTICE that the acceleration in this case is lower
+					speed_cntr_Move(-(1600/counter.get_step_accuracy()),accel,speed,accel);	// We do a full turn, NOTICE that the acceleration in this case is lower
 				} else {
-					speed_cntr_Move(steps_from_sensor_to_init_clockwise/counter.get_step_accuracy(),accel,speed,accel);	// We do a full turn, NOTICE that the acceleration in this case is lower
+					// speed_cntr_Move(steps_from_sensor_to_init_clockwise/counter.get_step_accuracy(),accel,speed,accel);	// We do a full turn, NOTICE that the acceleration in this case is lower
+					speed_cntr_Move(1600/counter.get_step_accuracy(),accel,speed,accel);	// We do a full turn, NOTICE that the acceleration in this case is lower
 				}
 				count_total_turns ++;		// for statistics pourpouses
 			}
