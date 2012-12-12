@@ -4,6 +4,9 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V4.0.17 - 12/12/2012
+**  * Added file Test_mode.ino
+**
 **  V4.0.16 - 11/12/2012
 **  * Cleaning of code
 **  * Improved function wait_for_blister_info

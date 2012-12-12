@@ -3,10 +3,9 @@
 #include <StopWatch.h>
 #include <SoftwareServo.h> 
 
-//#include <network_config.h>		// NEDED?
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "V4.0.15"
+#define version_prog "V4.0.17"
 #define lib_version 15
 
 /********************************************
@@ -31,11 +30,6 @@
 #define Server_com_error_debug // Debug errors of communication with the server
 // #define DEBUG_counter		// Debug counter.. print positions
 // #define bypass_server		// Bypass_orders from the server and stat process straight away // not implemented
-
-// example debug:
-// #if defined DEBUG
-// Serial.println(val);
-// #endif
 
 // Stop Watch Timer
 StopWatch MySW;
@@ -195,9 +189,8 @@ void setup() {
 	setup_network();		// First thing we do is set up the network
 	server_connect();		// Now we try to stablish a connection
 	init_DB ();				// Init database.  Needs to be AFTER setup_network cause is using another instance of DB
-	// get_config_from_server (C_All);			// Fetch all information from the database
-	reset_machine ();
-	mem_check();
+	reset_machine ();		// Reset Machine adn be ready for operation
+	mem_check();			// Check memory. If it is lower than 1000Kb we could have problems
 }
 
 
@@ -213,7 +206,7 @@ void setup() {
 void loop() {
 	
 	// INIT procedure
-	check_stop ();
+	check_stop ();			// Check if we need to stop, finish batch, restart or go into test mode.
 
 	Serial.println(F("\n ************ "));
 
@@ -308,7 +301,6 @@ void loop() {
 	check_pause ();
 
 	/******** USEFUL FUNCTIONS
-	
 	void mem_check ()
 	void press_button_to_continue (int button_number)
 	int return_pressed_button ()
@@ -320,32 +312,6 @@ void loop() {
 	void print_time (unsigned long total_milliseconds, unsigned int hours, unsigned int minutes, unsigned int seconds)
 	void test_functions ()
 	*/
-}
-
-
-void testing_motors () {
-
-	//go_to_posXY (int Xcy,int Xst,int Ycy,int Yst)
-	go_to_posXY (0,0,2,0);
-	go_to_posXY (0,0,0,0);
-	go_to_posXY (0,0,4,0);
-	go_to_posXY (0,0,0,0);
-	go_to_posXY (0,0,6,0);
-	go_to_posXY (0,0,0,0);
-	go_to_posXY (0,0,8,0);
-	go_to_posXY (0,0,0,0);
-	go_to_posXY (0,0,10,0);
-	go_to_posXY (0,0,0,0);
-	go_to_posXY (0,0,12,0);
-	go_to_posXY (0,0,0,0);
-	go_to_posXY (0,0,14,0);
-	go_to_posXY (0,0,0,0);
-	go_to_posXY (0,0,16,0);
-	go_to_posXY (0,0,0,0);
-	go_to_posXY (0,0,18,0);
-
-	Serial.println ("Testing finished, restarting...");
-	delay (1000);
 }
 
 
@@ -381,9 +347,9 @@ void setup_pins () {
 	counter.set_default_sensor_state (false);
     
 	// set_accel_profile(init_timing, int ramp_inclination, n_slopes_per_mode, n_steps_per_slope)
-	Xaxis.set_speed_in_slow_mode (400);
+	Xaxis.set_speed_in_slow_mode (500);
 	Xaxis.set_accel_profile(900, 17, 9, 20);
-	Yaxis.set_speed_in_slow_mode (350);
+	Yaxis.set_speed_in_slow_mode (360);
 	Yaxis.set_accel_profile(950, 13, 7, 15);
 	//Yaxis.set_speed_in_slow_mode (350);
 	//Yaxis.set_accel_profile(950, 14, 8, 15);
@@ -400,85 +366,3 @@ void setup_pins () {
 
 
 
-void vibrate_solenoid (byte solenoid_number, byte power, byte duration) {
-
-// power 1 - 10 its the delay of the inner oscilation, the fastes (lowest number) less powerful
-// the slowest (higher number) stronger the vibration
-	for (int c=0; c<duration; c++) {
-		for (int a=0; a < 100; a++) {
-			digitalWrite (solenoid_number, HIGH);
-			delay (power*2);
-			digitalWrite (solenoid_number, LOW);
-			delay (power*2);
-		}
-	}
-}
-
-
-/*
-// vibrate_solenoid (byte solenoid_number, byte power, byte duration)
-for (int a = 1; a<=10;a++) {
-	Serial.println(F("power "));
-	Serial.println(a);
-	vibrate_solenoid (solenoid1, a, 30);
-	delay (5000);
-}*/
-
-
-void check_sensorG () {
-	PSupply_ON ();
-	boolean test = true;
-	int count = 0;
-	while (test) {
-		int sensor_state = digitalRead (SensLabel); 
-		Serial.println (analogRead (SensLabel));
-		if (sensor_state) {
-			// We got the begining of the blister
-			print_ok();
-			// We got a blisters
-			// Now we know that we have just a few left
-			// We start counting
-			// How can we reset this count when blisters are refilled? Database?
-				// In database case. Check database, if refilled reset state.
-		}else{
-			print_fail ();
-			// lister not detected, send error
-			// press_button_to_continue (1);
-		}
-		delay (500);
-		count ++;
-		if (count > 25) test = false;
-	}
-}
-
-
-
-void servo_test () {
-	// Prepare to init motors
-	if (get_power_state () == false) { 
-		PSupply_ON ();		// Switch Power supply ON
-	}
-	if (get_motor_enable_state () == false) {
-		motors_enable ();	// Enable motors
-	}
-	if (get_motor_sleep_state () == false) {
-		motors_awake ();	// Awake motors
-	}
-
-	for (int f=0; f<20; f++) {
-		for (int l = 0; l<100; l++) {
-		myservo_left.write(0);                  // sets the servo position according to the scaled value 
-		myservo_right.write(180);
-		delay(15);                           // waits for the servo to get there 
-		SoftwareServo::refresh();
-		}
-
-		for (int l = 0; l<100; l++) {
-		myservo_left.write(180);                  // sets the servo position according to the scaled value 
-		myservo_right.write(0);
-		delay(15);                           // waits for the servo to get there 
-		SoftwareServo::refresh();
-		}
-	}
-	//delay (1300);
-}
