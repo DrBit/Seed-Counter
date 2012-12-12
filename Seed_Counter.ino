@@ -130,6 +130,7 @@ boolean connected_to_server = false;
 #define seeds5 2
 int blister_mode = 0;
 boolean IDLE_mode = false;
+boolean endingBatch = false;
 
 // ***********************
 // ** Error FLAGS

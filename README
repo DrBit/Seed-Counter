@@ -6,7 +6,8 @@
 **
 **  V4.0.17 - 12/12/2012
 **  * Added file Test_mode.ino
-**  * Inprobed counter init, now it goes back so we can turn off the pump and not lose a seed
+**  * Improbed counter init, now it goes back so we can turn off the pump and not lose a seed
+**  * Improved end of batch function
 **
 **  V4.0.16 - 11/12/2012
 **  * Cleaning of code

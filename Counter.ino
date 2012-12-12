@@ -101,7 +101,7 @@ void pickup_seed() {
 	int accel = 10000;
 	int speed = 5200;
 	
-	while (!seed_detected) {
+	while (!seed_detected && !endingBatch) {
 		
 		// First some error checking.
 		
@@ -124,7 +124,10 @@ void pickup_seed() {
 				count_error_turns = 0;
 				previous_counted_turns = count_total_turns;
 			}
-			if (button_pressed == 2) end_of_batch ();
+			if (button_pressed == 2) {
+				end_of_batch ();
+				break;
+			}
 
 		}else if ((count_error_turns > fails_max_end) && (counter_s > (max_batch_count - 200))) {
 			send_error_to_server(counter_max_turns_end);
@@ -136,7 +139,10 @@ void pickup_seed() {
 				count_error_turns = 0;
 				previous_counted_turns = count_total_turns;
 			}
-			if (button_pressed == 2) end_of_batch ();
+			if (button_pressed == 2) {
+				end_of_batch ();
+				break;
+			}
 
 		}
 
@@ -309,6 +315,7 @@ void end_of_batch () {
 				Serial.println(F("Go to brush position"));
 				go_to_memory_position (20);
 				// just continue
+				
 				ready = true;
 			break;
 			
@@ -318,14 +325,19 @@ void end_of_batch () {
 		}
 	}
 	
+	send_status_to_server (S_finishing_batch);
 	send_action_to_server (batch_end);
+	// Go to blister position
+	go_to_memory_position (2);
+	endingBatch=true;		// This flag will disable all functions so if we need to do anything before ending do it before
+
+
+	// Serial.println (F("**** BATCH FINISHED! Close this windows and open again to restart *****"));
 	
-	Serial.println (F("**** BATCH FINISHED! Close this windows and open again to restart *****"));
-	
-	start_idle_timer (1500);	// 1500 = 20minutes
-	while (true) {
-		boring_messages ();
-	}
-	end_idle_timer ();		// Will never happens, but just in case...
+	// start_idle_timer (1500);	// 1500 = 20minutes
+	// while (true) {
+		//boring_messages ();
+	// }
+	// end_idle_timer ();		// Will never happens, but just in case...
 }
 

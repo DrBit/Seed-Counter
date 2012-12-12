@@ -335,6 +335,12 @@ void wait_for_blister_info () {
 }
 
 void check_stop () {
+
+	if (endingBatch) {
+		// Restore the flag endingBatch cause we now are at a save place and we can restart
+		endingBatch = false;
+		// endingBatch is enabled in "counter" inside function "pick a seed" and disables the basic functions of the loop
+	}
 	check_server();		// Should we?
 	
 	#if defined bypass_server 
