@@ -298,8 +298,6 @@ void loop() {
 	Serial.print (F("Elapsed time: "));
 	unsigned long total_ms = MySW.value();
 	print_time(total_ms);
-	
-	check_pause ();
 
 	/******** USEFUL FUNCTIONS
 	void mem_check ()
