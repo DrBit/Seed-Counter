@@ -159,7 +159,7 @@ void pickup_seed() {
 
 		// We are at drop seed position ready to start turning.
 		if ((counter.get_steps() == steps_from_sensor_to_init_clockwise) && (count_total_turns == previous_counted_turns)){			// If we are at the starting position means we are ready to continue
-			check_pause ();				// Enters menu if a button is pressed
+			check_stop (false);				// Enters menu if a button is pressed
 			// We check for pause in here because here we are time safe. Outside this is time criticall and any delay would crash de counter
 			wait_time(50);
 			if (!last_turn) {

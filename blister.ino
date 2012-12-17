@@ -199,6 +199,7 @@ void pick_blister_mode() {
 }
 
 void get_and_release_blister () {
+	check_stop(false);
 	if (!skip_function()) {
 		Serial.println("Get blister");
 		release_blister ();

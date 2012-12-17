@@ -335,12 +335,13 @@ void wait_for_blister_info () {
 	}
 }
 
-void check_stop () {
+void check_stop (boolean safe) {
 
-	if (endingBatch) {
+	if (endingBatch && safe) {
 		// Restore the flag endingBatch cause we now are at a save place and we can restart
 		endingBatch = false;
 		// endingBatch is enabled in "counter" inside function "pick a seed" and disables the basic functions of the loop
+		// Should we also enable this variable within this function also?
 	}
 	check_server();		// Should we?
 	
@@ -354,13 +355,12 @@ void check_stop () {
 		switch (global_status) {
 
 			case S_finishing_batch: {
-				// Since we go in here only when we are at the beginning of the process
-				// We know now that we shouldn continue and change status to stopped
-				send_status_to_server (S_stopped);
+				// We should wait until we have successfully finished last batch.
+				if (safe) send_status_to_server (S_stopped);
 			break;}
 
 			case S_stopped: {
-				go_to_memory_position (2);		// We go to a safe place so we can disconect
+				go_to_memory_position (2);		// We go to a safe place so we can stop
 				while (global_status == S_stopped) {
 					#if defined Server_com_debug
 					Serial.print(F("\n **STOP - Checking server global status... "));
@@ -420,12 +420,6 @@ void check_stop () {
 	// If we got here means we are ready to start. But before that we will check if we got all needed info from the server
 	wait_for_blister_info ();		// Checks the status, waits until we receive info to proceed
 	end_idle_timer();
-}
-
-
-void check_pause () {
-	
-	check_server();
 
 	// Emergency button handler
 	int button_emergency = digitalRead (emergency); // Conected at sens C?????
@@ -449,6 +443,12 @@ void check_pause () {
 	
 	// Checking pause in the software
 	if ((pause || global_status == S_pause) && !manual_enabled) {
+		// Record actual position
+		void record_actual_position ();
+		
+		// go to a safe position
+		go_to_memory_position (2);		// We go to a safe place so we can securily pause
+
 		pause = true;
 		MySW.stop();
 		// We don't have a timer here cause we can not reestart after unpause
@@ -464,8 +464,11 @@ void check_pause () {
 		pump_enable ();
 		MySW.start();
 		pause = false;
+		// go back to last saved position
+		go_to_last_saved_position ();
 	}
 }
+
 
 /***** Pause and return the number of any button pressed  *****/
 void pause_if_any_key_pressed () {

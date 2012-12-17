@@ -4,6 +4,7 @@ void print_one_label () {
 }
 
 void print_and_release_label () {
+	check_stop(false);
 	if (!skip_function()) {
 		print_one_label ();
 		// Wait for the printer to print a label
@@ -60,7 +61,7 @@ boolean check_label_realeased (boolean print) {
 		label = digitalRead (SensLabel); 
 		count ++;
 		if (count == 200) timeout_label = true;
-		delay (25);
+		delay (20);
 		if (skip_print_sens) count == 199;
 	}
 	

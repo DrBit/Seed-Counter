@@ -264,8 +264,26 @@ void go_to_memory_position (int position_index_to_go) {
 }
 
 void go_to_posXY (int Xcy,int Xst,int Ycy,int Yst) {
-	check_pause ();			// Check for any pause button
+	check_stop (false);			// Check for any pause button
 	Xaxis.got_to_position (Xcy,Xst) ;
-	check_pause ();			// Check for any pause button
+	check_stop (false);			// Check for any pause button
 	Yaxis.got_to_position (Ycy,Yst) ;
+}
+
+
+// Global vars for recorded position (for save mode)
+int temp_Xcycles = Xaxis.get_steps_cycles();
+int temp_Xsteps = Xaxis.get_steps();
+int temp_Ycycles = Yaxis.get_steps_cycles();
+int temp_Ysteps = Yaxis.get_steps();
+
+void record_actual_position () {
+	temp_Xcycles = Xaxis.get_steps_cycles();
+	temp_Xsteps = Xaxis.get_steps();
+	temp_Ycycles = Yaxis.get_steps_cycles();
+	temp_Ysteps = Yaxis.get_steps();
+}
+
+void go_to_last_saved_position () {
+	go_to_posXY (temp_Xcycles, temp_Xsteps, temp_Ycycles, temp_Ysteps) ;
 }

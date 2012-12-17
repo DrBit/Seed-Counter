@@ -207,7 +207,7 @@ void setup() {
 void loop() {
 	
 	// INIT procedure
-	check_stop ();			// Check if we need to stop, finish batch, restart or go into test mode.
+	check_stop (true);			// Check if we need to stop, finish batch, restart or go into test mode.
 
 	Serial.println(F("\n ************ "));
 
