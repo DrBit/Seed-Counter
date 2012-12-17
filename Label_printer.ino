@@ -13,7 +13,7 @@ void print_and_release_label () {
 		go_to_memory_position (3);			// Print position
 		boolean done = false;
 		while (!released) {
-			
+			if (!done) start_idle_timer (default_idle_time);		// start timer to calcule when do we have to go IDLE
 			if (!done) Serial.println("Label error, remove any label that might be left and press number 1 to try again or 2 to continue.");
 			done = true;
 
@@ -23,6 +23,7 @@ void print_and_release_label () {
 
 			if (digitalRead (SensLabel)) {
 				send_error_to_server(no_error);
+				end_idle_timer ();
 				break;
 			}
 
@@ -34,9 +35,13 @@ void print_and_release_label () {
 			}
 			if (button_pressed == '2') {
 				send_error_to_server(no_error);
+				end_idle_timer ();
 				break;
 			}
+			check_idle_timer (true);
 		}
+		send_error_to_server(no_error);
+		end_idle_timer ();
 	}
 }
 
@@ -55,7 +60,7 @@ boolean check_label_realeased (boolean print) {
 		label = digitalRead (SensLabel); 
 		count ++;
 		if (count == 200) timeout_label = true;
-		delay (80);
+		delay (25);
 		if (skip_print_sens) count == 199;
 	}
 	

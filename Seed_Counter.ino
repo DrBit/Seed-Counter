@@ -26,8 +26,8 @@
 // #define Ymotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 // #define Sensor_printer		// Disable sensor printer
 // #define Sensor_blister		// Disable sensor blisters
-// #define Server_com_debug	// Debug communications with the server
-#define Server_com_error_debug // Debug errors of communication with the server
+// #define Server_com_debug		// Debug communications with the server
+#define Server_com_error_debug  // Debug errors of communication with the server
 // #define DEBUG_counter		// Debug counter.. print positions
 // #define bypass_server		// Bypass_orders from the server and stat process straight away // not implemented
 
