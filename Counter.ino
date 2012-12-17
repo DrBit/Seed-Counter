@@ -101,7 +101,7 @@ void pickup_seed() {
 	int accel = 10000;
 	int speed = 5200;
 	
-	while (!seed_detected && !endingBatch) {
+	while (!seed_detected && !skip_function()) {
 		
 		// First some error checking.
 		
@@ -123,8 +123,10 @@ void pickup_seed() {
 			if (button_pressed == 1) { 
 				count_error_turns = 0;
 				previous_counted_turns = count_total_turns;
+				send_error_to_server(no_error);
 			}
 			if (button_pressed == 2) {
+				send_error_to_server(no_error);
 				end_of_batch ();
 				break;
 			}
@@ -138,8 +140,10 @@ void pickup_seed() {
 			if (button_pressed == 1) { 
 				count_error_turns = 0;
 				previous_counted_turns = count_total_turns;
+				send_error_to_server(no_error);
 			}
 			if (button_pressed == 2) {
+				send_error_to_server(no_error);
 				end_of_batch ();
 				break;
 			}
@@ -225,6 +229,7 @@ void pickup_seed() {
 				int button_pressed = return_pressed_button ();
 				if (button_pressed == 1) {
 					counter_autofix ();
+					send_error_to_server(no_error);
 					previous_counted_turns = count_total_turns;			// Avoid giving more than 1 order to turn at the same time
 					first_time_drop = true;
 				}

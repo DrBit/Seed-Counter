@@ -331,6 +331,7 @@ void wait_for_blister_info () {
 			#endif
 		}
 		pump_enable();
+		send_error_to_server(no_error);
 	}
 }
 
@@ -408,7 +409,7 @@ void check_stop () {
 			break;}
 
 			default: {
-				#if defined send_error_to_server
+				#if defined Server_com_error_debug
 				Serial.print(F("\n ** Status not recognized: "));
 				Serial.println(global_status);
 				#endif
@@ -566,4 +567,10 @@ void check_library_version () {
 	}
 }
 
-
+// This function is called inside every function of the loop to check if we should skip the executuin in order to go to a save point in the sketch.
+boolean skip_function() {
+	if (endingBatch) {
+		return true;
+	}
+	return false;
+}

@@ -5,7 +5,7 @@
 
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "V4.0.17"
+#define version_prog "V4.0.18"
 #define lib_version 15
 
 /********************************************
@@ -276,7 +276,7 @@ void loop() {
 		go_to_memory_position (11);			// 7th hole
 		pickup_seed ();
 		
-		Serial.print(F(" - 5th hole"));
+		Serial.println(F(" - 5th hole"));
 		go_to_memory_position (14);			// 10th hole
 		pickup_seed ();
 		

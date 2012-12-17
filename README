@@ -4,6 +4,11 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V4.0.18 - 17/17/2012
+**  * Added function skip_function to prevent functions to be executed in case we need to go to the start point
+**  * Fixed all errros to update status to send_error_to_server(missing_blister_info); when error is solved
+**  * Fixed bug when printing on screen error of label timeout
+**
 **  V4.0.17 - 12/12/2012
 **  * Added file Test_mode.ino
 **  * Improbed counter init, now it goes back so we can turn off the pump and not lose a seed

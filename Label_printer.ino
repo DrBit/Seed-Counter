@@ -4,16 +4,19 @@ void print_one_label () {
 }
 
 void print_and_release_label () {
-	if (!endingBatch) {
+	if (!skip_function()) {
 		print_one_label ();
 		// Wait for the printer to print a label
 		boolean released = check_label_realeased (true);
 		int button_pressed = 0;
-		Serial.println("Goto print position");
+		//Serial.println("Goto print position");
 		go_to_memory_position (3);			// Print position
+		boolean done = false;
 		while (!released) {
-			Serial.println("Label error, remove any label that might be left and press number 1 to try again or 2 to continue.");
 			
+			if (!done) Serial.println("Label error, remove any label that might be left and press number 1 to try again or 2 to continue.");
+			done = true;
+
 			if (Serial.available() > 0) {
 				button_pressed = Serial.read();
 			}
@@ -26,6 +29,8 @@ void print_and_release_label () {
 			if (button_pressed == '1') {
 				print_one_label ();
 				released = check_label_realeased (true);
+				done = false;
+				button_pressed = 0;
 			}
 			if (button_pressed == '2') {
 				send_error_to_server(no_error);

@@ -252,7 +252,7 @@ int get_step_Ypos_from_index(int index) {
 
 void go_to_memory_position (int position_index_to_go) {
 	// Disable this function in case we are ending batch
-	if (!endingBatch) {
+	if (!skip_function()) {
 		//send_position_to_server (position_index_to_go);		// Inform server that we are going to a position
 		int Xcycles = get_cycle_Xpos_from_index(position_index_to_go);
 		int Xsteps = get_step_Xpos_from_index(position_index_to_go);

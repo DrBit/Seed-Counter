@@ -160,7 +160,6 @@ boolean skip_server = false;
 #if defined bypass_server
 skip_server = true;
 #endif
-
 	// if you get a connection, report back via serial:
 	if (client.connect(server, port) || skip_server) {
 		Serial.println(F("connected!"));
@@ -168,6 +167,8 @@ skip_server = true;
 	} else {
 		// if you didn't get a connection to the server:
 		Serial.println(F("connection failed"));
+		delay (5000);
+
 	}
 	return false;
 
@@ -829,5 +830,3 @@ boolean recevie_data_telnet (char* parameter_container,int buffer) {
 		}
 	}
 }
-
-
