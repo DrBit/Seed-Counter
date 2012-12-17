@@ -251,6 +251,7 @@ int get_step_Ypos_from_index(int index) {
 }
 
 void go_to_memory_position (int position_index_to_go) {
+	check_stop (false);			// Check for any pause button
 	// Disable this function in case we are ending batch
 	if (!skip_function()) {
 		//send_position_to_server (position_index_to_go);		// Inform server that we are going to a position
@@ -263,10 +264,17 @@ void go_to_memory_position (int position_index_to_go) {
 	}
 }
 
+void go_to_safe_position () {
+	int safe_pos = 2;
+	int Xcycles = get_cycle_Xpos_from_index(safe_pos);
+	int Xsteps = get_step_Xpos_from_index(safe_pos);
+	int Ycycles = get_cycle_Ypos_from_index(safe_pos);
+	int Ysteps = get_step_Ypos_from_index(safe_pos); 
+	go_to_posXY (Xcycles, Xsteps, Ycycles, Ysteps) ;
+}
+
 void go_to_posXY (int Xcy,int Xst,int Ycy,int Yst) {
-	check_stop (false);			// Check for any pause button
 	Xaxis.got_to_position (Xcy,Xst) ;
-	check_stop (false);			// Check for any pause button
 	Yaxis.got_to_position (Ycy,Yst) ;
 }
 

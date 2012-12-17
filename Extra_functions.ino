@@ -348,9 +348,8 @@ void check_stop (boolean safe) {
 	#if defined bypass_server 
 	global_status = S_running;
 	#endif
-	
-	start_idle_timer (default_idle_time);
 
+	int done = false;
 	while (global_status != S_running && global_status != S_pause) {
 		switch (global_status) {
 
@@ -360,7 +359,9 @@ void check_stop (boolean safe) {
 			break;}
 
 			case S_stopped: {
-				go_to_memory_position (2);		// We go to a safe place so we can stop
+				if (!done) start_idle_timer (default_idle_time);
+				done = true;
+				go_to_safe_position();		// We go to a safe place so we can stop
 				while (global_status == S_stopped) {
 					#if defined Server_com_debug
 					Serial.print(F("\n **STOP - Checking server global status... "));
@@ -372,7 +373,7 @@ void check_stop (boolean safe) {
 			break;}
 
 			case S_switch_off: {
-				go_to_memory_position (2);		// We go to a safe place so we can disconect
+				go_to_safe_position();		// We go to a safe place so we can disconect
 				switch_off_machine ();		// Switch off machine
 				while (global_status == S_switch_off) {
 					// Do nothing while everithing is off
@@ -419,7 +420,6 @@ void check_stop (boolean safe) {
 	// global_status MUST be ready to get here
 	// If we got here means we are ready to start. But before that we will check if we got all needed info from the server
 	wait_for_blister_info ();		// Checks the status, waits until we receive info to proceed
-	end_idle_timer();
 
 	// Emergency button handler
 	int button_emergency = digitalRead (emergency); // Conected at sens C?????
@@ -444,10 +444,9 @@ void check_stop (boolean safe) {
 	// Checking pause in the software
 	if ((pause || global_status == S_pause) && !manual_enabled) {
 		// Record actual position
-		void record_actual_position ();
-		
+		record_actual_position ();
 		// go to a safe position
-		go_to_memory_position (2);		// We go to a safe place so we can securily pause
+		go_to_safe_position();		// We go to a safe place so we can securily pause
 
 		pause = true;
 		MySW.stop();
@@ -467,6 +466,7 @@ void check_stop (boolean safe) {
 		// go back to last saved position
 		go_to_last_saved_position ();
 	}
+	end_idle_timer();
 }
 
 
