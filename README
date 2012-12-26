@@ -6,6 +6,7 @@
 **
 **  V4.0.19 - 26/17/2012
 **  * Added received actions (A) for enable/disable pump
+**  * Adapted function reset all motors to react on server responses
 **
 **  V4.0.18 - 17/17/2012
 **  * Added function skip_function to prevent functions to be executed in case we need to go to the start point
