@@ -4,6 +4,9 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V4.0.19 - 26/17/2012
+**  * Added received actions (A) for enable/disable pump
+**
 **  V4.0.18 - 17/17/2012
 **  * Added function skip_function to prevent functions to be executed in case we need to go to the start point
 **  * Fixed all errros to update status to send_error_to_server(missing_blister_info); when error is solved

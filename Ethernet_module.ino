@@ -141,7 +141,7 @@ boolean check_server()
 void server_connect () {
 	boolean _connected=false;
 	while (!_connected) {
-				connected_to_server = connect_to_server ();
+		connected_to_server = connect_to_server ();
 		if (connected_to_server) {
 			_connected = true;
 		}
@@ -383,6 +383,21 @@ boolean receive_server_data (){
 				// some data waiting for us receive it
 			break; }
 			
+			case 'A': {
+				recevie_data_telnet (received_msg,bufferSize);
+				char * thisChar = received_msg;
+				int receiving_info = atoi(thisChar);
+				
+				switch (receiving_info) {	// What info are we going to receive? 
+					case enable_pump: {	// Software enable pump
+						pump_enable ();
+					break; }
+					case disable_pump: {	// Software enable pump
+						pump_disable ();
+					break; }
+				}
+			break; }
+
 			case 13: {
 				// omit return
 			break; }

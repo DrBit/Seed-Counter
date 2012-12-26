@@ -5,7 +5,7 @@
 
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "V4.0.18"
+#define version_prog "V4.0.19"
 #define lib_version 15
 
 /********************************************
