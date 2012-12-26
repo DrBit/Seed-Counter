@@ -56,6 +56,11 @@
 #define power_on 25  		// Power on internal circuits (Motors, solenoids, pump_switch)
 #define power_off 26 		// Power off internal circuits
 
+// Specific answers for error solving
+#define button_continue 27 		// Power off internal circuits
+#define button_stop 28 			// Power off internal circuits
+#define button_bypass 29 		// Power off internal circuits
+#define button_end 30 			// Power off internal circuits
 
 //////////////////////////
 // LIST OF ERRORS

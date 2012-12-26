@@ -159,6 +159,7 @@ unsigned long  desired_idle_time = 0;		// Time in seconds 120s = 2 minutes
 // ***********************
 byte global_status = 0;
 byte previous_status = 0;
+byte server_answer = 0;
 
 // ***********************
 // ** Default Direcctions MOTORS

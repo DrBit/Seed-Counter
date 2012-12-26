@@ -15,10 +15,16 @@ void init_all_motors () {
 	
 	while (temp_err > 0) { // We found an error, we chek ALL errors and try to initiate correctly
 		temp_err = 0;
-		Serial.println("\nErrors found, press 1 when ready to check again, 2 to bypas the errors");
-		switch (return_pressed_button ()) {
+		// Serial.println("\nErrors found, press 1 when ready to check again, 2 to bypas the errors");
+		// Transform into a while so we can receive answers from the server
+		// We can add also buttons to answer manually to the errors
+		// Errors have already been sended to the server as soon as happend
+		// Now we just respon to the answers of the server
+		check_server ();
+
+		switch (server_answer) {
 			//Init XY 
-			case 1:
+			case button_tryagain:
 				if (error_XY) {
 					if (!init_blocks(2)) temp_err++;
 				}
@@ -28,10 +34,19 @@ void init_all_motors () {
 				if (error_blister) {
 					if (!init_blocks(1)) temp_err++;
 				}
+				server_answer = 0;
 			break;
 			
-			case 2:
+			case button_bypass:
 				// do nothing so we wond detect any error and we will continue
+				server_answer = 0;
+				temp_err = 0;
+				send_error_to_server (no_error);		// Reset error on the server
+			break;
+
+			default:
+				// Any other answer or 0
+				server_answer = 0;
 			break;
 		}
 	}
