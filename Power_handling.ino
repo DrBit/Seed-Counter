@@ -20,34 +20,35 @@ void init_all_motors () {
 		// We can add also buttons to answer manually to the errors
 		// Errors have already been sended to the server as soon as happend
 		// Now we just respon to the answers of the server
-		check_server ();
+		check_stop (false);
+		if (!do_a_restart) {			// In case we pressed restart we will skip everything and continue to a safe position.
+			switch (server_answer) {
+				//Init XY 
+				case button_continue:
+					if (error_XY) {
+						if (!init_blocks(2)) temp_err++;
+					}
+					if (error_counter) {
+						if (!init_blocks(3)) temp_err++;
+					}
+					if (error_blister) {
+						if (!init_blocks(1)) temp_err++;
+					}
+					server_answer = 0;
+				break;
+				
+				case button_ignore:
+					// do nothing so we wond detect any error and we will continue
+					server_answer = 0;
+					temp_err = 0;
+					send_error_to_server (no_error);		// Reset error on the server
+				break;
 
-		switch (server_answer) {
-			//Init XY 
-			case button_tryagain:
-				if (error_XY) {
-					if (!init_blocks(2)) temp_err++;
-				}
-				if (error_counter) {
-					if (!init_blocks(3)) temp_err++;
-				}
-				if (error_blister) {
-					if (!init_blocks(1)) temp_err++;
-				}
-				server_answer = 0;
-			break;
-			
-			case button_bypass:
-				// do nothing so we wond detect any error and we will continue
-				server_answer = 0;
-				temp_err = 0;
-				send_error_to_server (no_error);		// Reset error on the server
-			break;
-
-			default:
-				// Any other answer or 0
-				server_answer = 0;
-			break;
+				default:
+					// Any other answer or 0
+					server_answer = 0;
+				break;
+			}
 		}
 	}
 }

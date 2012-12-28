@@ -4,6 +4,9 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V4.0.20 - 28/12/2012
+**  * Trying new metoth for handling errors (in reset motors module)
+**
 **  V4.0.19 - 26/17/2012
 **  * Added received actions (A) for enable/disable pump
 **  * Adapted function reset all motors to react on server responses

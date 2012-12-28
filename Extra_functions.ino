@@ -337,9 +337,10 @@ void wait_for_blister_info () {
 
 void check_stop (boolean safe) {
 
-	if (endingBatch && safe) {
+	if (safe) {
 		// Restore the flag endingBatch cause we now are at a save place and we can restart
 		endingBatch = false;
+		do_a_restart = false;
 		// endingBatch is enabled in "counter" inside function "pick a seed" and disables the basic functions of the loop
 		// Should we also enable this variable within this function also?
 	}
@@ -402,11 +403,17 @@ void check_stop (boolean safe) {
 			break;}
 
 			case S_setting_up: {
-				#if defined Server_com_debug
-				Serial.print(F("\n ** Setting UP"));
-				#endif
-				reset_machine ();
-				start_idle_timer (default_idle_time);		// We restart the timer as there was a call inside reset_machine
+				// If it is safe to do a restart we do it
+				if (safe) {
+					#if defined Server_com_debug
+					Serial.print(F("\n ** Setting UP"));
+					#endif
+					reset_machine ();
+					start_idle_timer (default_idle_time);		// We restart the timer as there was a call inside reset_machine
+				}else{
+					// If it is not safe to do a restart we falg it and wait untill it is safe
+					do_a_restart = true;
+				}
 			break;}
 
 			default: {
@@ -572,7 +579,7 @@ void check_library_version () {
 
 // This function is called inside every function of the loop to check if we should skip the executuin in order to go to a save point in the sketch.
 boolean skip_function() {
-	if (endingBatch) {
+	if (endingBatch || do_a_restart) {
 		return true;
 	}
 	return false;

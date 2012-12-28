@@ -5,7 +5,7 @@
 
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "V4.0.19"
+#define version_prog "V4.0.20"
 #define lib_version 15
 
 /********************************************
@@ -131,6 +131,7 @@ boolean connected_to_server = false;
 int blister_mode = 0;
 boolean IDLE_mode = false;
 boolean endingBatch = false;
+boolean do_a_restart = false;
 
 // ***********************
 // ** Error FLAGS

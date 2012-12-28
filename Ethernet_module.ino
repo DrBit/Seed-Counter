@@ -400,17 +400,8 @@ boolean receive_server_data (){
 					case button_continue: {
 						server_answer = button_continue;
 					break;}
-					case button_stop: {
-						server_answer = button_stop;
-					break;}
-					case button_bypass: {
-						server_answer = button_bypass;
-					break;}
-					case button_end: {
-						server_answer = button_end;
-					break;}
-					case button_tryagain: {
-						server_answer = button_tryagain;
+					case button_ignore: {
+						server_answer = button_ignore;
 					break;}
 				}
 			break; }
