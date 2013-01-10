@@ -251,9 +251,9 @@ int get_step_Ypos_from_index(int index) {
 }
 
 void go_to_memory_position (int position_index_to_go) {
-	check_stop (false);			// Check for any pause button
 	// Disable this function in case we are ending batch
 	if (!skip_function()) {
+		check_status (false);			// Check for any pause button
 		//send_position_to_server (position_index_to_go);		// Inform server that we are going to a position
 		int Xcycles = get_cycle_Xpos_from_index(position_index_to_go);
 		int Xsteps = get_step_Xpos_from_index(position_index_to_go);
@@ -271,6 +271,33 @@ void go_to_safe_position () {
 	int Ycycles = get_cycle_Ypos_from_index(safe_pos);
 	int Ysteps = get_step_Ypos_from_index(safe_pos); 
 	go_to_posXY (Xcycles, Xsteps, Ycycles, Ysteps) ;
+}
+
+void go_to_print_position () {
+	int brush_pos = 20;
+	int Xcycles = get_cycle_Xpos_from_index(brush_pos);
+	int Xsteps = get_step_Xpos_from_index(brush_pos);
+	int Ycycles = get_cycle_Ypos_from_index(brush_pos);
+	int Ysteps = get_step_Ypos_from_index(brush_pos); 
+	Yaxis.got_to_position (Ycycles,Ysteps) ;		// First move Y axis
+	Xaxis.got_to_position (Xcycles,Xsteps) ;
+
+	int print_pos = 4;
+	Xcycles = get_cycle_Xpos_from_index(print_pos);
+	Xsteps = get_step_Xpos_from_index(print_pos);
+	Ycycles = get_cycle_Ypos_from_index(print_pos);
+	Ysteps = get_step_Ypos_from_index(print_pos); 
+	Yaxis.got_to_position (Ycycles,Ysteps) ;		// First move Y axis
+	Xaxis.got_to_position (Xcycles,Xsteps) ;
+}
+
+void eject_blister () {
+	int Xcycles = get_cycle_Xpos_from_index(4);		// Exit position
+	int Xsteps = get_step_Xpos_from_index(4);		// Exit position
+	int Ycycles = get_cycle_Ypos_from_index(20);	// Brush Position
+	int Ysteps = get_step_Ypos_from_index(20); 		// Brush Position
+	Yaxis.got_to_position (Ycycles,Ysteps) ;		// First move Y axis
+	Xaxis.got_to_position (Xcycles,Xsteps) ;
 }
 
 void go_to_posXY (int Xcy,int Xst,int Ycy,int Yst) {

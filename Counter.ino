@@ -116,38 +116,23 @@ void pickup_seed() {
 		// Checks if we did too many turns. Could mean a bottle neck or just out of seeds
 		if (count_error_turns > fails_max_normal) {
 			send_error_to_server(counter_max_turns_normal);
-			Serial.println (F("\nError, no more seeds? Empty? Bottleneck? did the world end?"));
-			Serial.print (F("Press 1 to continue, press 2 to finish batch: "));
-			int button_pressed = return_pressed_button ();
-			Serial.println (button_pressed);
-			if (button_pressed == 1) { 
+			if (end_of_batch ()) {
+				break;
+			}else{
 				count_error_turns = 0;
 				previous_counted_turns = count_total_turns;
 				send_error_to_server(no_error);
+				// server_answer
 			}
-			if (button_pressed == 2) {
-				send_error_to_server(no_error);
-				end_of_batch ();
-				break;
-			}
-
 		}else if ((count_error_turns > fails_max_end) && (counter_s > (max_batch_count - 200))) {
 			send_error_to_server(counter_max_turns_end);
-			Serial.println (F("\nWe might have reached the end, is it?"));
-			Serial.print (F("Press 1 to continue, press 2 to finilize batch: "));
-			int button_pressed = return_pressed_button ();
-			Serial.println (button_pressed);
-			if (button_pressed == 1) { 
+			if (end_of_batch ()) {
+				break;
+			}else{
 				count_error_turns = 0;
 				previous_counted_turns = count_total_turns;
 				send_error_to_server(no_error);
 			}
-			if (button_pressed == 2) {
-				send_error_to_server(no_error);
-				end_of_batch ();
-				break;
-			}
-
 		}
 
 		// Vibrate acordingly depending on the amount of previous errors
@@ -159,7 +144,7 @@ void pickup_seed() {
 
 		// We are at drop seed position ready to start turning.
 		if ((counter.get_steps() == steps_from_sensor_to_init_clockwise) && (count_total_turns == previous_counted_turns)){			// If we are at the starting position means we are ready to continue
-			check_stop (false);				// Enters menu if a button is pressed
+			check_status (false);				// Enters menu if a button is pressed
 			// We check for pause in here because here we are time safe. Outside this is time criticall and any delay would crash de counter
 			wait_time(50);
 			if (!last_turn) {
@@ -299,43 +284,52 @@ boolean counter_autofix() {
 	Seedcounter_init();
 }
 
-void end_of_batch () {
-	
-	pump_disable ();
-	
-	Serial.println("Goto print position");
-	go_to_memory_position (3);			// Print position
-	
-	// Print 2 stickers at the begining
-	Serial.println ("Print one last label for the blister?");
-	Serial.println (" * Press 1 to finish batch");
-	Serial.println (" * Press 2 to print one label");
-	boolean ready = false;
+boolean end_of_batch () {
+	block_loop = true;			// This variable prevents from going into a endles loop.
+	boolean release = false;
+	while (!release) {
+		
+		check_server ();		// Here we can not do a check stop cause we would go into an endless loop.
+		if (!skip_function()) {			// In case we pressed restart or another high we will skip everything and continue to a safe position.
+			switch (server_answer) {
 
-	while (!ready) {
-		int option = return_pressed_button ();
-		Serial.println (option);
-		switch (option) {
-			case 1	:
-				Serial.println(F("Go to brush position"));
-				go_to_memory_position (20);
-				// just continue
+				case button_continue:
+					server_answer = 0;
+					block_loop = false;
+					return false;
+				break;
 				
-				ready = true;
-			break;
-			
-			case 2:
-				print_and_release_label ();
-			break;
-		}
-	}
-	
-	send_status_to_server (S_finishing_batch);
-	send_action_to_server (batch_end);
-	// Go to blister position
-	go_to_memory_position (2);
-	endingBatch=true;		// This flag will disable all functions so if we need to do anything before ending do it before
+				case button_finish:
+					// Get ready to finish batch
+					release = true;
+					server_answer = 0;
+					send_error_to_server (no_error);		// Reset error on the server
+					// pump_disable ();
+					Serial.println(F("Goto print position"));
+					go_to_print_position();
 
+					send_status_to_server (S_finishing_batch);
+					send_action_to_server (batch_end);
+					endingBatch=true;		// This flag will disable all functions so if we need to do anything before ending do it before
+					block_loop = false;
+					return true;
+				break;
+
+				default:
+					// Any other answer or 0
+					server_answer = 0;
+				break;
+			}
+		}else{
+			// We enter here in case we trigger a main function of a parent loop (skip function)
+			send_error_to_server (no_error);		// Reset error on the server
+			release = true;
+			block_loop = false;
+			return false;
+		}
+		delay (1000);
+	}
+	block_loop = false;
 
 	// Serial.println (F("**** BATCH FINISHED! Close this windows and open again to restart *****"));
 	

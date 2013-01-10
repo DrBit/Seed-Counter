@@ -3,7 +3,7 @@
 /////////////////////////
 
 void init_all_motors () {
-
+	block_loop = true;
 	// Prepare to init motors
 	PSupply_ON ();		// Switch Power supply ON
 	motors_enable ();	// Enable motors
@@ -13,18 +13,18 @@ void init_all_motors () {
 	int temp_err = 0;   // flag for found errors
 	if (!init_blocks(ALL)) temp_err = 1;
 	
+	// In case of error  
 	while (temp_err > 0) { // We found an error, we chek ALL errors and try to initiate correctly
-		temp_err = 0;
 		// Serial.println("\nErrors found, press 1 when ready to check again, 2 to bypas the errors");
-		// Transform into a while so we can receive answers from the server
 		// We can add also buttons to answer manually to the errors
-		// Errors have already been sended to the server as soon as happend
-		// Now we just respon to the answers of the server
-		check_stop (false);
-		if (!do_a_restart) {			// In case we pressed restart we will skip everything and continue to a safe position.
+		// Errors have already been sended to the server so we don have to take care of that
+		// Now we just respond to the (custom) answers of the server, general answers will be taken inside check_stop function 
+		check_server ();		// Here we can not do a check stop cause we would go into an endless loop.
+		if (!skip_function()) {			// In case we pressed restart or another high we will skip everything and continue to a safe position.
 			switch (server_answer) {
 				//Init XY 
 				case button_continue:
+					temp_err = 0;
 					if (error_XY) {
 						if (!init_blocks(2)) temp_err++;
 					}
@@ -49,8 +49,15 @@ void init_all_motors () {
 					server_answer = 0;
 				break;
 			}
+		}else{
+			// We enter here in case we trigger a main function of a parent loop
+			temp_err = 0;
+			send_error_to_server (no_error);		// Reset error on the server
 		}
+		delay (1000);
 	}
+	// Serial.print (" -OFF the error loop- ");
+	block_loop = false;
 }
 
 void switch_off_machine () {
@@ -66,6 +73,7 @@ void switch_off_machine () {
 }
 
 void reset_machine () {
+	block_loop = true;
 	//send_status_to_server (S_stopped);		// First send status as stop to refresh // TESTING
 	send_status_to_server (S_setting_up);	// here we comunicate the server that we begin the set-up process	
 	send_error_to_server (no_error);		// NO ERROR
@@ -75,10 +83,11 @@ void reset_machine () {
 	init_all_motors ();
 	// Updating Database from info staroed in the server
 	get_positions_from_server (P0);					// receives all positions from server
-	send_status_to_server (S_stopped);	// here we wait for the server to send orders
+	if (!do_a_restart) send_status_to_server (S_stopped);	// here we wait for the server to send orders if we don´t have to issue a restart..
 	MySW.reset();
 	MySW.start();
 	blister_mode = 0;		// Reset blister mode in case we are reestarting
+	block_loop = false;
 }
 
 

@@ -5,7 +5,7 @@
 
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "V4.0.20"
+#define version_prog "V4.0.21"
 #define lib_version 15
 
 /********************************************
@@ -26,7 +26,7 @@
 // #define Ymotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 // #define Sensor_printer		// Disable sensor printer
 // #define Sensor_blister		// Disable sensor blisters
-// #define Server_com_debug		// Debug communications with the server
+#define Server_com_debug		// Debug communications with the server
 #define Server_com_error_debug  // Debug errors of communication with the server
 // #define DEBUG_counter		// Debug counter.. print positions
 // #define bypass_server		// Bypass_orders from the server and stat process straight away // not implemented
@@ -132,6 +132,7 @@ int blister_mode = 0;
 boolean IDLE_mode = false;
 boolean endingBatch = false;
 boolean do_a_restart = false;
+boolean block_loop = false;
 
 // ***********************
 // ** Error FLAGS
@@ -209,89 +210,97 @@ void setup() {
 void loop() {
 	
 	// INIT procedure
-	check_stop (true);			// Check if we need to stop, finish batch, restart or go into test mode.
+	check_status (true);			// Check if we need to stop, finish batch, restart or go into test mode.
 
-	Serial.println(F("\n ************ "));
+	// If we got here means we are ready to start. But before that we will check if we got all needed info from the server
+	if (get_blister_info ()) do_one_blister ();		// Checks the status, waits until we receive info to proceed
+}
 
+
+// Process one blister
+void do_one_blister () {
+
+	if (!skip_function()) Serial.println(F("\n ************ "));
+	
 	get_and_release_blister ();
 	
 	// 10 Seeds mode
 	if (blister_mode == seeds10) {
 	
 		// START FILLING BLISTER
-		Serial.print(F("1rst hole"));
+		if (!skip_function()) Serial.print(F("1rst hole"));
 		go_to_memory_position (5);			// first hole
 		pickup_seed ();
 		
-		Serial.print(F(" - 2nd hole"));
+		if (!skip_function()) Serial.print(F(" - 2nd hole"));
 		go_to_memory_position (6);			// 2nd hole
 		pickup_seed ();
 		
-		Serial.print(F(" - 3th hole"));
+		if (!skip_function()) Serial.print(F(" - 3th hole"));
 		go_to_memory_position (7);			//3th hole
 		pickup_seed ();
 
-		Serial.print(F(" - 4rd hole"));
+		if (!skip_function()) Serial.print(F(" - 4rd hole"));
 		go_to_memory_position (8);			// 4d hole
 		pickup_seed ();
 
-		Serial.println(F(" - 5th hole"));
+		if (!skip_function()) Serial.println(F(" - 5th hole"));
 		go_to_memory_position (9);			// 5th hole
 		pickup_seed ();
 		
-		Serial.print(F("6th hole"));
+		if (!skip_function()) Serial.print(F("6th hole"));
 		go_to_memory_position (10);			// 6th hole
 		pickup_seed ();
 		
-		Serial.print(F(" - 7th hole"));
+		if (!skip_function()) Serial.print(F(" - 7th hole"));
 		go_to_memory_position (11);			// 7th hole
 		pickup_seed ();
 		
-		Serial.print(F(" - 8th hole"));
+		if (!skip_function()) Serial.print(F(" - 8th hole"));
 		go_to_memory_position (12);			// 8th hole
 		pickup_seed ();
 		
-		Serial.print(F(" - 9th hole"));
+		if (!skip_function()) Serial.print(F(" - 9th hole"));
 		go_to_memory_position (13);			// 9th hole
 		pickup_seed ();
 		
-		Serial.println(F(" - 10th hole"));
+		if (!skip_function()) Serial.println(F(" - 10th hole"));
 		go_to_memory_position (14);			// 10th hole
 		pickup_seed ();
 		
 	} else if (blister_mode == seeds5) {		// 5 Seeds mode
 
 		// START FILLING BLISTER
-		Serial.print(F("1rst hole"));
+		if (!skip_function()) Serial.print(F("1rst hole"));
 		go_to_memory_position (6);			// 2nd hole
 		pickup_seed ();
 		
-		Serial.print(F(" - 2nd hole"));
+		if (!skip_function()) Serial.print(F(" - 2nd hole"));
 		go_to_memory_position (7);			//3th hole
 		pickup_seed ();
 
-		Serial.println(F(" - 3th hole"));
+		if (!skip_function()) Serial.println(F(" - 3th hole"));
 		go_to_memory_position (10);			// 6th hole
 		pickup_seed ();
 		
-		Serial.print(F(" - 4th hole"));
+		if (!skip_function()) Serial.print(F("4th hole"));
 		go_to_memory_position (11);			// 7th hole
 		pickup_seed ();
 		
-		Serial.println(F(" - 5th hole"));
+		if (!skip_function()) Serial.println(F(" - 5th hole"));
 		go_to_memory_position (14);			// 10th hole
 		pickup_seed ();
 		
 	}
 
-	Serial.println(F("Goto print position"));
+	if (!skip_function()) Serial.println(F("Goto print position"));
 	go_to_memory_position (3);			// Print position
 	
 	print_and_release_label ();
 
 	
-	Serial.println(F("Go to exit"));
-	go_to_memory_position (4);			// Exit
+	if (!skip_function()) Serial.println(F("Go to exit"));
+	if (global_status != S_finishing_batch)  go_to_memory_position (4);			// Exit
 	
 	
 	Serial.print (F("Counted seeds: "));

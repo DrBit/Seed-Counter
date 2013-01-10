@@ -170,6 +170,58 @@ void check_out_of_blisters () {
 }
 
 
+void get_and_release_blister () {
+	check_status(false);
+	if (!skip_function()) {
+		Serial.println("Get blister");
+		release_blister ();
+		
+		boolean released = check_blister_realeased ();
+
+		block_loop = true;
+		while (!released) {
+			
+			check_server ();		// Here we can not do a check stop cause we would go into an endless loop.
+			if (!skip_function()) {			// In case we pressed restart or another high we will skip everything and continue to a safe position.
+				switch (server_answer) {
+
+					case button_continue:
+
+						Serial.println("Eject Blister");
+						eject_blister ();
+						
+						Serial.println("Get blister");
+						release_blister ();
+						released = check_blister_realeased ();
+						if (released) send_error_to_server (no_error);		// Reset error on the server
+						server_answer = 0;
+					break;
+					
+					case button_ignore:
+						// do nothing so we wond detect any error and we will continue
+						released = false;
+						server_answer = 0;
+						send_error_to_server (no_error);		// Reset error on the server
+					break;
+
+					default:
+						// Any other answer or 0
+						server_answer = 0;
+					break;
+				}
+			}else{
+				// We enter here in case we trigger a main function of a parent loop
+				send_error_to_server (no_error);		// Reset error on the server
+			}
+			delay (1000);
+		}
+		block_loop = false;
+	}
+}
+
+
+
+/*
 void pick_blister_mode() {
 
 	// This information will be provided by the server
@@ -197,26 +249,4 @@ void pick_blister_mode() {
 		}
 	}	
 }
-
-void get_and_release_blister () {
-	check_stop(false);
-	if (!skip_function()) {
-		Serial.println("Get blister");
-		release_blister ();
-		
-		boolean released = check_blister_realeased ();
-		while (!released) {
-			Serial.println("Blister malfunction, blister will be removed and we will try again. Check for any potencial problem before continuing.");
-			Serial.println("Press 1 to continue");
-			press_button_to_continue (1);
-			
-			Serial.println("Go to exit");
-			go_to_memory_position (4);			// Exit
-			
-			Serial.println("Get blister");
-			release_blister ();
-			released = check_blister_realeased ();
-		}
-		// Check if blister has been released correctly
-	}
-}
+*/

@@ -4,8 +4,14 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V4.0.21 - 10/01/2013
+**  * Fix delay when label not printed. Atleast wait for 2 seconds after receiving the label sensor signal
+**  * Fix bug in finishing batch button
+**  * Fix eject blister to avoid problems with the printer
+**
 **  V4.0.20 - 28/12/2012
 **  * Trying new metoth for handling errors (in reset motors module)
+**  * Added new flags to avoid endless loops when reseting machine.
 **
 **  V4.0.19 - 26/17/2012
 **  * Added received actions (A) for enable/disable pump

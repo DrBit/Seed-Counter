@@ -59,7 +59,7 @@
 // Specific answers for error solving
 #define button_continue 27 			// Power off internal circuits
 #define button_ignore 28 			// Power off internal circuits
-//#define button_bypass 29 			// Power off internal circuits
+#define button_finish 29 			// For finishing batch when we are out of seeds (sended by server)
 //#define button_end 30 			// Power off internal circuits
 
 //////////////////////////

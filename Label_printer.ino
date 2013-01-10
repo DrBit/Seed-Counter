@@ -4,8 +4,8 @@ void print_one_label () {
 }
 
 void print_and_release_label () {
-	check_stop(false);
-	if (!skip_function()) {
+	if (!skip_function() && (global_status != S_finishing_batch)) {
+		check_status(false);
 		print_one_label ();
 		// Wait for the printer to print a label
 		boolean released = check_label_realeased (true);
@@ -13,7 +13,10 @@ void print_and_release_label () {
 		//Serial.println("Goto print position");
 		go_to_memory_position (3);			// Print position
 		boolean done = false;
+		unsigned long label_error_delay = 3000;
+		unsigned long sensor_detect_timecode = 0;
 		while (!released) {
+			if (!done) send_error_to_server (label_timeout);
 			if (!done) start_idle_timer (default_idle_time);		// start timer to calcule when do we have to go IDLE
 			if (!done) Serial.println("Label error, remove any label that might be left and press number 1 to try again or 2 to continue.");
 			done = true;
@@ -23,9 +26,15 @@ void print_and_release_label () {
 			}
 
 			if (digitalRead (SensLabel)) {
-				send_error_to_server(no_error);
-				end_idle_timer ();
-				break;
+				// Detected label. we have to wait 2 seconds to discard false positives
+				// int time_to_wait
+				if ((millis() - label_error_delay) > sensor_detect_timecode) {
+					send_error_to_server(no_error);
+					end_idle_timer ();
+					break;
+				}
+			}else{
+				sensor_detect_timecode = millis();
 			}
 
 			if (button_pressed == '1') {
@@ -34,15 +43,34 @@ void print_and_release_label () {
 				done = false;
 				button_pressed = 0;
 			}
-			if (button_pressed == '2') {
+			if ((button_pressed == '2') || continue_pressed ()) {
 				send_error_to_server(no_error);
 				end_idle_timer ();
 				break;
 			}
+
 			check_idle_timer (true);
 		}
 		send_error_to_server(no_error);
 		end_idle_timer ();
+	}
+}
+
+boolean continue_pressed () {
+	
+	check_server ();		// Here we can not do a check stop cause we would go into an endless loop.	
+	switch (server_answer) {
+
+		case button_continue:
+			server_answer = 0;
+			return true;
+		break;
+
+		default:
+			// Any other answer or 0
+			server_answer = 0;
+			return false;
+		break;
 	}
 }
 

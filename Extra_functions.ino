@@ -307,173 +307,24 @@ int init_blisters_menu () {
 }
 
 
-void wait_for_blister_info () {
-	// if we haven't received seeds mode ask for it:
+boolean get_blister_info () {
+
 	if (blister_mode == 0) {
-			#if defined Server_com_debug
-			Serial.println(F("Waiting for Blister mode (I1)..."));
-			#endif
-			unsigned int info_timeout = 0;
-		while (blister_mode == 0) {
-			// get_info_from_server (get_seeds_mode);			// Gets seed mode (5 or 10 seeds per blister)
-			check_server();		// Should we?
-			delay (500);
-			info_timeout++;
+		#if defined bypass_server
+		return true;
+		blister_mode == 1;		// We set blister mode to 1
+		#endif	
 
-			#if defined bypass_server
-				if (info_timeout == 100) {
-					#if defined send_error_to_server
-					Serial.println(F("Blister mode (I1) not defined. Impossible to continue. Please ask administrator..."));
-					#endif
-					send_error_to_server(missing_blister_info);
-					pump_disable();
-				}
-			#endif
-		}
-		pump_enable();
-		send_error_to_server(no_error);
+		#if defined Server_com_debug
+		Serial.println(F("Waiting for Blister mode (I1)..."));
+		#endif
+		
+		send_error_to_server(missing_blister_info);
+		return false;
 	}
-}
 
-void check_stop (boolean safe) {
-
-	if (safe) {
-		// Restore the flag endingBatch cause we now are at a save place and we can restart
-		endingBatch = false;
-		do_a_restart = false;
-		// endingBatch is enabled in "counter" inside function "pick a seed" and disables the basic functions of the loop
-		// Should we also enable this variable within this function also?
-	}
-	check_server();		// Should we?
-	
-	#if defined bypass_server 
-	global_status = S_running;
-	#endif
-
-	int done = false;
-	while (global_status != S_running && global_status != S_pause) {
-		switch (global_status) {
-
-			case S_finishing_batch: {
-				// We should wait until we have successfully finished last batch.
-				if (safe) send_status_to_server (S_stopped);
-			break;}
-
-			case S_stopped: {
-				if (!done) start_idle_timer (default_idle_time);
-				done = true;
-				go_to_safe_position();		// We go to a safe place so we can stop
-				while (global_status == S_stopped) {
-					#if defined Server_com_debug
-					Serial.print(F("\n **STOP - Checking server global status... "));
-					#endif
-					delay(1000);
-					check_server();
-					check_idle_timer (true);
-				}
-			break;}
-
-			case S_switch_off: {
-				go_to_safe_position();		// We go to a safe place so we can disconect
-				switch_off_machine ();		// Switch off machine
-				while (global_status == S_switch_off) {
-					// Do nothing while everithing is off
-					#if defined Server_com_debug
-					Serial.print(F("\n **OFF - Checking server global status... "));
-					#endif
-					check_server();
-					delay (5000);
-				}
-				send_action_to_server(power_on); 
-				reset_machine ();		// When changes we will switch back ON
-				start_idle_timer (default_idle_time);		// Reset the timings for IDLE as we are not leaving this hole while
-			break;}
-
-			case S_test: {
-				#if defined Server_com_debug
-				Serial.print(F("\n ** Enterning TEST MODE"));
-				#endif	
-				end_idle_timer();
-
-				while (global_status == S_test) {
-					delay(150);
-					check_server();
-					// check_idle_timer (true);
-				}
-			break;}
-
-			case S_setting_up: {
-				// If it is safe to do a restart we do it
-				if (safe) {
-					#if defined Server_com_debug
-					Serial.print(F("\n ** Setting UP"));
-					#endif
-					reset_machine ();
-					start_idle_timer (default_idle_time);		// We restart the timer as there was a call inside reset_machine
-				}else{
-					// If it is not safe to do a restart we falg it and wait untill it is safe
-					do_a_restart = true;
-				}
-			break;}
-
-			default: {
-				#if defined Server_com_error_debug
-				Serial.print(F("\n ** Status not recognized: "));
-				Serial.println(global_status);
-				#endif
-			break;}
-		}
-	}
-	// global_status MUST be ready to get here
-	// If we got here means we are ready to start. But before that we will check if we got all needed info from the server
-	wait_for_blister_info ();		// Checks the status, waits until we receive info to proceed
-
-	// Emergency button handler
-	int button_emergency = digitalRead (emergency); // Conected at sens C?????
-	// if (button_emergency) {		// Bypas for now,, re-enable when connected
-	if (false) {
-		send_status_to_server (S_pause);
-		Serial.println ("Emergency Enabled");
-		MySW.stop();
-		// Send error
-		start_idle_timer (default_idle_time);
-		while (button_emergency) {
-			button_emergency = digitalRead (emergency); 
-			delay (500);
-			check_idle_timer (true);
-		}
-		end_idle_timer ();
-		MySW.start();
-		Serial.println ("Emergency disabled");
-		send_status_to_server (previous_status);
-	}
-	
-	// Checking pause in the software
-	if ((pause || global_status == S_pause) && !manual_enabled) {
-		// Record actual position
-		record_actual_position ();
-		// go to a safe position
-		go_to_safe_position();		// We go to a safe place so we can securily pause
-
-		pause = true;
-		MySW.stop();
-		// We don't have a timer here cause we can not reestart after unpause
-		// Must be enabled and disable by a user.
-		pump_disable ();		// We do only switch off the pump
-		while(pause) {
-			check_server();
-			if (global_status != S_pause) {
-				pause = false;
-			}
-			delay (1000);
-		}
-		pump_enable ();
-		MySW.start();
-		pause = false;
-		// go back to last saved position
-		go_to_last_saved_position ();
-	}
-	end_idle_timer();
+	send_error_to_server(no_error);
+	return true;
 }
 
 
