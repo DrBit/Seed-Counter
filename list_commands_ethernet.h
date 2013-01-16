@@ -6,6 +6,8 @@
 ////////////////////////
 // get_info_from_server (info); (I)
 #define get_seeds_mode 1			// 5 or 10 seeds per blister
+#define get_autoreset_state 2 		// Receives autoreset state 0 disabled - 1 enabled
+#define get_autoreset_value 3       // Receives the number of blisters after it will be reset automatically.
 
 
 //////////////////////////

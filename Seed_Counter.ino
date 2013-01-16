@@ -5,7 +5,7 @@
 
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "V4.0.21"
+#define version_prog "V5.0"
 #define lib_version 15
 
 /********************************************
@@ -133,6 +133,9 @@ boolean IDLE_mode = false;
 boolean endingBatch = false;
 boolean do_a_restart = false;
 boolean block_loop = false;
+boolean autoreset = false;
+unsigned int blisters_for_autoreset = 30;
+
 
 // ***********************
 // ** Error FLAGS
@@ -213,7 +216,10 @@ void loop() {
 	check_status (true);			// Check if we need to stop, finish batch, restart or go into test mode.
 
 	// If we got here means we are ready to start. But before that we will check if we got all needed info from the server
-	if (get_blister_info ()) do_one_blister ();		// Checks the status, waits until we receive info to proceed
+	if (get_blister_info ()) {
+		check_for_autoreset ();	// If autoreset is enabled check if we have to autoreset
+		do_one_blister ();		// Checks the status, waits until we receive info to proceed
+	}
 }
 
 

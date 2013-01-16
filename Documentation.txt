@@ -83,3 +83,36 @@ OK
 as observerd there is no need for an X at the begining of the transmit as arduino will be looking for predefined letters (P or I at the moment, and OK for ending)
 arduino check periodically if new data is received.
 Arduino will stop receiving if an OK is sended or if there is no more data being sended (in last case will report an error as OK is missing)
+
+
+/////////////////
+receiving information Autoreset
+/////////////////
+
+An autoreset is issued when a certain number of blisters have been processed. It is still not clear why the X axis loses trak of the steps but the most possible explanation
+is a bug inside the functions that counts steps + accelerates and deacelerates. 
+
+When issuing and autoreset all counters are reseted and any error in the steps is deleted. Differing from a normal reset in the autoreset no statuses or actions are sended to the server so the server can keep all current information on the batch being processed and continue without the need of any user input.
+
+for receiving the information of autoreset we will be expecting 2 values: autoreset_state (I2) and autoreset_value (I3)
+
+autoreset_state (I2) should be followed by 0 (disabled) or 1 (enabled)
+autoreset_value (I3) should be followed by a number between 1 and 100.
+
+Example of received autoreset information in machine side:
+
+I2
+1
+I3
+25
+OK
+
+this means:
+I2 (autoreset_state) is value:0 so means it is enabled
+I3 (autoreset_value) is value 25 so means an autoresset will be issued after 25 blisters.
+
+if I2 is not defined the software will use the default value that I've set to 0 (disabled)
+if I3 is not defined the software will use the default value that I've set to 30.
+
+information should be sended befor the begining of the batch. But information sended at any time shoul also work and will take effect inmediatelly.
+

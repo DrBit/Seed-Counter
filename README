@@ -4,6 +4,10 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V5.0 - 16/01/2013
+**  * First usable version
+**  * Added Auto reset function
+**
 **  V4.0.21 - 10/01/2013
 **  * Fix delay when label not printed. Atleast wait for 2 seconds after receiving the label sensor signal
 **  * Fix bug in finishing batch button
