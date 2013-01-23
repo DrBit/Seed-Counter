@@ -4,6 +4,10 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V5.1 - 32/01/2013
+**  * Fixed bug that would prevent machin from restarting when an error "released blister error" ocurred
+**  * Implemented function autoreset inside configuration variables.
+**
 **  V5.0 - 16/01/2013
 **  * First usable version
 **  * Added Auto reset function

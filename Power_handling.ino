@@ -90,7 +90,6 @@ void reset_machine () {
 	block_loop = false;
 }
 
-
 void motors_enable () {
 	if (get_motor_enable_state () == false) {
 		Serial.println ("Enable Motors");

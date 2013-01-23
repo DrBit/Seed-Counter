@@ -333,7 +333,7 @@ void check_for_autoreset () {
 		if (blister_mode == seeds10) seedsXblister = 10;
 		if (blister_mode == seeds5) seedsXblister = 5;
 		if (blisters_for_autoreset <= (counter_s / seedsXblister)) {
-			reset_machine ();
+			init_all_motors ();		// Cause our intention is just reset motor counters we don't have to do the hole reset procedure, just init motors
 		}
 	}
 }

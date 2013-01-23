@@ -212,6 +212,7 @@ void get_and_release_blister () {
 			}else{
 				// We enter here in case we trigger a main function of a parent loop
 				send_error_to_server (no_error);		// Reset error on the server
+				released = true;
 			}
 			delay (1000);
 		}

@@ -256,7 +256,7 @@ boolean receive_server_data (){
 					//endingBatch = true;			// Skyp all functions and go to starting point
 				}
 
-				// If we receive a restart command while we are inside a block loop (error or setup) weflag it so we know we should go OUT first
+				// If we receive a restart command while we are inside a block loop (error or setup) we flag it so we know we should go OUT first
 				if ((global_status == S_setting_up) && block_loop) {
 					do_a_restart = true;
 				}
@@ -286,42 +286,6 @@ boolean receive_server_data (){
 							Serial.print(F(" - "));
 						#endif
 					break; }
-
-					case get_autoreset_state: {	// Should we define the seeds per blister? for now 2 modes 1 or 2 (10 or 5 seeds)
-						recevie_data_telnet (received_msg,bufferSize);
-						char * thisChar = received_msg;
-						int receiving_reset_state = atoi(thisChar);
-						
-						if (receiving_reset_state == 0) {		// disables autoreset
-							autoreset = false;
-						}
-						if (receiving_reset_state == 1) {		// enables autoreset
-							autoreset = true;
-						}
-						#if defined Server_com_debug
-							Serial.print(F("Received Information Autoreset State: "));
-							if (receiving_reset_state) {
-								Serial.print(F("enabled"));
-							} else {
-								Serial.print(F("disabled"));
-							} 
-							Serial.print(F(" - "));
-						#endif
-					break; }
-
-					case get_autoreset_value: {	// Should we define the seeds per blister? for now 2 modes 1 or 2 (10 or 5 seeds)
-						recevie_data_telnet (received_msg,bufferSize);
-						char * thisChar = received_msg;
-						unsigned int receiving_reset_value = atoi(thisChar);
-						
-						blisters_for_autoreset = receiving_reset_value;
-
-						#if defined Server_com_debug
-							Serial.print(F("Received Information Autoreset Value: "));
-							Serial.print(blisters_for_autoreset);
-							Serial.print(F(" - "));
-						#endif
-					break; }
 				}
 			break; }
 						
@@ -345,7 +309,23 @@ boolean receive_server_data (){
 						unsigned int receiving_off_time = atoi(thisChar);
 						default_off_time = receiving_off_time;
 					break; }
+
+					case get_autoreset_state: {	// Should we define the seeds per blister? for now 2 modes 1 or 2 (10 or 5 seeds)
+						recevie_data_telnet (received_msg,bufferSize);
+						char * thisChar = received_msg;
+						int receiving_reset_state = atoi(thisChar);
+						if (receiving_reset_state == 0) autoreset = false;		// disables autoreset
+						if (receiving_reset_state == 1) autoreset = true;		// enables autoreset
+					break; }
+
+					case get_autoreset_value: {	// Should we define the seeds per blister? for now 2 modes 1 or 2 (10 or 5 seeds)
+						recevie_data_telnet (received_msg,bufferSize);
+						char * thisChar = received_msg;
+						unsigned int receiving_reset_value = atoi(thisChar);
+						blisters_for_autoreset = receiving_reset_value;
+					break; }
 				}
+
 				#if defined Server_com_debug
 				Serial.print(F("Received Configuration: "));
 				Serial.print(receiving_config);
@@ -354,9 +334,26 @@ boolean receive_server_data (){
 						Serial.print(F(" - default_idle_time: "));
 						Serial.println(default_idle_time);
 					break; }
+
 					case Cget_default_off_time: {
 						Serial.print(F(" - default_off_time: "));
 						Serial.println (default_off_time);
+					break; }
+
+					case get_autoreset_state: {
+						Serial.print(F(" - Autoreset State: "));
+						if (autoreset) {
+							Serial.print(F("enabled"));
+						} else {
+							Serial.print(F("disabled"));
+						} 
+						Serial.print(F(" - "));
+					break; }
+
+					case get_autoreset_value: {
+						Serial.print(F(" - Autoreset Value: "));
+						Serial.print(blisters_for_autoreset);
+						Serial.print(F(" - "));
 					break; }
 				}
 				#endif
