@@ -94,25 +94,44 @@ is a bug inside the functions that counts steps + accelerates and deacelerates.
 
 When issuing and autoreset all counters are reseted and any error in the steps is deleted. Differing from a normal reset in the autoreset no statuses or actions are sended to the server so the server can keep all current information on the batch being processed and continue without the need of any user input.
 
-for receiving the information of autoreset we will be expecting 2 values: autoreset_state (I2) and autoreset_value (I3)
+for receiving the configuration of autoreset we will be expecting 2 values: autoreset_state (C3) and autoreset_value (C4)
 
-autoreset_state (I2) should be followed by 0 (disabled) or 1 (enabled)
-autoreset_value (I3) should be followed by a number between 1 and 100.
+autoreset_state (C3) should be followed by 0 (disabled) or 1 (enabled)
+autoreset_value (C4) should be followed by a number between 1 and 100.
 
 Example of received autoreset information in machine side:
 
-I2
+C3
 1
-I3
+C4
 25
 OK
 
 this means:
-I2 (autoreset_state) is value:0 so means it is enabled
-I3 (autoreset_value) is value 25 so means an autoresset will be issued after 25 blisters.
+C3 (autoreset_state) is value:0 so means it is enabled
+C4 (autoreset_value) is value 25 so means an autoresset will be issued after 25 blisters.
 
-if I2 is not defined the software will use the default value that I've set to 0 (disabled)
-if I3 is not defined the software will use the default value that I've set to 30.
+if C3 is not defined the software will use the default value that I've set to 0 (disabled)
+if C4 is not defined the software will use the default value that I've set to 30.
 
 information should be sended befor the begining of the batch. But information sended at any time shoul also work and will take effect inmediatelly.
+
+
+/////////////////
+Server polling timing
+/////////////////
+
+Server polling timing is the minimum amount of time the software will wait untill connecting to the server again. This applies when the software is waiting for an answer but also during normal operation. So in case the software runs too fast it will automatically delay the fetching of information (never the sending).
+The value is in Milliseconds. 1000ms = 1s
+If not stated the default value is 1000, one second.
+
+example:
+
+C5
+1000
+OK
+
+---
+C5 (Cget_server_polling_time) is equal to 1000.
+
 

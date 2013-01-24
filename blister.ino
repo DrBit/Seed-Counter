@@ -105,6 +105,7 @@ boolean check_blister_realeased () {
 		p21_correct = true;
 	}else{
 		Serial.print(" - OFF state incorrect  ");
+		p21_correct = false;
 	}
 		
 	// Now we go right ON the blister at the begining.
@@ -116,6 +117,7 @@ boolean check_blister_realeased () {
 		p22_correct = true;
 	}else{
 		Serial.print(" - ON state incorrect ");
+		p21_correct = false;
 	}
 	
 	if (p21_correct && p22_correct) {
@@ -214,7 +216,6 @@ void get_and_release_blister () {
 				send_error_to_server (no_error);		// Reset error on the server
 				released = true;
 			}
-			delay (1000);
 		}
 		block_loop = false;
 	}

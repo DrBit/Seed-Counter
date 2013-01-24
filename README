@@ -4,7 +4,12 @@
 *********************************************
 **  REVISIONS from:
 **
-**  V5.1 - 32/01/2013
+**  V5.2 - 24/01/2013
+**  * Fixed bug in autoreset function that would do autoresets to every blister
+**  * Added min time polling server. Still not trough the server config
+**  * Added Server polling timing
+**
+**  V5.1 - 23/01/2013
 **  * Fixed bug that would prevent machin from restarting when an error "released blister error" ocurred
 **  * Implemented function autoreset inside configuration variables.
 **

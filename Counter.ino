@@ -327,7 +327,6 @@ boolean end_of_batch () {
 			block_loop = false;
 			return false;
 		}
-		delay (1000);
 	}
 	block_loop = false;
 

@@ -48,8 +48,8 @@ void print_and_release_label () {
 				end_idle_timer ();
 				break;
 			}
-
 			check_idle_timer (true);
+			if (skip_function()) released = true;
 		}
 		send_error_to_server(no_error);
 		end_idle_timer ();
@@ -89,7 +89,7 @@ boolean check_label_realeased (boolean print) {
 		label = digitalRead (SensLabel); 
 		count ++;
 		if (count == 200) timeout_label = true;
-		delay (20);
+		delay (10);
 		if (skip_print_sens) count == 199;
 	}
 	

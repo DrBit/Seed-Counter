@@ -5,7 +5,7 @@
 
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "V5.1"
+#define version_prog "V5.2"
 #define lib_version 15
 
 /********************************************
@@ -158,6 +158,8 @@ int default_off_time = 20;					// Defaul off time to go to sleep on user input 1
 // Used forinternal pourpouses
 unsigned long  idle_counter_start_time = 0;
 unsigned long  desired_idle_time = 0;		// Time in seconds 120s = 2 minutes
+unsigned long last_time_server_checked = 0;		// For polling the server at a good rate, not to fast
+unsigned long polling_server_rate = 1000;		// Polling rate in ms that we should check for incoming data.
 
 // ***********************
 // ** STATUS + ACTIONS
@@ -198,6 +200,7 @@ void setup() {
 	init_DB ();				// Init database.  Needs to be AFTER setup_network cause is using another instance of DB
 	reset_machine ();		// Reset Machine adn be ready for operation
 	mem_check();			// Check memory. If it is lower than 1000Kb we could have problems
+	//check_blister_sens ();
 }
 
 

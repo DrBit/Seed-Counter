@@ -337,7 +337,7 @@ void check_blister_sens () {
 		}
 		delay (500);
 		count ++;
-		if (count > 25) test = false;
+		if (count > 665) test = false;
 	}
 }
 
@@ -364,6 +364,33 @@ void check_emptyblister_sens () {
 		delay (500);
 		count ++;
 		if (count > 25) test = false;
+	}
+}
+
+void boring_messages () {
+	if (check_idle_timer(false)) {
+		int number = random(4);
+		switch (number) {
+			case 0: {
+				Serial.println ("**** Hello? anybody here..? I said RESTART *****");
+			break; }
+			
+			case 1: {
+				Serial.println ("**** I see... this will take time... I can not just leave, can I? *****");
+			break; }
+			
+			case 2: {
+				Serial.println ("**** booooooring... *****");
+			break; }
+			
+			case 3: {
+				Serial.println ("**** Please switch me down *****");
+			break; }
+			
+			case 4: {
+				Serial.println ("**** You could at least put some music... *****");
+			break; }
+		}
 	}
 }
 

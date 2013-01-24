@@ -307,10 +307,10 @@ void go_to_posXY (int Xcy,int Xst,int Ycy,int Yst) {
 
 
 // Global vars for recorded position (for save mode)
-int temp_Xcycles = Xaxis.get_steps_cycles();
-int temp_Xsteps = Xaxis.get_steps();
-int temp_Ycycles = Yaxis.get_steps_cycles();
-int temp_Ysteps = Yaxis.get_steps();
+int temp_Xcycles = 0;
+int temp_Xsteps = 0;
+int temp_Ycycles = 0;
+int temp_Ysteps = 0;
 
 void record_actual_position () {
 	temp_Xcycles = Xaxis.get_steps_cycles();

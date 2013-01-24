@@ -83,58 +83,65 @@ void setup_network() {
 
 boolean check_server()
 {
-	int timeout =0;
-	// Convert this time out in a real timeout (with millis)
-	// In case we discconected we no reconnect
-	while ((!connected_to_server) && (timeout < 10)) {
-		connected_to_server = connect_to_server ();
-		#if not defined bypass_server
-		delay (2000);
-		#endif
-		timeout ++; 
-	}
-	
-	// If we are already connected to the server...
-	if (connected_to_server) {
-		// if there are incoming bytes available 
-		// from the server, read them and process them:
-		sprintf(message, "%dX\r\n", M_ID);
-		client.print(message);
-		#if defined Server_com_debug
-			Serial.print("Send:");
-			sprintf(message, "%dX - ", M_ID);
-			Serial.print(message);
-		#endif
+	// First we check if has passed the min amount of time since last time we checked the server
+	if ((millis () - polling_server_rate) > last_time_server_checked) {
+		int timeout =0;
+		// Convert this time out in a real timeout (with millis)
+		// In case we discconected we no reconnect
+		while ((!connected_to_server) && (timeout < 10)) {
+			connected_to_server = connect_to_server ();
+			#if not defined bypass_server
+			delay (2000);
+			#endif
+			timeout ++; 
+		}
 
-		if (!receive_server_data ()) {
-			// Nothing to do
-			// We got a time out so no response
-		}else{
-			// Something has been received
-		}
+		// We are now either conected or disconected so we take the timestamp for future reference.
+		last_time_server_checked = millis();
 		
-		boolean skip_server = false;
-		#if defined bypass_server
-			skip_server = true;
-		#endif
-	 
-		// if the server's disconnected, stop the client:
-		if (!client.connected() && !skip_server) {
-		// if (!client.connected()) {
-			Serial.println(F("Server Disconnected."));
-			client.stop();
-			connected_to_server = false;
+		// If we are already connected to the server...
+		if (connected_to_server) {
+			// if there are incoming bytes available 
+			// from the server, read them and process them:
+			sprintf(message, "%dX\r\n", M_ID);
+			client.print(message);
+			#if defined Server_com_debug
+				Serial.print("Send:");
+				sprintf(message, "%dX - ", M_ID);
+				Serial.print(message);
+			#endif
+
+			if (!receive_server_data ()) {
+				// Nothing to do
+				// We got a time out so no response
+			}else{
+				// Something has been received
+			}
+			
+			boolean skip_server = false;
+			#if defined bypass_server
+				skip_server = true;
+			#endif
+		 
+			// if the server's disconnected, stop the client:
+			if (!client.connected() && !skip_server) {
+			// if (!client.connected()) {
+				Serial.println(F("Server Disconnected."));
+				client.stop();
+				connected_to_server = false;
+			}
+		 
+		}else{
+			// We got a timeout connecting so we didn't succed 
+			Serial.println(F("Timeout Connecting to the server..."));
+			Serial.println(F("Contact the network administrator or press a key to try again."));
+			press_button_to_continue (0);		// Press any key to continue
+			return false;
 		}
-	 
-	}else{
-		// We got a timeout connecting so we didn't succed 
-		Serial.println(F("Timeout Connecting to the server..."));
-		Serial.println(F("Contact the network administrator or press a key to try again."));
-		press_button_to_continue (0);		// Press any key to continue
-		return false;
 	}
 	return true;
 }
+
 
 
 // Basic routine to keep trying until gets connected

@@ -66,7 +66,6 @@ boolean check_status (boolean safe) {
 				end_idle_timer();
 
 				while (global_status == S_test) {
-					delay(150);
 					check_server();
 					// check_idle_timer (true);
 				}
@@ -132,7 +131,6 @@ boolean check_status (boolean safe) {
 			if (global_status != S_pause) {
 				pause = false;
 			}
-			delay (1000);
 		}
 		pump_enable ();
 		MySW.start();
@@ -152,7 +150,7 @@ boolean receive_server_data (){
 	
 	// wait 3 seconds for incoming data before a time out
 	// 100ms * 10 = 1s so... 100*20 = 2000 (time to wait 2 seconds)
-	int times_to_try = 20;
+	int times_to_try = 60;
 	#if defined bypass_server
 	times_to_try = 1;
 	#endif
@@ -310,7 +308,7 @@ boolean receive_server_data (){
 						default_off_time = receiving_off_time;
 					break; }
 
-					case get_autoreset_state: {	// Should we define the seeds per blister? for now 2 modes 1 or 2 (10 or 5 seeds)
+					case Cget_autoreset_state: {	// Should we define the seeds per blister? for now 2 modes 1 or 2 (10 or 5 seeds)
 						recevie_data_telnet (received_msg,bufferSize);
 						char * thisChar = received_msg;
 						int receiving_reset_state = atoi(thisChar);
@@ -318,11 +316,18 @@ boolean receive_server_data (){
 						if (receiving_reset_state == 1) autoreset = true;		// enables autoreset
 					break; }
 
-					case get_autoreset_value: {	// Should we define the seeds per blister? for now 2 modes 1 or 2 (10 or 5 seeds)
+					case Cget_autoreset_value: {	// Should we define the seeds per blister? for now 2 modes 1 or 2 (10 or 5 seeds)
 						recevie_data_telnet (received_msg,bufferSize);
 						char * thisChar = received_msg;
 						unsigned int receiving_reset_value = atoi(thisChar);
 						blisters_for_autoreset = receiving_reset_value;
+					break; }
+
+					case Cget_server_polling_time: {	
+						recevie_data_telnet (received_msg,bufferSize);
+						char * thisChar = received_msg;
+						unsigned long receiving_Spolling_value = atoi(thisChar);
+						polling_server_rate = receiving_Spolling_value;
 					break; }
 				}
 
@@ -340,20 +345,23 @@ boolean receive_server_data (){
 						Serial.println (default_off_time);
 					break; }
 
-					case get_autoreset_state: {
+					case Cget_autoreset_state: {
 						Serial.print(F(" - Autoreset State: "));
 						if (autoreset) {
-							Serial.print(F("enabled"));
+							Serial.println(F("Enabled"));
 						} else {
-							Serial.print(F("disabled"));
+							Serial.println(F("Disabled"));
 						} 
-						Serial.print(F(" - "));
 					break; }
 
-					case get_autoreset_value: {
+					case Cget_autoreset_value: {
 						Serial.print(F(" - Autoreset Value: "));
-						Serial.print(blisters_for_autoreset);
-						Serial.print(F(" - "));
+						Serial.println(blisters_for_autoreset);
+					break; }
+
+					case Cget_server_polling_time: {	
+						Serial.print(F(" - Server polling time Value: "));
+						Serial.println(polling_server_rate);
 					break; }
 				}
 				#endif
@@ -477,9 +485,9 @@ boolean receive_server_data (){
 	}
 	#if defined Server_com_debug
 		#if defined bypass_server
-		timeout = 5;
+		timeout = 0;
 		#endif
-		if (timeout >= 5) Serial.println(F("*timeout answer*"));
+		if (timeout >= times_to_try) Serial.println(F("*timeout answer*"));
 	#endif
 	if (receivedK) {
 		return true;

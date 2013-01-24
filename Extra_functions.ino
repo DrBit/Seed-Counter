@@ -329,10 +329,12 @@ boolean get_blister_info () {
 
 void check_for_autoreset () {
 	if (autoreset) {
-		byte seedsXblister =0;
+		int seedsXblister = 0;
 		if (blister_mode == seeds10) seedsXblister = 10;
 		if (blister_mode == seeds5) seedsXblister = 5;
-		if (blisters_for_autoreset <= (counter_s / seedsXblister)) {
+		if ((((counter_s / seedsXblister) % blisters_for_autoreset) == 0) && (counter_s =! 1)) {
+			Serial.print (F("Autoreset* Blisters counted: "));
+			Serial.println (counter_s / seedsXblister);
 			init_all_motors ();		// Cause our intention is just reset motor counters we don't have to do the hole reset procedure, just init motors
 		}
 	}

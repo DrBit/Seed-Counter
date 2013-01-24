@@ -54,7 +54,6 @@ void init_all_motors () {
 			temp_err = 0;
 			send_error_to_server (no_error);		// Reset error on the server
 		}
-		delay (1000);
 	}
 	// Serial.print (" -OFF the error loop- ");
 	block_loop = false;
@@ -211,34 +210,6 @@ void set_pump_state (boolean pump_state) {
 
 boolean get_pump_state () {
 	return digitalRead (pump);
-}
-
-
-void boring_messages () {
-	if (check_idle_timer(false)) {
-		int number = random(4);
-		switch (number) {
-			case 0: {
-				Serial.println ("**** Hello? anybody here..? I said RESTART *****");
-			break; }
-			
-			case 1: {
-				Serial.println ("**** I see... this will take time... I can not just leave, can I? *****");
-			break; }
-			
-			case 2: {
-				Serial.println ("**** booooooring... *****");
-			break; }
-			
-			case 3: {
-				Serial.println ("**** Please switch me down *****");
-			break; }
-			
-			case 4: {
-				Serial.println ("**** You could at least put some music... *****");
-			break; }
-		}
-	}
 }
 
 
