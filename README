@@ -4,6 +4,12 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V5.3.1 - 19/02/2013
+**  * Implemented counter autofix in network UI
+**
+**  V5.3 - 25/01/2013
+**  * Changed blister error handling
+**
 **  V5.2 - 24/01/2013
 **  * Fixed bug in autoreset function that would do autoresets to every blister
 **  * Added min time polling server. Still not trough the server config

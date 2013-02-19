@@ -200,24 +200,38 @@ void pickup_seed() {
 		} else {
 			// Fake sensor in case of debug motors
 			boolean sensor_skip = false;
-			//Serial.println("NOT in sensor pos");
 			#if defined Cmotor_debug
 				sensor_skip = true; 
 			#endif
 			if (counter.sensor_check() && !sensor_skip){			// We got a seed and we are not supose to have one here!!
 				send_error_to_server(counter_sensor_failed);
-				// Something whent wrong!!!!
-				Serial.println (F("\n\n **** Something whent wrong. Detected seed where it shouldn't"));
-				Serial.println (F(" Probably counter motor missed some steps"));
-				Serial.println (F("\n ***Press 1 to try auto-fix or reset the machine."));
-				Serial.println (F("\n ***CHECK CURRENT BLISTER FOR DOUBLE SEEDS OR EMPTY SEEDS!"));
-				int button_pressed = return_pressed_button ();
-				if (button_pressed == 1) {
-					counter_autofix ();
-					send_error_to_server(no_error);
-					previous_counted_turns = count_total_turns;			// Avoid giving more than 1 order to turn at the same time
-					first_time_drop = true;
+				boolean released = false;
+				block_loop = true;
+				while (!released) {
+					check_server ();		// Here we can not do a check stop cause we would go into an endless loop.
+					if (!skip_function()) {			// In case we pressed restart or another high we will skip everything and continue to a safe position.
+						switch (server_answer) {
+							case button_continue:
+								Serial.println(P("Continue button pressed"));
+								if (counter_autofix ()) {
+									released = true;
+									send_error_to_server (no_error);		// Reset error on the server
+								}
+								server_answer = 0;
+							break;
+
+							default:
+								// Any other answer or 0
+								server_answer = 0;
+							break;
+						}
+					}else{
+						// We enter here in case we trigger a main function of a parent loop
+						send_error_to_server (no_error);		// Reset error on the server
+						released = true;
+					}
 				}
+				block_loop = false;
 			}
 			
 		}

@@ -60,7 +60,7 @@
 #define button_continue 27 			// Power off internal circuits
 #define button_ignore 28 			// Power off internal circuits
 #define button_finish 29 			// For finishing batch when we are out of seeds (sended by server)
-//#define button_end 30 			// Power off internal circuits
+#define button_print_label 30 		// Print one label
 
 //////////////////////////
 // LIST OF ERRORS

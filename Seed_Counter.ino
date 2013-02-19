@@ -5,7 +5,7 @@
 
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "V5.2"
+#define version_prog "V5.3.1"
 #define lib_version 15
 
 /********************************************
@@ -29,7 +29,7 @@
 #define Server_com_debug		// Debug communications with the server
 #define Server_com_error_debug  // Debug errors of communication with the server
 // #define DEBUG_counter		// Debug counter.. print positions
-// #define bypass_server		// Bypass_orders from the server and stat process straight away // not implemented
+#define bypass_server		// Bypass_orders from the server and stat process straight away // not implemented
 
 // Stop Watch Timer
 StopWatch MySW;

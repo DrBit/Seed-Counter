@@ -5,12 +5,10 @@ void print_one_label () {
 
 void print_and_release_label () {
 	if (!skip_function() && (global_status != S_finishing_batch)) {
-		check_status(false);
+		check_status(false);		// Cehck for any pause status
 		print_one_label ();
 		// Wait for the printer to print a label
 		boolean released = check_label_realeased (true);
-		int button_pressed = 0;
-		//Serial.println("Goto print position");
 		go_to_memory_position (3);			// Print position
 		boolean done = false;
 		unsigned long label_error_delay = 3000;
@@ -21,48 +19,49 @@ void print_and_release_label () {
 			if (!done) Serial.println("Label error, remove any label that might be left and press number 1 to try again or 2 to continue.");
 			done = true;
 
-			if (Serial.available() > 0) {
-				button_pressed = Serial.read();
+			if (skip_function()) {						// here code to skip function
+				send_error_to_server (no_error);		// Reset error on the server
+				released = true;
 			}
 
-			if (digitalRead (SensLabel)) {
-				// Detected label. we have to wait 2 seconds to discard false positives
-				// int time_to_wait
-				if ((millis() - label_error_delay) > sensor_detect_timecode) {
-					send_error_to_server(no_error);
+			if (Lab_server_answer ()) {
+				if (button_continue) {
+					server_answer = 0;
+					released = true;		// Detected not detected but we continue...
 					end_idle_timer ();
-					break;
+				}
+
+				if (button_print_label) {
+					server_answer = 0;
+					print_one_label ();
+				}
+			}
+
+			if (digitalRead (SensLabel)) {		// Detected label. we have to wait 2 seconds to discard false positives
+				if ((millis() - label_error_delay) > sensor_detect_timecode) {			// int time_to_wait
+					released = true;		// Detected label
 				}
 			}else{
 				sensor_detect_timecode = millis();
 			}
-
-			if (button_pressed == '1') {
-				print_one_label ();
-				released = check_label_realeased (true);
-				done = false;
-				button_pressed = 0;
-			}
-			if ((button_pressed == '2') || continue_pressed ()) {
-				send_error_to_server(no_error);
-				end_idle_timer ();
-				break;
-			}
 			check_idle_timer (true);
-			if (skip_function()) released = true;
 		}
+
+		// We have now a released label
 		send_error_to_server(no_error);
 		end_idle_timer ();
 	}
 }
 
-boolean continue_pressed () {
-	
+boolean Lab_server_answer () {
 	check_server ();		// Here we can not do a check stop cause we would go into an endless loop.	
 	switch (server_answer) {
 
 		case button_continue:
-			server_answer = 0;
+			return true;
+		break;
+
+		case button_print_label:
 			return true;
 		break;
 
