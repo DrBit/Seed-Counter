@@ -5,7 +5,7 @@
 
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "V5.3.1"
+#define version_prog "Testing on Proto4 V5.3.1"
 #define lib_version 15
 
 /********************************************
@@ -22,15 +22,15 @@
 
 // #define DEBUG		// Remove / Add"//" to enable / disbale DEBUG mode
 // #define Cmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
-// #define Xmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
-// #define Ymotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
-// #define Sensor_printer		// Disable sensor printer
-// #define Sensor_blister		// Disable sensor blisters
-#define Server_com_debug		// Debug communications with the server
-#define Server_com_error_debug  // Debug errors of communication with the server
+#define Xmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
+#define Ymotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
+#define Sensor_printer		// Disable sensor printer
+#define Sensor_blister		// Disable sensor blisters
+// #define Server_com_debug		// Debug communications with the server
+// #define Server_com_error_debug  // Debug errors of communication with the server
 // #define DEBUG_counter		// Debug counter.. print positions
-#define bypass_server		// Bypass_orders from the server and stat process straight away // not implemented
-
+#define bypass_server		// Bypass_orders from the server and stat process straight away
+#define serial_answers		// Enables serial answers for debuggin or suden errors with comunication
 // Stop Watch Timer
 StopWatch MySW;
 
@@ -99,13 +99,13 @@ byte M_ID=1;
 // ** CONFIG MOTOR PINS
 // ***********************
 // Setting up motor A, step pin, direction pin, sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for eighth step(mode of the stepper driver)
-Stepper_ac Xaxis(stepA,dirA,sensD,ms1A,ms2A,200,8);
+Stepper_ac Xaxis(stepA,dirA,sensE,ms1A,ms2A,200,8);
 // Setting up motor B, step pin, direction pin, sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for wighth step(mode of the stepper driver)
-Stepper_ac Yaxis(stepB,dirB,sensE,ms1B,ms2B,200,4);
+Stepper_ac counter(stepB,dirB,sensD,ms1B,ms2B,200,4);
 // Setting up motor C, step pin, direction pin, NO sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for wighth step(mode of the stepper driver)
 Stepper_ac blisters(stepC,dirC,0,ms1C,ms2C,200,4);
 // Setting up motor D, step pin, direction pin, sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for wighth step(mode of the stepper driver)
-Stepper_ac counter(stepD,dirD,sensF,ms1D,ms2D,200,4);
+Stepper_ac Yaxis(stepD,dirD,sensF,ms1D,ms2D,200,4);
 
 // Servo instances
 SoftwareServo myservo_left;  // create servo object to control a servo
@@ -153,8 +153,8 @@ unsigned long counter_s = 0;
 boolean pause = false;
 boolean manual_enabled = false;				// Flag to overwrite the pause flag
 // Set the default times (they might be overwrited in the code)
-int default_idle_time = 20;				// Defaul idle time to go to sleep on user input 120 = 2 minutes.
-int default_off_time = 20;					// Defaul off time to go to sleep on user input 120 = 2 minutes.
+int default_idle_time = 5;				// Defaul idle time to go to sleep on user input 120 = 2 minutes.
+int default_off_time = 35;					// Defaul off time to go to sleep on user input 120 = 2 minutes.
 // Used forinternal pourpouses
 unsigned long  idle_counter_start_time = 0;
 unsigned long  desired_idle_time = 0;		// Time in seconds 120s = 2 minutes
@@ -201,6 +201,8 @@ void setup() {
 	reset_machine ();		// Reset Machine adn be ready for operation
 	mem_check();			// Check memory. If it is lower than 1000Kb we could have problems
 	//check_blister_sens ();
+
+	vibrate_solenoid(solenoid1,3,40);
 }
 
 

@@ -74,7 +74,7 @@
 #define init_Y2_fail  15	// Error initializing Y axis. Could not go out of sensor. The axis might be stuck, or the sensor disconnected or broken. Keeps reading ON even if we move it.
 #define init_X2_fail  16	// Error initializing X axis. Could not go out of sensor. The axis might be stuck, or the sensor disconnected or broken. Keeps reading ON even if we move it.
 
-#define counter_init_fail  17    	// Counter error, pump might be off, seeds deposits might be empty, sensor might be disconnected or broken
+#define counter_init_fail  17    	// // Error in the detection of the wheel. Switch sensor might be disconnected
 #define counter_max_turns_normal 18 // Counters has done too much turns. Check if there are seeds, bottle neck or sensor error.
 #define counter_max_turns_end 19 	// Counters has done too much turns and already counted all seeds. Check if we finished the batch, bottle neck or sensor error.
 #define counter_sensor_failed 20 	// Counter sensor has detected a seed and the wheel was not in the sensor position. This could mean that wheel has skiped steps, sensor malcfunction or dirty sensor.

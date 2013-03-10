@@ -496,3 +496,29 @@ boolean receive_server_data (){
 	}
 	// DONE!
 }
+
+
+
+	
+void clean_serial_buffer () {
+	while (Serial.available () > 0) {
+		int null;
+		null = Serial.read();
+	}
+}
+
+void check_serial_answer () {
+	if (Serial.available () > 0) {
+		char incomming = Serial.read();			// continue, ignore, finish
+
+		if (incomming == '1') {
+			server_answer = button_continue;
+		}
+		if (incomming == '2') {
+			server_answer = button_ignore;
+		}
+		if (incomming == '3') {
+			server_answer = button_finish;
+		}
+	}
+}

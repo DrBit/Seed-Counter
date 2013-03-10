@@ -13,6 +13,14 @@ void init_all_motors () {
 	int temp_err = 0;   // flag for found errors
 	if (!init_blocks(ALL)) temp_err = 1;
 	
+	start_idle_timer (default_idle_time);
+
+	#if defined serial_answers
+	if (temp_err > 0) {
+		clean_serial_buffer ();		// Cleans serial buffer from possible unwanted sended keys
+		Serial.println (F("1 fo Continue - 2 for Ignore"));
+	}
+	#endif
 	// In case of error  
 	while (temp_err > 0) { // We found an error, we chek ALL errors and try to initiate correctly
 		// Serial.println("\nErrors found, press 1 when ready to check again, 2 to bypas the errors");
@@ -20,10 +28,21 @@ void init_all_motors () {
 		// Errors have already been sended to the server so we don have to take care of that
 		// Now we just respond to the (custom) answers of the server, general answers will be taken inside check_stop function 
 		check_server ();		// Here we can not do a check stop cause we would go into an endless loop.
+		#if defined serial_answers
+		check_serial_answer ();
+		#endif
 		if (!skip_function()) {			// In case we pressed restart or another high we will skip everything and continue to a safe position.
 			switch (server_answer) {
 				//Init XY 
 				case button_continue:
+					start_idle_timer (default_idle_time);
+					if (!get_motor_enable_state()) {		// If we went OFF because of a time out we have ton check all again.
+						error_XY = true;
+						error_counter = true;
+						error_blister = true;
+						motors_awake ();
+						motors_enable ();
+					}
 					temp_err = 0;
 					if (error_XY) {
 						if (!init_blocks(2)) temp_err++;
@@ -42,6 +61,11 @@ void init_all_motors () {
 					server_answer = 0;
 					temp_err = 0;
 					send_error_to_server (no_error);		// Reset error on the server
+					if (!get_motor_enable_state()) {		// If we went OFF because of a time out we enable all again and ignore.
+						pump_enable ();
+						motors_awake ();
+						motors_enable ();
+					}
 				break;
 
 				default:
@@ -54,6 +78,7 @@ void init_all_motors () {
 			temp_err = 0;
 			send_error_to_server (no_error);		// Reset error on the server
 		}
+		check_idle_timer (true);
 	}
 	// Serial.print (" -OFF the error loop- ");
 	block_loop = false;
@@ -237,7 +262,7 @@ boolean check_idle_timer (boolean message) {
 				motors_disable ();	// Disable motors
 				PSupply_OFF ();		// Switch Power supply ON
 				send_status_to_server (S_switch_off);				// Send status 
-				if (message) Serial.println ("Switching OFF!");		// Print if nedeed
+				if (message) Serial.println ("POWER saving - Switching OFF!");		// Print if nedeed
 			}
 		}
 		return true;

@@ -4,17 +4,94 @@
 // Inits the seedcounter using the sensor as a starting point
 
 // #define steps_from_sensor_to_init 1200  	// Number of steps (based in mode 8) to go backward from the sensor to the init position (not used)
-#define steps_from_sensor_to_init_clockwise 1150  			// Number of steps (based in mode 8) to go forward from the sensor to the init position
+#define steps_from_sensor_to_init_clockwise 200  			// Number of steps (based in mode 8) to go forward from the sensor to the init position
 #define steps_from_sensor_to_start_moving_when_seed 0		// Number of steps (based in mode 8) away fro 	m the pick a seed point to start moving the axis when we got a seed.
 #define margin_steps_to_detect_seed 80		// Its the steps margin in wich the sensor will check if we have a seed
 
 #define fails_max_normal 40				// Max number of tries to pick a seed before software will create an error
 #define fails_max_end 20				// Max number of fails before 100 seeds to reach the complet batch to create an error (since we are close to the end we dont need to go to 1000)
-#define init_turns_till_error 40   		// Number of times the counter will try to get a seed at INITIATION before giving an error
+#define init_turns_till_error 1   		// Number of times the counter will try to get a seed at INITIATION before giving an error
 unsigned int max_batch_count = 1100;	// Tipical number of seeds in a batch
 
 boolean first_time_drop = true;		// Used only to acomodate positionafter INIT. Once hase been used we won't used anymore.
 
+boolean Seedcounter_init() {
+
+
+	// Inicialitzar
+    send_action_to_server(counter_init);
+	boolean seed_sensor = false; 
+	int count = 0;
+#if defined Cmotor_debug
+	// Do nothing so we skip the init 
+	seed_sensor = true;
+#endif
+	counter.set_direction (!default_directionC);   // Set direction
+	
+	// Detectar connector
+	while (!seed_sensor) {
+		// Go torwards the sensor slow till we detect it
+		// We have set max counts so it will stop if something goes wrong
+
+		count++;
+		if (count == (counter.get_steps_per_cycle() * init_turns_till_error)) {  // We are detecting 1 full turn
+			send_error_to_server(counter_init_fail);
+			// Error in the detection of the wheel. Switch might be disconnected
+			return false;  // Failed to initiate seed counter, return false
+		}  
+		if (!Init_switch_check()) {
+			counter.do_step();
+		}
+		if (Init_switch_check()) {
+			// If the sensor is true means we found the position of the sensor
+			seed_sensor = true;
+			//Serial.println ("Counter sensor is HIGH");  // for debug
+		}
+		// This delay slows down the velocity so we won't miss any step
+		// Thats because we are not using acceleration in this case
+		delayMicroseconds(motor_speed_counter);
+	}
+	// Anar a posicio inicial
+
+
+	counter.set_init_position();  
+
+
+	// first_time_drop = true;		// State that the first time we drop a seed has to be different because we just INIT and the wheel is in a different posuition than by default
+
+	// go to init position
+	int steps_to_do = (1600 - steps_from_sensor_to_init_clockwise) / counter.get_step_accuracy();
+	counter.set_direction (default_directionC);   // Set direction
+	#if defined DEBUG_counter
+	Serial.print (F("Steps to do to go to seed point: "));
+	Serial.println (steps_to_do);
+	#endif
+	for (int a = 1; a <= steps_to_do; a++){
+		counter.do_step();	
+		delayMicroseconds(motor_speed_counter*5);		// we do it 5 times slower to avoid breaking anything
+	}
+	#if defined DEBUG_counter
+	Serial.print (F("Init position: "));
+	Serial.print (counter.get_steps_cycles());
+	Serial.print (F(" - "));
+	Serial.println (counter.get_steps());
+	#endif
+	first_time_drop = true;
+	
+	return true;
+}
+
+boolean Init_switch_check() {
+	if (digitalRead(sensA)) {
+		return true;
+	}else{
+		return false;
+	}
+
+}
+
+/*
+// OLD Seed counter init
 boolean Seedcounter_init() {
     send_action_to_server(counter_init);
 	boolean seed_sensor = false; 
@@ -80,6 +157,7 @@ boolean Seedcounter_init() {
 
 	return true;
 }
+*/
 
 // ************************************************************
 // ** Extra functions
@@ -212,7 +290,7 @@ void pickup_seed() {
 					if (!skip_function()) {			// In case we pressed restart or another high we will skip everything and continue to a safe position.
 						switch (server_answer) {
 							case button_continue:
-								Serial.println(P("Continue button pressed"));
+								Serial.println(F("Continue button pressed"));
 								if (counter_autofix ()) {
 									released = true;
 									send_error_to_server (no_error);		// Reset error on the server

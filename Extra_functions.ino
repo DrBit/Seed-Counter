@@ -311,8 +311,8 @@ boolean get_blister_info () {
 
 	if (blister_mode == 0) {
 		#if defined bypass_server
+		blister_mode = seeds10;		// We set blister mode to 1
 		return true;
-		blister_mode == 1;		// We set blister mode to 1
 		#endif	
 
 		#if defined Server_com_debug
