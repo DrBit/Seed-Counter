@@ -10,7 +10,7 @@
 // ** INIT FUNCTIONS
 // ************************************************************
 
-boolean blisters_init () {
+bool blisters_init () {
 	send_action_to_server (blisters_disp_init);
 	int steps_to_do = (blisters_steps_absoulut_limit+100) / blisters.get_step_accuracy();		// The absolut limit would be 1000, but we add an extra 100 to be sure that we hit the maximum point so we init correctly
 	blisters.set_direction (default_directionB);
@@ -83,7 +83,7 @@ void release_blister_servo () {
 }
 
 
-boolean check_blister_realeased () {
+bool check_blister_realeased () {
 	boolean skip_sensor_blister = false;
 #if defined Sensor_blister
 	skip_sensor_blister = true;

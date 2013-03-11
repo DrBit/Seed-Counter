@@ -28,9 +28,6 @@ void init_all_motors () {
 		// Errors have already been sended to the server so we don have to take care of that
 		// Now we just respond to the (custom) answers of the server, general answers will be taken inside check_stop function 
 		check_server ();		// Here we can not do a check stop cause we would go into an endless loop.
-		#if defined serial_answers
-		check_serial_answer ();
-		#endif
 		if (!skip_function()) {			// In case we pressed restart or another high we will skip everything and continue to a safe position.
 			switch (server_answer) {
 				//Init XY 
@@ -42,6 +39,8 @@ void init_all_motors () {
 						error_blister = true;
 						motors_awake ();
 						motors_enable ();
+						pump_enable ();
+						PSupply_ON();
 					}
 					temp_err = 0;
 					if (error_XY) {
@@ -65,6 +64,7 @@ void init_all_motors () {
 						pump_enable ();
 						motors_awake ();
 						motors_enable ();
+						PSupply_ON();
 					}
 				break;
 

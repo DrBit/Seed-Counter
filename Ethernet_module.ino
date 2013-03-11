@@ -83,6 +83,9 @@ void setup_network() {
 
 boolean check_server()
 {
+	#if defined serial_answers		// In case of debug over serial we check also for any answer comming from serial
+	check_serial_answer ();
+	#endif
 	// First we check if has passed the min amount of time since last time we checked the server
 	if ((millis () - polling_server_rate) > last_time_server_checked) {
 		int timeout =0;
@@ -115,7 +118,7 @@ boolean check_server()
 				// Nothing to do
 				// We got a time out so no response
 			}else{
-				// Something has been received
+				// Something has been 
 			}
 			
 			boolean skip_server = false;

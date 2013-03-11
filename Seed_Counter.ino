@@ -202,7 +202,8 @@ void setup() {
 	mem_check();			// Check memory. If it is lower than 1000Kb we could have problems
 	//check_blister_sens ();
 
-	vibrate_solenoid(solenoid1,3,40);
+	// Working setup
+	//vibrate_solenoid(solenoid1,3,40);
 }
 
 
