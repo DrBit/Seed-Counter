@@ -78,10 +78,14 @@ byte M_ID=1;
 #define sensG A11
 #define sensH A12
 #define sensI A13
+
+
 #define emergency sensC  // Change in case connected at another input
 #define SensBlister sensG
 #define SensLabel sensH
 #define SensOutBlisters sensI
+#define Counter_wheel_sensor sensA
+#define Counter_seed_sensor sensD
 // Outputs
 #define PSupply 47
 #define solenoid1 5
@@ -101,7 +105,7 @@ byte M_ID=1;
 // Setting up motor A, step pin, direction pin, sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for eighth step(mode of the stepper driver)
 Stepper_ac Xaxis(stepA,dirA,sensE,ms1A,ms2A,200,8);
 // Setting up motor B, step pin, direction pin, sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for wighth step(mode of the stepper driver)
-Stepper_ac counter(stepB,dirB,sensD,ms1B,ms2B,200,4);
+Stepper_ac counter(stepB,dirB,Counter_seed_sensor,ms1B,ms2B,200,2);
 // Setting up motor C, step pin, direction pin, NO sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for wighth step(mode of the stepper driver)
 Stepper_ac blisters(stepC,dirC,0,ms1C,ms2C,200,4);
 // Setting up motor D, step pin, direction pin, sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for wighth step(mode of the stepper driver)
@@ -200,7 +204,8 @@ void setup() {
 	init_DB ();				// Init database.  Needs to be AFTER setup_network cause is using another instance of DB
 	reset_machine ();		// Reset Machine adn be ready for operation
 	mem_check();			// Check memory. If it is lower than 1000Kb we could have problems
-	//check_blister_sens ();
+	// check_blister_sens ();
+	// calibrate_counter ();
 
 	// Working setup
 	//vibrate_solenoid(solenoid1,3,40);

@@ -223,6 +223,7 @@ void get_and_release_blister () {
 
 
 
+
 /*
 void pick_blister_mode() {
 

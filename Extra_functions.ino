@@ -277,7 +277,7 @@ int init_XY_menu() {
 /***** Init Counter from menu *****/
 int init_counter_menu () {
 	// Init Counter
-	pump_enable ();
+	//pump_enable ();
     Serial.print("Init Seed counter roll: ");
     if (Seedcounter_init()) {  // Initiates seed counters
 		print_ok();
@@ -286,7 +286,7 @@ int init_counter_menu () {
     }else{
 		print_fail();
         error_counter = true;
-		pump_disable ();
+		//pump_disable ();
         return 0;
     }
 }

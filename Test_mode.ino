@@ -2,20 +2,6 @@
 // TEST MODE
 ////////////////////
 
-void vibrate_solenoid (byte solenoid_number, byte power, byte duration) {
-
-// power 1 - 10 its the delay of the inner oscilation, the fastes (lowest number) less powerful
-// the slowest (higher number) stronger the vibration
-	for (int c=0; c<duration; c++) {
-		for (int a=0; a < 100; a++) {
-			digitalWrite (solenoid_number, HIGH);
-			delay (power*2);
-			digitalWrite (solenoid_number, LOW);
-			delay (power*2);
-		}
-	}
-}
-
 
 /*
 // vibrate_solenoid (byte solenoid_number, byte power, byte duration)
