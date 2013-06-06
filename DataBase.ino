@@ -79,6 +79,9 @@ void show_pos_list ()  {
 	Serial.println(F("*     19.    * Hole 5"));
 	Serial.println(F("********************************************Extra Positions"));
 	Serial.println(F("*     20.    * Brush position"));
+	Serial.println(F("*     21.    * ?"));
+	Serial.println(F("*     22.    * ?"));
+	Serial.println(F("*     23.    * ?"));
 	Serial.println(F("********************************************"));
 }
 

@@ -3,248 +3,174 @@
 ////////////////////
 
 
-/*
-// vibrate_solenoid (byte solenoid_number, byte power, byte duration)
-for (int a = 1; a<=10;a++) {
-	Serial.println(F("power "));
-	Serial.println(a);
-	vibrate_solenoid (solenoid1, a, 30);
-	delay (5000);
-}*/
-
-
-void testing_motors () {
-
-	//go_to_posXY (int Xcy,int Xst,int Ycy,int Yst)
-	go_to_posXY (0,0,2,0);
-	go_to_posXY (0,0,0,0);
-	go_to_posXY (0,0,4,0);
-	go_to_posXY (0,0,0,0);
-	go_to_posXY (0,0,6,0);
-	go_to_posXY (0,0,0,0);
-	go_to_posXY (0,0,8,0);
-	go_to_posXY (0,0,0,0);
-	go_to_posXY (0,0,10,0);
-	go_to_posXY (0,0,0,0);
-	go_to_posXY (0,0,12,0);
-	go_to_posXY (0,0,0,0);
-	go_to_posXY (0,0,14,0);
-	go_to_posXY (0,0,0,0);
-	go_to_posXY (0,0,16,0);
-	go_to_posXY (0,0,0,0);
-	go_to_posXY (0,0,18,0);
-
-	Serial.println ("Testing finished, restarting...");
-	delay (1000);
-}
-
-
-void servo_test () {
-	// Prepare to init motors
-	if (get_power_state () == false) { 
-		PSupply_ON ();		// Switch Power supply ON
-	}
-	if (get_motor_enable_state () == false) {
-		motors_enable ();	// Enable motors
-	}
-	if (get_motor_sleep_state () == false) {
-		motors_awake ();	// Awake motors
-	}
-
-	for (int f=0; f<20; f++) {
-		for (int l = 0; l<100; l++) {
-		myservo_left.write(0);                  // sets the servo position according to the scaled value 
-		myservo_right.write(180);
-		delay(15);                           // waits for the servo to get there 
-		SoftwareServo::refresh();
-		}
-
-		for (int l = 0; l<100; l++) {
-		myservo_left.write(180);                  // sets the servo position according to the scaled value 
-		myservo_right.write(0);
-		delay(15);                           // waits for the servo to get there 
-		SoftwareServo::refresh();
-		}
-	}
-	//delay (1300);
-}
-
 /***** Test Menu, all functions included  *****/
-void test_functions () {
-boolean inTestMenu = true;
-	while (inTestMenu) {
-		Serial.println("\n	Select Action, to do :");
-		Serial.println("		=====================================");
-		Serial.println("		1 to init all motors");
-		Serial.println("		2 to adjust defined positions");
-		Serial.println("		3 to show statistics");
-		Serial.println("		=====================================");
-		Serial.println("		4 to move XY motors manually");
-		Serial.println("		5 to move counter motor manually");
-		Serial.println("		6 to move blisters motors manually");
-		Serial.println("		7 to pick up a seed and release");
-		Serial.println("		8 to release blister");
-		Serial.println("		9 to check sensors status");
-		Serial.println("		=====================================");
-		Serial.println("		0 go to Main Menu");
-		boolean InMenuTemp = true;				// Init temp value for menu
-		switch (return_pressed_button ()) { 
-		
-			case 1:
-				Serial.println("\n	Init all motors");
-				init_blocks(ALL);
-			break;
-			
-			case 2:
-				if (error_XY) {
-						Serial.println("\n	Error ** XY motors not initialized correctly, first INIT");
-				}else{
-					Serial.println("\n Adjust positions");
-					Serial.println("Type in the position number you want to adjust and press enter (2cyfers max)");
-					int position_n = 0;
-					position_n = get_number(2);		//2 is the number of digits we need the number
-					Serial.print("Selected position: ");
-					Serial.print(position_n);
-					
-					Serial.println(" - Go to position before adjust? Y/N");
-					
-					if (YN_question()) {
-						// Go to selected position
-						Serial.println ("Going to position: ");
-						Serial.print ("Xc: "); Serial.print (get_cycle_Xpos_from_index(position_n));
-						Serial.print (" Xf: "); Serial.println (get_step_Xpos_from_index(position_n));
-						Serial.print ("Yc: "); Serial.print (get_cycle_Ypos_from_index(position_n));
-						Serial.print (" Yf: "); Serial.println (get_step_Ypos_from_index(position_n));
-						Serial.print ("moving...   ");
-						manual_enabled = true;				// overwrite flag pause so we dont enter pause menu again
-						go_to_memory_position (position_n);		
-						manual_enabled = false;				// restore flag pause so we dont enter pause menu again
-						Serial.println ("Done!");
-					}
-					
-					Serial.println("Adjust position and press a key when ready.");
-					while (InMenuTemp) {
-						//manual_modeXY();					// Manual mode, adjust position
-						if (Serial.available()) {			// If a key is pressed
-							Serial.flush();					// Remove all data from serial
-							Serial.print("Save changes into postion: ");
-							Serial.print(position_n);
-							Serial.println(" ? Y/N");
-							if (YN_question()) {
-								// record the position in memory
-								// WRITE
-								mposition.Xc = Xaxis.get_steps_cycles();
-								mposition.Xf = Xaxis.get_steps();
-								mposition.Yc = Yaxis.get_steps_cycles();
-								mposition.Yf = Yaxis.get_steps();
-								db.write(position_n, DB_REC mposition);
-								Serial.println("Position recorded!");
-							}else{
-								Serial.println("Position NOT recorded!");
-							}
-							InMenuTemp = false;			// Exit menu
-						}
-					}
-				}
-			break;
-			
-			case 3:
-				statistics();
-			break;
-			
-			case 4:
-				Serial.println("\n	Move XY motors, buttons to move motors and press keyboard key 4 to quit");
-				if (error_XY) {
-						Serial.println("\n	Error ** XY motors not initialized correctly, first INIT");
-				}else{
-					while (InMenuTemp) {
-						//manual_modeXY();
-						if (Serial.read() == '4')  InMenuTemp = false;
-					}
-				}
-			break;
+void debug_mode () {
+	
+	Serial.print(F("\r\nEnter Debug Mode? [y/n]\r\n"));
+	
+	if (YN_question (3)) {
+		debug_mode_enabled = true;
+		boolean inTestMenu = true;
+		while (inTestMenu) {
+			Serial.println("\n	Select Action, to do :");
+			Serial.println("		=====================================");
+			Serial.println("		1 init all motors");
+			Serial.println("		2 calibrate positions XY");
+			Serial.println("		3 statistics");
+			Serial.println("		4 calirate ejection servo");
+			Serial.println("		5 calibrate counter motor");
+			Serial.println("		6 calibrate blister servos ");
+			Serial.println("		7 test pick up a seed and release");
+			Serial.println("		8 test release blister");
+			Serial.println("		9 check sensors status");
+			Serial.println("		10 test eject blister");
+			Serial.println("		=====================================");
+			Serial.println("		0 Exit debug mode");
+			boolean InMenuTemp = true;				// Init temp value for menu
+			switch (get_number(2)) { 
+				case 0:
+					debug_action0 ();
+					inTestMenu = false;
+					debug_mode_enabled = true;
+				break;
 
-			case 5:
-				Serial.println("\n	Move Counter motors, buttons to move motors and press keyboard key 4 to quit");
-				while (InMenuTemp) {
-					//manual_modeCounter();
-					if (Serial.read() == '4')  InMenuTemp = false;
-				}
-			break;
-			
-			case 6:
-				Serial.println("\n	Move Blisters motors, buttons to move motors and press keyboard key 4 to quit");
-				if (error_blister) {
-						Serial.println("\n	Error ** Blisters motors not initialized correctly, first INIT");
-				}else{
-					while (InMenuTemp) {
-						//manual_mode_blisters();
-						if (Serial.read() == '4')  InMenuTemp = false;
-					}
-				}
-			break;
-			
-			case 7:
-				Serial.println("\n	Pickup one seed");
-				if (error_counter) {
-						Serial.println("\n	Error ** Counter not initialized correctly, first INIT");
-				}else pickup_seed ();
-			break;
-			
-			case 8:
-				Serial.println("\n	Release one blister");
-				if (error_blister) {
-						Serial.println("\n	Error ** Blister not initialized correctly, first INIT");
-				}else release_blister ();
-			break;
-			
-			case 9:
-				Serial.println("\n	Sensor Stats. Press keyboard key 4 to quit");
-				while (InMenuTemp) {
-					print_sensor_stats();
-					for (int i =0; i<=10; i++) {
-						if (Serial.read() == '4')  {
-							InMenuTemp = false;
-							i=10;
-						}
-						delay (100);
-					}
-				}
-			break;
-			
-			case 0:
-				inTestMenu = false;
-			break;
+				case 1:debug_action1 ();break;
+				case 2:debug_action2 ();break;
+				case 3:debug_action3 ();break;
+				case 4:debug_action4 ();break;
+				case 5:debug_action5 ();break;
+				case 6:debug_action6 ();break;
+				case 7:debug_action7 ();break;
+				case 8:debug_action8 ();break;
+				case 9:debug_action9 ();break;
+				case 10:debug_action10 ();break;
+				case 11:debug_action11 ();break;
+				case 12:debug_action12 ();break;
+				case 13:debug_action13 ();break;
+				case 14:debug_action14 ();break;
+				case 15:debug_action15 ();break;
+			}
 		}
 	}
 }
 
-// ************************************************************
-// ** MANIN MENU FUNCTIONS
-// ************************************************************
+void debug_action0 () {}
+void debug_action1 () {
+	Serial.println("\n	Init all motors");
+	init_blocks(ALL);
+}
+void debug_action2 () { calibrate_positionXY(0);}
+void debug_action3 () { statistics();}
+void debug_action4 () { calibrate_ejection_hooks ();}
+void debug_action5 () {	calibrate_counter();}
+void debug_action6 () { calibrate_blister_hooks();}
+void debug_action7 () {
+	Serial.println("\n	Pickup one seed");
+	if (error_counter) {
+			Serial.println("\n	Error ** Counter not initialized correctly, first INIT");
+	}else pickup_seed ();
+}
 
-/***** Enters into main menu  *****/
-void enter_main_menu() {
-	boolean inMainMenu = true;
-	while (inMainMenu) {
-		//Serial.println("Main Menu:");
-		Serial.println("1 to start the seed counter");
-		Serial.println("2 go to MAIN menu ");
-		//Serial.println("3 to *****");
-    
-		switch (return_pressed_button ()) {
-			case 1:   //Button 1 - to start the seed counter
-				// START INIT
-				inMainMenu = false;   // Quit main menu and start
-			break;
-			
-			case 2:   //Button 1
-				test_functions ();
-			break;
+void debug_action8 () {
+	Serial.println("\n	Release one blister");
+	if (error_blister) {
+			Serial.println("\n	Error ** Blister not initialized correctly, first INIT");
+	}else release_blister_servo ();
+}
+
+void debug_action9 () {
+	Serial.println("\n	Sensor Stats. Press keyboard key 4 to quit");
+	boolean InMenuTemp =true;
+	while (InMenuTemp) {
+		print_sensor_stats();
+		for (int i =0; i<=10; i++) {
+			if (Serial.read() == '4')  {
+				InMenuTemp = false;
+				i=10;
+			}
+			delay (100);
 		}
-		//delay (150); // wait 200ms so we unpress any pressed buttons
 	}
 }
+
+void debug_action10 () {
+	Serial.println("Eject Blister");
+	go_to_eject_blister ();
+	eject_blister ();
+}
+
+void debug_action11 () {
+}
+
+void debug_action12 () {
+}
+
+void debug_action13 () {
+}
+
+void debug_action14 () {
+}
+
+void debug_action15 () {
+}
+
+
+boolean motors_initiated (int motor_type) {
+/* MOTOR TYPES:
+#define ALL 0
+#define BLISTERS 1
+#define XY 2
+#define COUNTER 3
+*/
+	switch (motor_type) {
+		case XY:
+			if (error_XY) {
+				Serial.println(F("\n	Error ** XY motors not initialized correctly, first INIT XY"));
+				return false;
+			}
+			return true;
+		break;
+
+		case BLISTERS:
+			if (error_blister) {
+				Serial.println(F("\n	Error ** BLISTER motor not initialized correctly, first INIT BLISTER MOTOR"));
+				return false;
+			}
+			return true;
+		break;
+
+		case COUNTER:
+			if (error_counter) {
+				Serial.println(F("\n	Error ** COUNTER motor not initialized correctly, first INIT COUNTER MOTOR"));
+				return false;
+			}
+			return true;
+		break;
+
+		case ALL:
+			boolean all_motors_ok = true;
+			if (error_counter) {
+				Serial.println(F("\n	Error ** COUNTER motor not initialized correctly, first INIT COUNTER MOTOR"));
+				all_motors_ok = false;
+			}
+			if (error_counter) {
+				Serial.println(F("\n	Error ** COUNTER motor not initialized correctly, first INIT COUNTER MOTOR"));
+				all_motors_ok = false;
+			}
+			if (error_counter) {
+				Serial.println(F("\n	Error ** COUNTER motor not initialized correctly, first INIT COUNTER MOTOR"));
+				all_motors_ok = false;
+			}
+
+			if (all_motors_ok) {
+				return true;
+			}
+			return false;
+
+		break;
+	}
+}
+
 
 /***** Prints the sensor status *****/
 void print_sensor_stats() {
@@ -378,6 +304,66 @@ void boring_messages () {
 			break; }
 		}
 	}
+}
+
+void testing_motors () {
+
+	//go_to_posXY (int Xcy,int Xst,int Ycy,int Yst)
+	go_to_posXY (0,0,2,0);
+	go_to_posXY (0,0,0,0);
+	go_to_posXY (0,0,4,0);
+	go_to_posXY (0,0,0,0);
+	go_to_posXY (0,0,6,0);
+	go_to_posXY (0,0,0,0);
+	go_to_posXY (0,0,8,0);
+	go_to_posXY (0,0,0,0);
+	go_to_posXY (0,0,10,0);
+	go_to_posXY (0,0,0,0);
+	go_to_posXY (0,0,12,0);
+	go_to_posXY (0,0,0,0);
+	go_to_posXY (0,0,14,0);
+	go_to_posXY (0,0,0,0);
+	go_to_posXY (0,0,16,0);
+	go_to_posXY (0,0,0,0);
+	go_to_posXY (0,0,18,0);
+
+	Serial.println ("Testing finished, restarting...");
+	delay (1000);
+}
+
+
+void servo_test () {
+	// Prepare to init motors
+	if (get_power_state () == false) { 
+		PSupply_ON ();		// Switch Power supply ON
+	}
+	if (get_motor_enable_state () == false) {
+		motors_enable ();	// Enable motors
+	}
+	if (get_motor_sleep_state () == false) {
+		motors_awake ();	// Awake motors
+	}
+
+	Serial.println ("****** Testing servos");
+
+	for (int f=0; f<20; f++) {
+		for (int l = 0; l<100; l++) {
+		blister_servoL.write(0);                  // sets the servo position according to the scaled value 
+		blister_servoR.write(235);
+		delay(5);                           // waits for the servo to get there 
+		SoftwareServo::refresh();
+		}
+
+		for (int l = 0; l<100; l++) {
+		blister_servoL.write(100);                  // sets the servo position according to the scaled value 
+		blister_servoR.write(135);
+		delay(5);                           // waits for the servo to get there 
+		SoftwareServo::refresh();
+		}
+
+		Serial.println (f);
+	}
+	//delay (1300);
 }
 
 // ************************************************************

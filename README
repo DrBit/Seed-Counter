@@ -4,6 +4,9 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V5.3.4 - 06/06/2013
+**  * Starting Debug/calibrate mode
+**
 **  V5.3.1 - 19/02/2013
 **  * Implemented counter autofix in network UI
 **
@@ -377,21 +380,21 @@
 **
 *********************************************
 
-TODO
+TODO:
+Add vars to memory and UI (also transfer to IU when calibrating):
 
-Change the handling of movements in manual mode. (Diff speeds depending on how long you press the button)
+Counter -> 
+	pick_seed_position = sensor_pickup;
+	detect_seed_position = sensor_midpoint;
+	margin_steps_to_detect_seed = sensor_margin+20;
+	drop_position = sensor_release;
 
-New sensors 
-	Sense if a blister correctly placed in the X axis conveier (Also works for empty blisters)
-	Sensor need to be positioned in a way that will also sense when the blister is offset
-	
-	Sensor for printer, lable printed and placed correctly
-
-Relay board for on off
-
-Handle motors sleep / reset and enable
-	Create functions sleep
-	Emergency stop
-
+servo ->
+	unsigned int servoR_open = 0;
+	unsigned int servoL_open = 0;
+	unsigned int servoR_close = 0;
+	unsigned int servoL_close = 0;
+	unsigned int servoEjection_open = 0;
+	unsigned int servoEjection_close = 0;
 
 */

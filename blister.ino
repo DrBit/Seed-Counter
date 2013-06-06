@@ -1,9 +1,13 @@
 // ***********************
 // ** Physical limits of the blister motors
 // ***********************
-#define blisters_steps_limit 300
-#define blisters_steps_absoulut_limit 1000
-#define steps_to_move_when_blister_falls 800
+
+unsigned int servoR_open = 0;
+unsigned int servoL_open = 0;
+unsigned int servoR_close = 0;
+unsigned int servoL_close = 0;
+unsigned int servoEjection_open = 0;
+unsigned int servoEjection_close = 0;
 
 
 // ************************************************************
@@ -11,22 +15,22 @@
 // ************************************************************
 
 bool blisters_init () {
-	send_action_to_server (blisters_disp_init);
-	int steps_to_do = (blisters_steps_absoulut_limit+100) / blisters.get_step_accuracy();		// The absolut limit would be 1000, but we add an extra 100 to be sure that we hit the maximum point so we init correctly
-	blisters.set_direction (default_directionB);
-	for (int i = 0 ; i< steps_to_do; i++) {
-		blisters.do_step();
-		delayMicroseconds (motor_speed_blisters);
-	} 
-	blisters.set_init_position();
 
-	// Servo init
+	// Init blister hooks
 	for (int l = 0; l<100; l++) {
-		myservo_left.write(180);             // sets the servo position according to the scaled value 
-		myservo_right.write(0);
-		delay(15);                           // waits for the servo to get there 
+		blister_servoL.write(servoL_close);                  // sets the servo position according to the scaled value 
+		blister_servoR.write(servoR_close);
+		delay(5);                           // waits for the servo to get there 
 		SoftwareServo::refresh();
 	}
+
+	// Init blister ejection
+	for (int l = 0; l<100; l++) {
+		ejection_servo.write(servoEjection_close);                  // sets the servo position according to the scaled value 
+		delay(5);                           // waits for the servo to get there 
+		SoftwareServo::refresh();
+	}
+
 	return true;
 }
 
@@ -34,54 +38,44 @@ bool blisters_init () {
 // ** USEFUL FUNCTIONS
 // ************************************************************
 
-void release_blister () {
-	send_action_to_server (blister_release);
-	Serial.println("go to Blister Position");
-	go_to_memory_position (2);			// blister
-	
-	
-	int steps_to_do = blisters_steps_limit / blisters.get_step_accuracy();
-	blisters.set_direction (!default_directionB);
-	for (int i = 0 ; i< steps_to_do; i++) {
-		blisters.do_step();
-		delayMicroseconds (motor_speed_blisters);
-	} 
-	
-	blisters.set_direction (default_directionB);
-	for (int i = 0 ; i< steps_to_do + 50; i++) {
-		blisters.do_step();
-		delayMicroseconds (motor_speed_blisters);
-	}
-
-	// Check if we are out of blisters
-	// check_out_of_blisters ();
-
-}
-
 void release_blister_servo () {
-	//send_action_to_server (blister_release);
-	Serial.println("TESTING SERVOOOOO");
+
 	go_to_memory_position (2);			// blister
-	
+
 	for (int l = 0; l<100; l++) {
-	myservo_left.write(0);                  // sets the servo position according to the scaled value 
-	myservo_right.write(180);
-	delay(15);                           // waits for the servo to get there 
-	SoftwareServo::refresh();
+		blister_servoL.write(servoL_open);                  // sets the servo position according to the scaled value 
+		blister_servoR.write(servoR_open);
+		delay(5);                           				// waits for the servo to get there 
+		SoftwareServo::refresh();
 	}
 
 	for (int l = 0; l<100; l++) {
-	myservo_left.write(180);                  // sets the servo position according to the scaled value 
-	myservo_right.write(0);
-	delay(15);                           // waits for the servo to get there 
-	SoftwareServo::refresh();
+		blister_servoL.write(servoL_close);                  // sets the servo position according to the scaled value 
+		blister_servoR.write(servoR_close);
+		delay(5);                           // waits for the servo to get there 
+		SoftwareServo::refresh();
 	}
-	// delay(15);
-	// Check if we are out of blisters
-	//check_out_of_blisters ();
 
+	send_action_to_server (blister_release);
 }
 
+void eject_blister () {
+
+	// Shold we check if we are at the right position?
+	for (int l = 0; l<100; l++) {
+		ejection_servo.write(servoEjection_open);                  // sets the servo position according to the scaled value 
+		delay(5);                           				// waits for the servo to get there 
+		SoftwareServo::refresh();
+	}
+
+	for (int l = 0; l<100; l++) {
+		ejection_servo.write(servoEjection_close);                  // sets the servo position according to the scaled value 
+		delay(5);                           // waits for the servo to get there 
+		SoftwareServo::refresh();
+	}
+
+	send_action_to_server (blister_release);
+}
 
 bool check_blister_realeased () {
 	boolean skip_sensor_blister = false;
@@ -176,7 +170,7 @@ void get_and_release_blister () {
 	check_status(false);
 	if (!skip_function()) {
 		Serial.println("Get blister");
-		release_blister ();
+		release_blister_servo ();
 		
 		boolean released = check_blister_realeased ();
 
@@ -190,10 +184,11 @@ void get_and_release_blister () {
 					case button_continue:
 
 						Serial.println("Eject Blister");
+						go_to_eject_blister ();
 						eject_blister ();
 						
 						Serial.println("Get blister");
-						release_blister ();
+						release_blister_servo ();
 						released = check_blister_realeased ();
 						if (released) send_error_to_server (no_error);		// Reset error on the server
 						server_answer = 0;
@@ -221,6 +216,221 @@ void get_and_release_blister () {
 	}
 }
 
+
+void calibrate_blister_hooks () {
+	Serial.println (F("Calibrating servos of blister"));
+
+	// Starting with Closing positions
+	boolean closing_done = false;
+	while (!closing_done){
+		//look for closed left position
+		Serial.println (F("Move left servo until you reach closed position"));
+		Serial.println (F("Press 1 to go forward, 2 backwards, 3 when ready"));
+		boolean done = false;
+		while (!done) {
+			if (Serial.available() >0){
+				char received = Serial.read ();
+				if (received == '1') {
+					servoL_close ++;
+					blister_servoL.write(servoL_close);            // sets the servo position according to the scaled value 
+					for (int i = 0; i<4; i++) {
+						delay(5);                       // waits for the servo to get there 
+						SoftwareServo::refresh();
+					}
+				}
+				if (received == '2') {
+					servoL_close --;
+					blister_servoL.write(servoL_close);            // sets the servo position according to the scaled value 
+					for (int i = 0; i<4; i++) {
+						delay(5);                       // waits for the servo to get there 
+						SoftwareServo::refresh();
+					}
+
+				}
+				if (received == '3') {
+					done = true;
+				}
+			}
+		}
+
+		//look for closed right position
+		Serial.println (F("Move right servo until you reach closed position"));
+		Serial.println (F("Press 1 to go forward, 2 backwards, 3 when ready"));
+		done = false;
+		while (!done) {
+			if (Serial.available() >0){
+				char received = Serial.read ();
+				if (received == '1') {
+					servoR_close ++;
+					blister_servoR.write(servoR_close);            // sets the servo position according to the scaled value 
+					for (int i = 0; i<4; i++) {
+						delay(5);                       // waits for the servo to get there 
+						SoftwareServo::refresh();
+					}
+				}
+				if (received == '2') {
+					servoR_close --;
+					blister_servoR.write(servoR_close);            // sets the servo position according to the scaled value 
+					for (int i = 0; i<4; i++) {
+						delay(5);                       // waits for the servo to get there 
+						SoftwareServo::refresh();
+					}
+
+				}
+				if (received == '3') {
+					done = true;
+				}
+			}
+		}
+
+		Serial.println (F("Is your closing position correct? [Y/N]"));
+		if (YN_question ()) {
+			closing_done =true;
+		}
+	}
+
+	// Opening positions
+	boolean opening_done = false;
+	while (!opening_done){
+		//look for open left position
+		Serial.println (F("Move left servo until you reach OPEN position"));
+		Serial.println (F("Press 1 to go forward, 2 backwards, 3 when ready"));
+		boolean done = false;
+		while (!done) {
+			if (Serial.available() >0){
+				char received = Serial.read ();
+				if (received == '1') {
+					servoL_open++;
+					blister_servoL.write(servoL_open);            // sets the servo position according to the scaled value 
+					for (int i = 0; i<4; i++) {
+						delay(5);                       // waits for the servo to get there 
+						SoftwareServo::refresh();
+					}
+				}
+				if (received == '2') {
+					servoL_open --;
+					blister_servoL.write(servoL_open);            // sets the servo position according to the scaled value 
+					for (int i = 0; i<4; i++) {
+						delay(5);                       // waits for the servo to get there 
+						SoftwareServo::refresh();
+					}
+
+				}
+				if (received == '3') {
+					done = true;
+				}
+			}
+		}
+
+		//look for open right position
+		Serial.println (F("Move right servo until you reach OPEN position"));
+		Serial.println (F("Press 1 to go forward, 2 backwards, 3 when ready"));
+		done = false;
+		while (!done) {
+			if (Serial.available() >0){
+				char received = Serial.read ();
+				if (received == '1') {
+					servoR_open ++;
+					blister_servoR.write(servoR_open);            // sets the servo position according to the scaled value 
+					for (int i = 0; i<4; i++) {
+						delay(5);                       // waits for the servo to get there 
+						SoftwareServo::refresh();
+					}
+				}
+				if (received == '2') {
+					servoR_open --;
+					blister_servoR.write(servoR_open);            // sets the servo position according to the scaled value 
+					for (int i = 0; i<4; i++) {
+						delay(5);                       // waits for the servo to get there 
+						SoftwareServo::refresh();
+					}
+
+				}
+				if (received == '3') {
+					done = true;
+				}
+			}
+		}
+
+		Serial.println (F("Is your OPEN position correct? [Y/N]"));
+		if (YN_question ()) {
+			opening_done =true;
+		}
+	}
+}
+
+void calibrate_ejection_hooks () {
+	Serial.println (F("Calibrating ejection servo"));
+
+	// Starting with Closing positions
+	boolean closing_done = false;
+	while (!closing_done){
+		//look for closed
+		Serial.println (F("Move ejection servo until you reach a normaly closed position"));
+		Serial.println (F("Press 1 to go forward, 2 backwards, 3 when ready"));
+		boolean done = false;
+		while (!done) {
+			if (Serial.available() >0){
+				char received = Serial.read ();
+				if (received == '1') {
+					servoEjection_close ++;
+					ejection_servo.write(servoEjection_close);            // sets the servo position according to the scaled value 
+					for (int i = 0; i<4; i++) {
+						delay(5);                       // waits for the servo to get there 
+						SoftwareServo::refresh();
+					}
+				}
+				if (received == '2') {
+					servoEjection_close --;
+					ejection_servo.write(servoEjection_close);            // sets the servo position according to the scaled value 
+					for (int i = 0; i<4; i++) {
+						delay(5);                       // waits for the servo to get there 
+						SoftwareServo::refresh();
+					}
+
+				}
+				if (received == '3') {
+					done = true;
+				}
+			}
+		}
+
+		//look for open
+		Serial.println (F("Move ejecton servo until you reach fully ejected blsiter"));
+		Serial.println (F("Press 1 to go forward, 2 backwards, 3 when ready"));
+		done = false;
+		while (!done) {
+			if (Serial.available() >0){
+				char received = Serial.read ();
+				if (received == '1') {
+					servoEjection_open ++;
+					ejection_servo.write(servoEjection_open);            // sets the servo position according to the scaled value 
+					for (int i = 0; i<4; i++) {
+						delay(5);                       // waits for the servo to get there 
+						SoftwareServo::refresh();
+					}
+				}
+				if (received == '2') {
+					servoEjection_open --;
+					ejection_servo.write(servoEjection_open);            // sets the servo position according to the scaled value 
+					for (int i = 0; i<4; i++) {
+						delay(5);                       // waits for the servo to get there 
+						SoftwareServo::refresh();
+					}
+
+				}
+				if (received == '3') {
+					done = true;
+				}
+			}
+		}
+
+		Serial.println (F("Are you happy with the positions? [Y/N]"));
+		if (YN_question ()) {
+			closing_done =true;
+		}
+	}
+}
 
 
 
@@ -252,4 +462,29 @@ void pick_blister_mode() {
 		}
 	}	
 }
+
+//OLD not used anymore
+void release_blister () {			
+	send_action_to_server (blister_release);
+	Serial.println("go to Blister Position");
+	go_to_memory_position (2);			// blister
+	
+	
+	int steps_to_do = blisters_steps_limit / blisters.get_step_accuracy();
+	blisters.set_direction (!default_directionB);
+	for (int i = 0 ; i< steps_to_do; i++) {
+		blisters.do_step();
+		delayMicroseconds (motor_speed_blisters);
+	} 
+	
+	blisters.set_direction (default_directionB);
+	for (int i = 0 ; i< steps_to_do + 50; i++) {
+		blisters.do_step();
+		delayMicroseconds (motor_speed_blisters);
+	}
+
+	// Check if we are out of blisters
+	// check_out_of_blisters ();
+}
+
 */

@@ -5,10 +5,10 @@
 
 // Define positions of the wheel
 // This positions will be in future storen in the UI
-unsigned int pick_seed_position = 220;			// Position in which seeds are picked up	
+unsigned int pick_seed_position = 190;			// Position in which seeds are picked up	
 unsigned int detect_seed_position = 598;		// Position in which seeds are detected
 unsigned int margin_steps_to_detect_seed = 40;	// Margin in which the seed detector could detect a seed
-unsigned int drop_position = 1076;				// Position in which seeds are droped 
+unsigned int drop_position = 1176;				// Position in which seeds are droped 
 unsigned int seed_sensor_sensivity = 900; 		// From 1023 Completely open to 0 completely closed sensor
 		
 // Defines max counts that will triger certain errors
@@ -84,8 +84,8 @@ void pickup_seed() {
 	Serial.println (counter.get_steps());
 	#endif
 	unsigned int count_error_turns =0;
-	int accel = 4000;			// Values of the motor acceleration
-	int speed = 6000;			// Values of the motor max speed
+	int accel = 1000;			// Values of the motor acceleration
+	int speed = 7000;			// Values of the motor max speed
 	#define case_error_checking 1 	// Values for handling the cases
 	#define case_vibrate 2
 	#define case_pick_seed_position 3
@@ -107,6 +107,8 @@ void pickup_seed() {
 				Serial.print (counter.get_steps_cycles());
 				Serial.print (F(" - "));
 				Serial.println (counter.get_steps());
+				Serial.print ("Missed Seeds: ");
+				Serial.print (count_error_turns);
 				#endif
 				if (count_error_turns > fails_max_normal) {				// Checks if we did too many turns. Could mean a bottle neck or just out of seeds
 					send_error_to_server(counter_max_turns_normal);
@@ -119,7 +121,6 @@ void pickup_seed() {
 						break;	// Should it say return?
 					}
 				}
-				count_error_turns = 0;
 				counting_case = case_pick_seed_position;	// Pick up a seed
 			break;
 
@@ -143,22 +144,21 @@ void pickup_seed() {
 						if (negative_acumulate_counter >= 1) {
 							// increase the power of vibration
 							// vibrate_solenoid(poin_number, power, duration
-							int power = 4 + (negative_acumulate_counter);
-							if (power >= 7) power = 7;
-							int duration = 120 - (negative_acumulate_counter*2) ;
-							if (duration <= 60) duration = 60;
+							int power = 2 + (negative_acumulate_counter);
+							if (power >= 5) power = 5;
+							int duration = 90 -(negative_acumulate_counter*10);
+							if (duration <= 20) duration = 20;
 							vibrate_solenoid(solenoid1,power,duration);		// We vibrate for a fixed amount of time each time
 							positive_acumulate_counter = limit_consecutive_seeds_detected - 1;	// Next detected seed will stop vibrating
 						}else{
 							// vibrate_solenoid(poin_number, power, duration)
-							vibrate_solenoid(solenoid1,4,100);		// We vibrate for a fixed amount of time each time
+							vibrate_solenoid(solenoid1,3,80);		// We vibrate for a fixed amount of time each time
 						}
 					} else {
 						// Fail to vibrate and reset negative counter
+						vibrate_solenoid(solenoid1,3,40);
 						negative_acumulate_counter = 0;
 					}
-
-					
 				}
 
 				#if defined DEBUG_counter
@@ -198,6 +198,7 @@ void pickup_seed() {
 				if ((counter.get_steps() >= lower_limit) && (counter.get_steps() <= upper_limit)) {	// We check the sensor only when we are in the range of the sensor
 					if (check_seed_sensor() || sensor_skip){		// We got a seed!!!
 						counter_s ++;			// For statistics pourpouse
+						count_error_turns = 0;  // restore missed seeds counter
 						counting_case = case_drop_position; // Go to release seed
 						temp_detection = true;
 					}
@@ -249,14 +250,14 @@ void pickup_seed() {
 void check_faulty_sensor () {
 	send_error_to_server(counter_sensor_failed);
 	#if defined serial_answers
-	Serial.println (F("Error in wheel. Missed steps? Sensor detected assed where it should not be"));
+	Serial.println (F("\nError in wheel. Missed steps? Sensor detected assed where it should not be"));
 	Serial.println (F("Check sensors and press one to reset wheel"));
 	Serial.println (F("Press 1 to continue:"));
 	clean_serial_buffer ();		// Cleans serial buffer from possible unwanted sended keys
 	#endif
 	boolean released = false;
 	block_loop = true;
-	while (!released || !skip_function()) {
+	while (!released && !skip_function()) {
 		check_server ();		// Here we can not do a check stop cause we would go into an endless loop.
 		switch (server_answer) {
 			case button_continue:
@@ -274,6 +275,7 @@ void check_faulty_sensor () {
 			break;
 		}
 	}
+	Serial.println(F("Out of reset funciton"));
 	block_loop = false;
 }
 
@@ -359,6 +361,7 @@ void calibrate_counter () {
 	unsigned int sensor_midpoint = 0;
 	unsigned int sensor_release = 0;
 	
+	Serial.println (F("Detecting init position of the wheel..."));
 	while (!wheel_sensor) {			// Detect init position of the wheel
 		if (count == (1600 / counter.get_step_accuracy())) {	// If after one full turn we haven´t detected the sensor something is wrong
 			Serial.println (F("Error detecting wheel sensor"));
@@ -376,8 +379,8 @@ void calibrate_counter () {
 
 	boolean done = false;
 
-	Serial.println (F("Now go to Pick up position (lowest point)"));
-	Serial.println (F("Press 1 to go further, 2 backwards, 3 when ready"));
+	Serial.println (F("Now go to Pick up position (slightly lower)"));
+	Serial.println (F("Press 1 to go forward, 2 backwards, 3 when ready"));
 	while (!done) {
 		if (Serial.available() >0){
 			char received = Serial.read ();
@@ -403,6 +406,10 @@ void calibrate_counter () {
 		}
 	}
 
+	Serial.println (F("Now we will try ti detect the optic sensor of the seeds"));
+	Serial.println (F("Be sure to have a seed in position and the pump connected to provided AC adaptor"));
+	Serial.print(F("\r\nReady? [y/n]\r\n"));
+	YN_question (); 
 	// Detect sensor
 	Serial.println (F("Detecting sensor... "));
 	pump_enable ();
@@ -413,7 +420,7 @@ void calibrate_counter () {
 	}
 	// init sensor detected, record data
 	sensor_begin = counter.get_steps();
-	Serial.print (F("Sensor begin at position: "));
+	Serial.print (F("Sensor begins at position: "));
 	Serial.println (sensor_begin);
 	while (check_seed_sensor() == true) {
 		counter.do_step();		
@@ -427,7 +434,7 @@ void calibrate_counter () {
 	sensor_midpoint = sensor_margin + sensor_begin;
 
 	done = false;
-	Serial.println (F("Now go to release seed position safely released"));
+	Serial.println (F("Now move the wheel until the seeds is completely released"));
 	Serial.println (F("Press 1 to go further, 2 backwards, 3 when ready"));
 	while (!done) {
 		if (Serial.available()){

@@ -2,10 +2,12 @@
 #include <avr/pgmspace.h>
 #include <StopWatch.h>
 #include <SoftwareServo.h> 
+//#include <Servo.h> 
+
 
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "Testing on Proto4 V5.3.1"
+#define version_prog "Testing on Proto4 V5.3.4"
 #define lib_version 15
 
 /********************************************
@@ -22,15 +24,15 @@
 
 // #define DEBUG		// Remove / Add"//" to enable / disbale DEBUG mode
 // #define Cmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
-#define Xmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
-#define Ymotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
+// #define Xmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
+// #define Ymotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 #define Sensor_printer		// Disable sensor printer
 #define Sensor_blister		// Disable sensor blisters
 // #define Server_com_debug		// Debug communications with the server
 // #define Server_com_error_debug  // Debug errors of communication with the server
 // #define DEBUG_counter		// Debug counter.. print positions
 #define bypass_server		// Bypass_orders from the server and stat process straight away
-#define serial_answers		// Enables serial answers for debuggin or suden errors with comunication
+#define serial_answers		// Enables serial answers for debuggin or errors with comunication
 // Stop Watch Timer
 StopWatch MySW;
 
@@ -78,6 +80,10 @@ byte M_ID=1;
 #define sensG A11
 #define sensH A12
 #define sensI A13
+// Servos
+#define blister_pinL 7
+#define blister_pinR 8
+#define ejection_servo_pin 9
 
 
 #define emergency sensC  // Change in case connected at another input
@@ -103,17 +109,22 @@ byte M_ID=1;
 // ** CONFIG MOTOR PINS
 // ***********************
 // Setting up motor A, step pin, direction pin, sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for eighth step(mode of the stepper driver)
-Stepper_ac Xaxis(stepA,dirA,sensE,ms1A,ms2A,200,8);
+Stepper_ac Xaxis(stepB,dirB,sensB,ms1B,ms2B,200,8);
 // Setting up motor B, step pin, direction pin, sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for wighth step(mode of the stepper driver)
-Stepper_ac counter(stepB,dirB,Counter_seed_sensor,ms1B,ms2B,200,2);
+Stepper_ac counter(stepC,dirC,Counter_seed_sensor,ms1C,ms2C,200,2);
 // Setting up motor C, step pin, direction pin, NO sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for wighth step(mode of the stepper driver)
-Stepper_ac blisters(stepC,dirC,0,ms1C,ms2C,200,4);
+Stepper_ac blisters(stepA,dirA,0,ms1A,ms2A,200,4);
 // Setting up motor D, step pin, direction pin, sensor pin, ms1 pin, ms2 pin, 200 steps, 8 for wighth step(mode of the stepper driver)
-Stepper_ac Yaxis(stepD,dirD,sensF,ms1D,ms2D,200,4);
+Stepper_ac Yaxis(stepD,dirD,sensC,ms1D,ms2D,200,8);
 
 // Servo instances
-SoftwareServo myservo_left;  // create servo object to control a servo
-SoftwareServo myservo_right;  // create servo object to control a servo
+SoftwareServo blister_servoL;  // create servo object to control a servo
+SoftwareServo blister_servoR;  // create servo object to control a servo
+SoftwareServo ejection_servo;  // create servo object to control a servo
+
+// Servo blisterL;  // create servo object to control a servo 
+// Servo blisterR;  // create servo object to control a servo
+// Servo ejectblister;	// create servo object to control a servo
 
 
 // ***********************
@@ -139,6 +150,7 @@ boolean do_a_restart = false;
 boolean block_loop = false;
 boolean autoreset = false;
 unsigned int blisters_for_autoreset = 30;
+boolean debug_mode_enabled = false;
 
 
 // ***********************
@@ -148,6 +160,9 @@ boolean error_XY = true;
 boolean error_counter = true;
 boolean error_blister = true;
 #define ALL 0
+#define BLISTERS 1
+#define XY 2
+#define COUNTER 3
 
 // ***********************
 // ** PAUSE & STATISTICS
@@ -176,8 +191,8 @@ byte server_answer = 0;
 // ** Default Direcctions MOTORS
 // ***********************
 // Defining default directions of motors (in case we change the wiring or the position of motors)
-#define default_directionX true
-#define default_directionY true
+#define default_directionX false
+#define default_directionY false
 #define default_directionB true
 #define default_directionC true
 
@@ -186,8 +201,8 @@ byte server_answer = 0;
 #define default_sensor_directionY true
 
 // Defines the default HIGH (or enabled) state of the sesor
-#define default_Ysensor_HIGH_state false
-#define default_Xsensor_HIGH_state false
+#define default_Ysensor_HIGH_state true
+#define default_Xsensor_HIGH_state true
 
 
 void setup() {
@@ -199,16 +214,18 @@ void setup() {
 	delay (10);  				// Delay to be safe	
 
 	// servo_test ();
+	debug_mode();			// See if we should go in debug mode
 	setup_network();		// First thing we do is set up the network
 	server_connect();		// Now we try to stablish a connection
-	init_DB ();				// Init database.  Needs to be AFTER setup_network cause is using another instance of DB
-	reset_machine ();		// Reset Machine adn be ready for operation
+	init_DB ();				// Init database.  Needs to be AFTER setup_network cause is using another instance of DB (init_NET_DB)
+	reset_machine ();		// Reset Machine and be ready for operation
 	mem_check();			// Check memory. If it is lower than 1000Kb we could have problems
 	// check_blister_sens ();
 	// calibrate_counter ();
 
 	// Working setup
 	//vibrate_solenoid(solenoid1,3,40);
+	// servo_test ();
 }
 
 
@@ -352,9 +369,9 @@ void setup_pins () {
 	digitalWrite(sleep, LOW);		// Put drivers in sleep mode
 	// Define Outputs
 	pinMode (solenoid1, OUTPUT); 
-	//pinMode (solenoid2, OUTPUT); 
+	pinMode (solenoid2, OUTPUT); 
 	pinMode (pump, OUTPUT); 
-	//pinMode (extraoutput, OUTPUT); 
+	pinMode (extraoutput, OUTPUT); 
 	// Define Inputs
 	pinMode (sensE, INPUT);
 	pinMode (sensF, INPUT); 
@@ -381,15 +398,25 @@ void setup_pins () {
 	//Yaxis.set_speed_in_slow_mode (350);
 	//Yaxis.set_accel_profile(950, 14, 8, 15);
 
-	// Servo configure
-	myservo_right.attach(solenoid2);  // attaches the servo on pin 2 to the servo object
-	myservo_right.setMinimumPulse(900);
-	myservo_right.setMaximumPulse(2100);
+    // Servo configure
+	pinMode (blister_pinL, OUTPUT);
+	pinMode (blister_pinR, OUTPUT);
+	pinMode (ejection_servo_pin, OUTPUT);
 
-	myservo_left.attach(extraoutput);  // attaches the servo on pin 2 to the servo object
-	myservo_left.setMinimumPulse(900);
-	myservo_left.setMaximumPulse(2100);
+/*	blisterL.attach(blister_pinL);  // attaches the servo to the servo object 
+	blisterR.attach(blister_pinR);  // attaches the servo to the servo object 
+	ejectblister.attach(ejection_servo);  // attaches the servo to the servo object 
+*/
+	blister_servoR.attach(blister_pinR);  // attaches the servo on pin 2 to the servo object
+	blister_servoR.setMinimumPulse(500);
+	blister_servoR.setMaximumPulse(2300);
+
+	blister_servoL.attach(blister_pinL);  // attaches the servo on pin 2 to the servo object
+	blister_servoL.setMinimumPulse(500);
+	blister_servoL.setMaximumPulse(2300);
+
+	ejection_servo.attach(ejection_servo_pin);  // attaches the servo on pin 2 to the servo object
+	ejection_servo.setMinimumPulse(500);
+	ejection_servo.setMaximumPulse(2300);
+
 }
-
-
-

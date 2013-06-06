@@ -217,20 +217,22 @@ void send_status_to_server (byte command) {
 }
 
 void send_action_to_server(byte command) {		// Inform server that an action has been trigered
-	//require an OK back from the server
-	sprintf(message, "%dA%d\r\n", M_ID, command);
-	client.print(message);
-	#if defined Server_com_debug
-		Serial.print(F("Send Action:"));
-		sprintf(message, "%dA%d - ", M_ID, command);
-		Serial.print(message);
-	#endif
-
-	if (!receive_server_data ()) {
-		#if defined Server_com_error_debug
-		Serial.print (F("-OK not received or error on sended command A"));
-		Serial.println (command);
+	if (!debug_mode_enabled) {
+		//require an OK back from the server
+		sprintf(message, "%dA%d\r\n", M_ID, command);
+		client.print(message);
+		#if defined Server_com_debug
+			Serial.print(F("Send Action:"));
+			sprintf(message, "%dA%d - ", M_ID, command);
+			Serial.print(message);
 		#endif
+
+		if (!receive_server_data ()) {
+			#if defined Server_com_error_debug
+			Serial.print (F("-OK not received or error on sended command A"));
+			Serial.println (command);
+			#endif
+		}
 	}
 }
 

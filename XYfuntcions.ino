@@ -8,8 +8,8 @@
 // ***********************
 // Init the both axes at the same time to save time.
 #define max_insensor_stepsError 4000
-#define Xaxis_cycles_limit 280
-#define Yaxis_cycles_limit 18
+#define Xaxis_cycles_limit 100
+#define Yaxis_cycles_limit 100
 
 
 boolean XYaxes_init () {
@@ -121,7 +121,7 @@ boolean XYaxes_init () {
 	
 	temp_counter = 0;						// Reset the temop counter for error checking next step
 	both_sensors = false;					// Reset sensors variable
-	Xaxis.set_direction (!default_sensor_directionX);			// Goes forth till we are not hitting the sensor
+	Xaxis.set_direction (default_sensor_directionX);			// Goes forth till we are not hitting the sensor
 	Yaxis.set_direction (default_sensor_directionY);			// Goes forth till we are not hitting the sensor
 	
 	// set speed max
@@ -173,6 +173,185 @@ boolean XYaxes_init () {
 	return true;
 }
 
+
+
+
+void calibrate_positionXY (int position_n) {
+	if (motors_initiated (XY)) {
+		if (position_n == 0) {		// If position_n is 0 means we have to select first a position
+			show_pos_list ();
+			Serial.println("\n Adjust positions");
+			Serial.println("Type in the position number you want to adjust and press enter (2cyfers max)");
+			position_n = get_number(2);		//2 is the number of digits we need the number
+		}
+
+		Serial.print("Selected position: ");
+		Serial.print(position_n);
+		Serial.println(" - Go to position before adjust? Y/N");
+		if (YN_question()) {
+			// Go to selected position
+			Serial.println ("Going to position: ");
+			Serial.print ("Xc: "); Serial.print (get_cycle_Xpos_from_index(position_n));
+			Serial.print (" Xf: "); Serial.println (get_step_Xpos_from_index(position_n));
+			Serial.print ("Yc: "); Serial.print (get_cycle_Ypos_from_index(position_n));
+			Serial.print (" Yf: "); Serial.println (get_step_Ypos_from_index(position_n));
+			Serial.print ("moving...   ");
+			manual_enabled = true;				// overwrite flag pause so we dont enter pause menu again
+			go_to_memory_position (position_n);		
+			manual_enabled = false;				// restore flag pause so we dont enter pause menu again
+			Serial.println ("Done!");
+		}
+		
+		boolean InMenuTemp = false;
+		while (InMenuTemp) {
+			Adjust_XY_pos();					// Manual mode, adjust position
+			if (Serial.available()) {			// If a key is pressed
+				Serial.flush();					// Remove all data from serial
+				Serial.print("Save changes into postion: ");
+				Serial.print(position_n);
+				Serial.println(" ? Y/N");
+				if (YN_question()) {
+					// record the position in memory
+					// WRITE
+					mposition.Xc = Xaxis.get_steps_cycles();
+					mposition.Xf = Xaxis.get_steps();
+					mposition.Yc = Yaxis.get_steps_cycles();
+					mposition.Yf = Yaxis.get_steps();
+					db.write(position_n, DB_REC mposition);
+					Serial.println("Position recorded!");
+				}else{
+					Serial.println("Position NOT recorded!");
+				}
+				InMenuTemp = false;			// Exit menu
+			}
+		}
+	}
+}
+
+
+
+void Adjust_XY_pos () {
+	// Define speeds
+	int normal_speed = 3;
+	int fast_speed = 50;
+
+	// Starting with Closing positions
+	boolean adjust_done = false;
+	while (!adjust_done){
+
+		//look for X position
+		Serial.println (F("Move X axis until you reach your desired position"));
+		Serial.println (F("Press d to forward, a backwards,"));
+		Serial.println (F("Press c to fastforward, z fastbackward, 1 when ready"));
+		boolean done = false;
+		while (!done) {
+			if (Serial.available() >0){
+				char received = Serial.read ();
+				if (received == 'd') {
+					if (Xaxis.get_steps_cycles() < Xaxis_cycles_limit)  { // If the position is lesser than defined in Yaxis_cycles_limit then we can move forwards
+						Xaxis.set_direction (default_directionX);   // Goes forward
+						for (int a = 0; a<normal_speed; a++) {
+							Xaxis.do_step();
+							delayMicroseconds(motor_speed_XY);
+						}
+					}
+				}
+				if (received == 'c') {
+					if (Xaxis.get_steps_cycles() < Xaxis_cycles_limit)  { // If the position is lesser than defined in Yaxis_cycles_limit then we can move forwards
+						Xaxis.set_direction (default_directionX);   // Goes forward
+						for (int a = 0; a<fast_speed; a++) {
+							Xaxis.do_step();
+							delayMicroseconds(motor_speed_XY);
+						}
+					}
+				}
+
+				if (received == 'a') {
+					if ((Xaxis.get_steps_cycles() >= 0) && (Xaxis.get_steps() > 0)) {// If the position is bigger than 0 then we can move backwards
+						Xaxis.set_direction (!default_directionX);   // Goes backward towards the sensor
+						Xaxis.do_step();
+						for (int a = 0; a<normal_speed; a++) {
+							Xaxis.do_step();
+							delayMicroseconds(motor_speed_XY);
+						}
+					}
+				}
+				if (received == 'z') {
+					if ((Xaxis.get_steps_cycles() >= 0) && (Xaxis.get_steps() > 0)) {// If the position is bigger than 0 then we can move backwards
+						Xaxis.set_direction (!default_directionX);   // Goes backward towards the sensor
+						Xaxis.do_step();
+						for (int a = 0; a<fast_speed; a++) {
+							Xaxis.do_step();
+							delayMicroseconds(motor_speed_XY);
+						}
+					}
+				}
+
+				if (received == '1') {
+					done = true;
+				}
+			}
+		}
+
+		//look for Y position
+		Serial.println (F("Move Y axis until you reach your desired position"));
+		Serial.println (F("Press x to forward, w backwards,"));
+		Serial.println (F("Press c to fastforward, e fastbackward, 1 when ready"));
+		done = false;
+		while (!done) {
+
+			if (Serial.available() >0){
+				char received = Serial.read ();
+				if (received == 'w') {
+					if ((Yaxis.get_steps_cycles() >= 0) && (Yaxis.get_steps() > 0)) {// If the position is bigger than 0 then we can move backwards
+						Yaxis.set_direction (!default_directionY);   // Goes backward towards the sensor
+						for (int a = 0; a<normal_speed; a++) {
+							Yaxis.do_step();
+							delayMicroseconds(motor_speed_XY);
+						}
+					}
+				}
+				if (received == 'e') {
+					if ((Yaxis.get_steps_cycles() >= 0) && (Yaxis.get_steps() > 0)) {// If the position is bigger than 0 then we can move backwards
+						Yaxis.set_direction (!default_directionY);   // Goes backward towards the sensor
+						for (int a = 0; a<fast_speed; a++) {
+							Yaxis.do_step();
+							delayMicroseconds(motor_speed_XY);
+						}
+					}
+				}
+
+      			if (received == 'x') {
+					if (Yaxis.get_steps_cycles() < Yaxis_cycles_limit)  { // If the position is lesser than defined in Yaxis_cycles_limit then we can move forwards
+						Yaxis.set_direction (default_directionY);   // Goes forward 
+						for (int a = 0; a<normal_speed; a++) {
+							Yaxis.do_step();
+							delayMicroseconds(motor_speed_XY);
+						}
+					}
+				}
+				if (received == 'c') {
+					if (Yaxis.get_steps_cycles() < Yaxis_cycles_limit)  { // If the position is lesser than defined in Yaxis_cycles_limit then we can move forwards
+						Yaxis.set_direction (default_directionY);   // Goes forward 
+						for (int a = 0; a<fast_speed; a++) {
+							Yaxis.do_step();
+							delayMicroseconds(motor_speed_XY);
+						}
+					}
+				}
+
+				if (received == '1') {
+					done = true;
+				}
+			}
+		}
+
+		Serial.println (F("Are you happy with the position? [Y/N]"));
+		if (YN_question ()) {
+			adjust_done =true;
+		}
+	}
+}
 
 // ************************************************************
 // ** POSITION FUNCTIONS
@@ -291,7 +470,7 @@ void go_to_print_position () {
 	Xaxis.got_to_position (Xcycles,Xsteps) ;
 }
 
-void eject_blister () {
+void go_to_eject_blister () {
 	int Xcycles = get_cycle_Xpos_from_index(4);		// Exit position
 	int Xsteps = get_step_Xpos_from_index(4);		// Exit position
 	int Ycycles = get_cycle_Ypos_from_index(20);	// Brush Position
