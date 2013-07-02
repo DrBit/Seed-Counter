@@ -5,10 +5,6 @@
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
 byte mac[] = {  0xDE, 0xAD, 0xBA, 0xEF, 0xFE, M_ID };
-byte local_ip[] = { 10,250,1,199 + M_ID };
-byte server[] = { 10,250,1,3 }; 
-int port = 8888;
-
 
 #define bufferSize 18
 static char message[bufferSize];		// Variable to send messages to the server
@@ -20,22 +16,9 @@ char received_msg[bufferSize];
 EthernetClient client;
 
 
-
-
 void setup_network() {
 	
-	init_NET_DB ();				// Open DB of network config
-	M_ID = config.machine_id;
-	server[0] = config.UI_IP[0];
-	server[1] = config.UI_IP[1];
-	server[2] = config.UI_IP[2];
-	server[3] = config.UI_IP[3];
-	local_ip[0] = config.LOCAL_IP[0];
-	local_ip[1] = config.LOCAL_IP[1];
-	local_ip[2] = config.LOCAL_IP[2];
-	local_ip[3] = config.LOCAL_IP[3];
-	port = config.UI_port;
-	
+	open_NET_DB ();				// Open  and read DB of network config
 	// start the Ethernet connection:
 	Ethernet.begin(mac, local_ip);
 	// give the Ethernet shield a second to initialize:
@@ -63,16 +46,6 @@ void setup_network() {
 		Serial.print(F("\r\nSave server, port and ID to internal EEPROM memory? [y/n]\r\n"));
 		
 		if (YN_question (20)) {
-			config.machine_id = M_ID;
-			config.UI_IP [0] = server[0];
-			config.UI_IP [1] = server[1];
-			config.UI_IP [2] = server[2];
-			config.UI_IP [3] = server[3];
-			config.LOCAL_IP[0] = local_ip[0];
-			config.LOCAL_IP[1] = local_ip[1];
-			config.LOCAL_IP[2] = local_ip[2];
-			config.LOCAL_IP[3] = local_ip[3];
-			config.UI_port = port;
 			NET_DB_REC ();
 		}
 	}	
@@ -510,7 +483,6 @@ boolean recevie_data (char* parameter_container,int buffer) {
 	for (int c = 0; c < len; c++) {
 		parameter_container[c] = 0;
 	}
-
 
 	while (true) {
 		while (Serial.available()) {

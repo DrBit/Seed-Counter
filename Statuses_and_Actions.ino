@@ -1,6 +1,9 @@
 
 boolean check_status (boolean safe) {
 
+	if (debug_mode_enabled) {
+		return false;
+	}
 	if (safe) {
 		// Restore the flag endingBatch cause we now are at a save place and we can restart
 		endingBatch = false;
@@ -74,10 +77,12 @@ boolean check_status (boolean safe) {
 			case S_setting_up: {
 				if (!block_loop) {			// If we already are inside a block loop just ingnore all, we should first go off.
 					if (safe) {				// If it is safe to do a restart we do it
-						if (do_a_restart) do_a_restart = false;		// If we got a flag to restart first reset the blag
+						if (do_a_restart) do_a_restart = false;		// If we got a flag to restart first reset the flag
 						#if defined Server_com_debug
 						Serial.println(F(" ** Setting UP"));
 						#endif
+						// Empty the serial buffer so we dont carry old commants after the reset
+						clean_serial_buffer ();
 						reset_machine ();
 						start_idle_timer (default_idle_time);		// We restart the timer as there was a call inside reset_machine
 					}
@@ -203,6 +208,9 @@ boolean receive_server_data (){
 					break; }
 					case disable_pump: {	// Software enable pump
 						pump_disable ();
+					break; }
+					case button_goto_handle_position: {
+						go_to_safe_position ();
 					break; }
 					////////////////////////////////////////
 					// answers for errors
@@ -376,9 +384,7 @@ boolean receive_server_data (){
 				recevie_data_telnet (received_msg,bufferSize);
 				char * thisChar = received_msg;
 				int receiving_position = atoi(thisChar);
-				// Load database position
-				db.read(receiving_position, DB_REC mposition);	
-				
+								
 				// receive Xc /////////////////////////////////////////
 				recevie_data_telnet (received_msg,bufferSize);
 				thisChar = received_msg;
@@ -401,22 +407,9 @@ boolean receive_server_data (){
 				Serial.print(F("Received Position: "));
 				Serial.print(receiving_position);
 				#endif
-				// Compare with the real value.. do we have to update??
-				if (Xc != mposition.Xc || Xf != mposition.Xf || Yc != mposition.Yc || Yf != mposition.Yf) {		// If data is different from the eeprom
-					// store data in eeprom, data is different
-					mposition.Xc = Xc;
-					mposition.Xf = Xf;
-					mposition.Yf = Yf;
-					mposition.Yc = Yc;
-					db.write(receiving_position, DB_REC mposition);
-					#if defined Server_com_debug
-					Serial.println (F(" - Updated!"));
-					#endif
-				}else{
-					#if defined Server_com_debug
-					Serial.println (F(" - Correct!"));
-					#endif
-				}
+
+				// Record position to DB (Will check if positions are already set and inform about it)
+				recordCustomPositionToDB (receiving_position,Xc,Xf,Yc,Yf);
 				
 				// Finished. go back to the origin. If we receive another command we will sense it there.
 			break; }

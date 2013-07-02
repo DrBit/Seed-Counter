@@ -4,6 +4,12 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V5.3.6 - 07/06/2013
+**  * Fixed bugs with serial debug (NL & CR bug in debug mode)
+**
+**  V5.3.5 - 07/06/2013
+**  * Added DB servo and counter positions, changed behaviour of DB
+**
 **  V5.3.4 - 06/06/2013
 **  * Starting Debug/calibrate mode
 **
@@ -381,20 +387,13 @@
 *********************************************
 
 TODO:
-Add vars to memory and UI (also transfer to IU when calibrating):
+also transfer to IU when calibrating:
 
-Counter -> 
-	pick_seed_position = sensor_pickup;
-	detect_seed_position = sensor_midpoint;
-	margin_steps_to_detect_seed = sensor_margin+20;
-	drop_position = sensor_release;
 
-servo ->
-	unsigned int servoR_open = 0;
-	unsigned int servoL_open = 0;
-	unsigned int servoR_close = 0;
-	unsigned int servoL_close = 0;
-	unsigned int servoEjection_open = 0;
-	unsigned int servoEjection_close = 0;
-
+timings:
+----------------------------------------------
+21-06-2013
+normal at the moment we put it to work (no finetuning) 1 blister - 1minute 47secs
+pushing 1 seed per turn with the same speeds - 52 seconds
+---------------------------------------------- 
 */

@@ -33,7 +33,7 @@ void init_all_motors () {
 				//Init XY 
 				case button_continue:
 					start_idle_timer (default_idle_time);
-					if (!get_motor_enable_state()) {		// If we went OFF because of a time out we have ton check all again.
+					if (!get_motor_enable_state()) {		// If we went OFF because of a time out we have to check all again.
 						error_XY = true;
 						error_counter = true;
 						error_blister = true;
@@ -211,7 +211,6 @@ boolean get_motor_enable_state () {
 }
 
 void set_motor_sleep_state (boolean motor_state) {
-
 	if (motor_state) {
 		digitalWrite(sleep, LOW);    // Put drivers in sleep mode
 	}else{ 
@@ -225,7 +224,6 @@ boolean get_motor_sleep_state () {
 
 // PUMP functions
 void set_pump_state (boolean pump_state) {
-
 	if (pump_state) {
 		digitalWrite (pump, HIGH);
 	}else{ 
@@ -243,48 +241,52 @@ boolean get_pump_state () {
 /////////////////////////
 
 boolean check_idle_timer (boolean message) {
-
-	// Check time, if time passed go IDLE
-	if ((millis() - idle_counter_start_time) >= desired_idle_time) {
-		// We are above the time limit. lets go IDLE.
-		if (!IDLE_mode){
-			if (message) Serial.println ("Sleep Time!");		
-			send_action_to_server(enter_idle);
-			IDLE_mode = true;
-			pump_disable ();
-		}	
-		
-		// Check if we are long time in IDLE (default_off_time) and we should switch off completely
-		unsigned long temp_default_off_time = (unsigned long)default_off_time * 1000;
-		if ((millis() - idle_counter_start_time) >= (desired_idle_time + temp_default_off_time)){
-			if (get_motor_enable_state() || !get_motor_sleep_state() || get_power_state()) {
-				motors_sleep ();	// Sleep motors
-				motors_disable ();	// Disable motors
-				PSupply_OFF ();		// Switch Power supply ON
-				send_status_to_server (S_switch_off);				// Send status 
-				if (message) Serial.println ("POWER saving - Switching OFF!");		// Print if nedeed
+	if (!debug_mode_enabled) {
+		// Check time, if time passed go IDLE
+		if ((millis() - idle_counter_start_time) >= desired_idle_time) {
+			// We are above the time limit. lets go IDLE.
+			if (!IDLE_mode){
+				if (message) Serial.println ("Sleep Time!");		
+				send_action_to_server(enter_idle);
+				IDLE_mode = true;
+				pump_disable ();
+			}	
+			
+			// Check if we are long time in IDLE (default_off_time) and we should switch off completely
+			unsigned long temp_default_off_time = (unsigned long)default_off_time * 1000;
+			if ((millis() - idle_counter_start_time) >= (desired_idle_time + temp_default_off_time)){
+				if (get_motor_enable_state() || !get_motor_sleep_state() || get_power_state()) {
+					motors_sleep ();	// Sleep motors
+					motors_disable ();	// Disable motors
+					PSupply_OFF ();		// Switch Power supply ON
+					send_status_to_server (S_switch_off);				// Send status 
+					if (message) Serial.println ("POWER saving - Switching OFF!");		// Print if nedeed
+				}
 			}
+			return true;
+		}else{
+			// We are not in IDLE time
+			return false;
 		}
-		return true;
-	}else{
-		// We are not in IDLE time
-		return false;
 	}
+	return false;
 }
 
 void start_idle_timer (unsigned long  seconds) {
-	idle_counter_start_time = millis();				// Reset main counter
-	desired_idle_time = seconds*1000;				// Convert seconds into milliseconds
-	Serial.print ("Set IDLE timer to: ");
-	Serial.println (desired_idle_time);
-	Serial.print ("Set OFF timer to: ");
-	Serial.println (desired_idle_time + ((unsigned long)default_off_time * 1000));
-	IDLE_mode = false;
+	if (!debug_mode_enabled) {
+		idle_counter_start_time = millis();				// Reset main counter
+		desired_idle_time = seconds*1000;				// Convert seconds into milliseconds
+		Serial.print ("Set IDLE timer to: ");
+		Serial.println (desired_idle_time);
+		Serial.print ("Set OFF timer to: ");
+		Serial.println (desired_idle_time + ((unsigned long)default_off_time * 1000));
+		IDLE_mode = false;
+	}
 }
 
 void end_idle_timer () {
 	// if motors are sleep or disbaled means we went IDLE so restart...
-	if (IDLE_mode) {
+	if (IDLE_mode && !debug_mode_enabled) {
 		Serial.println ("Recovering from ILDE!");
 		send_action_to_server(resume_from_idle);
 		if (!get_power_state() || get_motor_sleep_state() || !get_motor_enable_state()) {

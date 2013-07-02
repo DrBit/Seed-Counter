@@ -1,5 +1,5 @@
 ////////////////////
-// TEST MODE
+// DEBUG MODE
 ////////////////////
 
 
@@ -7,23 +7,29 @@
 void debug_mode () {
 	
 	Serial.print(F("\r\nEnter Debug Mode? [y/n]\r\n"));
-	
-	if (YN_question (3)) {
+	if (YN_question (6)) {
 		debug_mode_enabled = true;
 		boolean inTestMenu = true;
 		while (inTestMenu) {
 			Serial.println("\n	Select Action, to do :");
 			Serial.println("		=====================================");
 			Serial.println("		1 init all motors");
-			Serial.println("		2 calibrate positions XY");
-			Serial.println("		3 statistics");
-			Serial.println("		4 calirate ejection servo");
-			Serial.println("		5 calibrate counter motor");
-			Serial.println("		6 calibrate blister servos ");
-			Serial.println("		7 test pick up a seed and release");
-			Serial.println("		8 test release blister");
-			Serial.println("		9 check sensors status");
+			Serial.println("		2 statistics");
+			Serial.println("		3 print all EEPROM data");
+			Serial.println("		=====================================");
+			Serial.println("		4 calibrate positions XY");
+			Serial.println("		5 calirate ejection servo");
+			Serial.println("		6 calibrate counter motor");
+			Serial.println("		7 calibrate blister servos ");
+			Serial.println("		15 calibrate X speed ");
+			Serial.println("		=====================================");
+			Serial.println("		8 test pick up a seed and release");
+			Serial.println("		9 test release blister");
 			Serial.println("		10 test eject blister");
+			Serial.println("		11 check sensors status");
+			Serial.println("		12 activate pneumatics");
+			Serial.println("		=====================================");
+			Serial.println("		14 go to position");
 			Serial.println("		=====================================");
 			Serial.println("		0 Exit debug mode");
 			boolean InMenuTemp = true;				// Init temp value for menu
@@ -31,9 +37,8 @@ void debug_mode () {
 				case 0:
 					debug_action0 ();
 					inTestMenu = false;
-					debug_mode_enabled = true;
+					debug_mode_enabled = false;
 				break;
-
 				case 1:debug_action1 ();break;
 				case 2:debug_action2 ();break;
 				case 3:debug_action3 ();break;
@@ -57,28 +62,48 @@ void debug_mode () {
 void debug_action0 () {}
 void debug_action1 () {
 	Serial.println("\n	Init all motors");
-	init_blocks(ALL);
+	init_all_motors();
 }
-void debug_action2 () { calibrate_positionXY(0);}
-void debug_action3 () { statistics();}
-void debug_action4 () { calibrate_ejection_hooks ();}
-void debug_action5 () {	calibrate_counter();}
-void debug_action6 () { calibrate_blister_hooks();}
-void debug_action7 () {
+void debug_action2 () { statistics();}
+void debug_action3 () { 
+	Show_all_records();
+	show_DBservos_data ();
+	show_DBnetwork_data();
+}
+void debug_action4 () { calibrate_positionXY(0);}
+void debug_action5 () {	calibrate_ejection_hooks ();}
+void debug_action6 () { calibrate_counter();}
+void debug_action7 () { calibrate_blister_hooks();}
+void debug_action8 () {
 	Serial.println("\n	Pickup one seed");
 	if (error_counter) {
 			Serial.println("\n	Error ** Counter not initialized correctly, first INIT");
 	}else pickup_seed ();
 }
 
-void debug_action8 () {
-	Serial.println("\n	Release one blister");
+
+
+void debug_action9 () {
+		Serial.println("\n	Release one blister");
 	if (error_blister) {
 			Serial.println("\n	Error ** Blister not initialized correctly, first INIT");
 	}else release_blister_servo ();
 }
+	
 
-void debug_action9 () {
+void debug_action10 () {
+	Serial.println("Eject Blister");
+	Serial.println("Do you want to go to ejection position? [Y/N]");
+	YN_question ();
+	//// go to position
+	Serial.println("Are you in a safe position to test ejction? if you are not you could damage the machine. Continue? [Y/N]");
+	YN_question ();
+	/// contimnue or quit
+	go_to_eject_blister ();
+	eject_blister ();
+}
+
+void debug_action11 () {
 	Serial.println("\n	Sensor Stats. Press keyboard key 4 to quit");
 	boolean InMenuTemp =true;
 	while (InMenuTemp) {
@@ -93,27 +118,10 @@ void debug_action9 () {
 	}
 }
 
-void debug_action10 () {
-	Serial.println("Eject Blister");
-	go_to_eject_blister ();
-	eject_blister ();
-}
-
-void debug_action11 () {
-}
-
-void debug_action12 () {
-}
-
-void debug_action13 () {
-}
-
-void debug_action14 () {
-}
-
-void debug_action15 () {
-}
-
+void debug_action12 () {trigger_pneumatic_mechanism ();}
+void debug_action13 () {}
+void debug_action14 () {selectNgoToPosition ();}
+void debug_action15 () {calibrate_accel_profileX ();}
 
 boolean motors_initiated (int motor_type) {
 /* MOTOR TYPES:
@@ -199,6 +207,15 @@ void print_sensor_stats() {
 		Serial.print ("FALSE");
 	}
 	Serial.println ("]");
+	// Print Pneumatics
+	Serial.print ("Pneumatics [");
+	if (digitalRead (Pneumatics_sensor)) {
+		Serial.print ("TRUE");
+	}else{
+		Serial.print ("FALSE");
+	}
+	Serial.println ("]");
+	
 }
 
 void check_label_sens () {

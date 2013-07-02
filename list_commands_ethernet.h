@@ -40,14 +40,14 @@
 #define needed_blisters_refill 9	// Required user to refill blisters
 #define seed_counter_turn	10		// Wheel turned 1 time.
 #define seed_released	11			// Seed has been picked up and released in the blister
-#define seed_missed	12				// Seed has been missed
-#define enable_pump  13				// Enable pump
-#define disable_pump  14			// Disable pump
-#define enter_idle	15				// Entering IDLE, awaiting user response or another input
-#define resume_from_idle  16		// Resuming action from IDLE
-#define ask_for_label  17			// Ask server to print a label
-#define label_ok   18				// Label detected correctly
-#define XY_init 19					// Init XY axis
+
+#define enable_pump  12				// Enable pump
+#define disable_pump  13			// Disable pump
+#define enter_idle	14				// Entering IDLE, awaiting user response or another input
+#define resume_from_idle  15		// Resuming action from IDLE
+#define ask_for_label  16			// Ask server to print a label
+#define label_ok   17				// Label detected correctly
+#define XY_init 18					// Init XY axis
 #define blisters_disp_init 20		// Init blisters
 
 #define awake_motors  21    // Awake motor drivers, sleep off
@@ -62,6 +62,11 @@
 #define button_ignore 28 			// Power off internal circuits
 #define button_finish 29 			// For finishing batch when we are out of seeds (sended by server)
 #define button_print_label 30 		// Print one label
+#define button_goto_handle_position 31 // Moves carriage to a place where we can gandle it
+
+#define trigger_pneumatics 35 		// Trigger pneumatics
+#define blister_ejected 36			// Blister ejected
+#define seed_missed	37				// Seed has been missed
 
 //////////////////////////
 // LIST OF ERRORS

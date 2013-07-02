@@ -7,7 +7,7 @@
 
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "Testing on Proto4 V5.3.4"
+#define version_prog "Testing on Proto4 V5.3.8"
 #define lib_version 15
 
 /********************************************
@@ -28,16 +28,13 @@
 // #define Ymotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 #define Sensor_printer		// Disable sensor printer
 #define Sensor_blister		// Disable sensor blisters
-// #define Server_com_debug		// Debug communications with the server
-// #define Server_com_error_debug  // Debug errors of communication with the server
+#define Server_com_debug		// Debug communications with the server
+#define Server_com_error_debug  // Debug errors of communication with the server
 // #define DEBUG_counter		// Debug counter.. print positions
-#define bypass_server		// Bypass_orders from the server and stat process straight away
+// #define bypass_server		// Bypass_orders from the server and stat process straight away
 #define serial_answers		// Enables serial answers for debuggin or errors with comunication
 // Stop Watch Timer
 StopWatch MySW;
-
-// Machine ID
-byte M_ID=1;
 
 
 // ***********************
@@ -85,13 +82,14 @@ byte M_ID=1;
 #define blister_pinR 8
 #define ejection_servo_pin 9
 
-
+// Inputs
 #define emergency sensC  // Change in case connected at another input
 #define SensBlister sensG
 #define SensLabel sensH
 #define SensOutBlisters sensI
 #define Counter_wheel_sensor sensA
 #define Counter_seed_sensor sensD
+#define Pneumatics_sensor sensE
 // Outputs
 #define PSupply 47
 #define solenoid1 5
@@ -136,7 +134,7 @@ long old_ypos=0;
 int motor_select=0;
 int situation=0;
 const int motor_speed_counter=1000;
-const int motor_speed_XY=900;
+const int motor_speed_XY=1000;
 const int motor_speed_blisters=1500;
 //ethernet flag
 boolean connected_to_server = false;
@@ -165,6 +163,25 @@ boolean error_blister = true;
 #define COUNTER 3
 
 // ***********************
+// ** Physical limits of the blister motors
+// ***********************
+byte M_ID=1;		// Machine ID
+byte local_ip[] = { 10,250,1,199 + M_ID };
+byte server[] = { 10,250,1,3 }; 
+int port = 8888;
+
+
+// ***********************
+// ** Physical limits of the blister motors
+// ***********************
+unsigned int servoR_open = 153;
+unsigned int servoL_open = 30;
+unsigned int servoR_close = 182;
+unsigned int servoL_close = 4;
+unsigned int servoEjection_open = 0;
+unsigned int servoEjection_close = 177;
+
+// ***********************
 // ** PAUSE & STATISTICS
 // ***********************
 unsigned long count_total_turns = 0;
@@ -191,8 +208,8 @@ byte server_answer = 0;
 // ** Default Direcctions MOTORS
 // ***********************
 // Defining default directions of motors (in case we change the wiring or the position of motors)
-#define default_directionX false
-#define default_directionY false
+#define default_directionX true
+#define default_directionY true
 #define default_directionB true
 #define default_directionC true
 
@@ -214,10 +231,10 @@ void setup() {
 	delay (10);  				// Delay to be safe	
 
 	// servo_test ();
+	init_DBs ();			// Init all databases tables (need to open table to work with them, only one table open).
 	debug_mode();			// See if we should go in debug mode
 	setup_network();		// First thing we do is set up the network
 	server_connect();		// Now we try to stablish a connection
-	init_DB ();				// Init database.  Needs to be AFTER setup_network cause is using another instance of DB (init_NET_DB)
 	reset_machine ();		// Reset Machine and be ready for operation
 	mem_check();			// Check memory. If it is lower than 1000Kb we could have problems
 	// check_blister_sens ();
@@ -257,6 +274,8 @@ void do_one_blister () {
 	if (!skip_function()) Serial.println(F("\n ************ "));
 	
 	get_and_release_blister ();
+	print_and_release_label ();
+
 	
 	// 10 Seeds mode
 	if (blister_mode == seeds10) {
@@ -327,15 +346,20 @@ void do_one_blister () {
 		
 	}
 
+	// Starts before we go to the printing position because it takes time to start the mechanism
+	trigger_pneumatic_mechanism ();
+
 	if (!skip_function()) Serial.println(F("Goto print position"));
 	go_to_memory_position (3);			// Print position
 	
-	print_and_release_label ();
+	check_penumatics_are_done (); 	// Check if this is really necessary
+	//print_and_release_label ();
+	
+	//if (!skip_function()) Serial.println(F("Go to exit"));
+	//if (global_status != S_finishing_batch)  go_to_memory_position (4);			// Exit
 
-	
-	if (!skip_function()) Serial.println(F("Go to exit"));
-	if (global_status != S_finishing_batch)  go_to_memory_position (4);			// Exit
-	
+	//eject blister
+	eject_blister();
 	
 	Serial.print (F("Counted seeds: "));
 	Serial.println (counter_s);
@@ -391,9 +415,9 @@ void setup_pins () {
 	counter.set_default_sensor_state (false);
     
 	// set_accel_profile(init_timing, int ramp_inclination, n_slopes_per_mode, n_steps_per_slope)
-	Xaxis.set_speed_in_slow_mode (500);
-	Xaxis.set_accel_profile(900, 17, 9, 20);
-	Yaxis.set_speed_in_slow_mode (360);
+	Xaxis.set_speed_in_slow_mode (350);
+	Xaxis.set_accel_profile(950, 4, 20, 450);
+	Yaxis.set_speed_in_slow_mode (1100);
 	Yaxis.set_accel_profile(950, 13, 7, 15);
 	//Yaxis.set_speed_in_slow_mode (350);
 	//Yaxis.set_accel_profile(950, 14, 8, 15);
@@ -403,10 +427,6 @@ void setup_pins () {
 	pinMode (blister_pinR, OUTPUT);
 	pinMode (ejection_servo_pin, OUTPUT);
 
-/*	blisterL.attach(blister_pinL);  // attaches the servo to the servo object 
-	blisterR.attach(blister_pinR);  // attaches the servo to the servo object 
-	ejectblister.attach(ejection_servo);  // attaches the servo to the servo object 
-*/
 	blister_servoR.attach(blister_pinR);  // attaches the servo on pin 2 to the servo object
 	blister_servoR.setMinimumPulse(500);
 	blister_servoR.setMaximumPulse(2300);
@@ -416,7 +436,7 @@ void setup_pins () {
 	blister_servoL.setMaximumPulse(2300);
 
 	ejection_servo.attach(ejection_servo_pin);  // attaches the servo on pin 2 to the servo object
-	ejection_servo.setMinimumPulse(500);
-	ejection_servo.setMaximumPulse(2300);
+	ejection_servo.setMinimumPulse(400);
+	ejection_servo.setMaximumPulse(2500);
 
 }

@@ -5,8 +5,9 @@ void print_one_label () {
 
 void print_and_release_label () {
 	if (!skip_function() && (global_status != S_finishing_batch)) {
-		check_status(false);		// Cehck for any pause status
+		check_status(false);		// Check for any pause status
 		print_one_label ();
+		/*
 		// Wait for the printer to print a label
 		boolean released = check_label_realeased (true);
 		go_to_memory_position (3);			// Print position
@@ -49,7 +50,35 @@ void print_and_release_label () {
 
 		// We have now a released label
 		send_error_to_server(no_error);
-		end_idle_timer ();
+		end_idle_timer ();*/
+	}
+}
+
+void trigger_pneumatic_mechanism () {
+	if (!skip_function()) {
+		// Trigger pneumatics
+		check_status(false);		// Check for any pause status
+		PSupply_ON ();
+		send_action_to_server(trigger_pneumatics);
+		Serial.println(F("Trigger Pneumatics"));
+		digitalWrite (extraoutput, HIGH);
+		delay (400);
+		digitalWrite (extraoutput, LOW);
+		Serial.print(F("In progress"));
+	}
+}
+
+void check_penumatics_are_done () {
+	if (!skip_function()) {
+		// When pin goes low indicates that is in progress
+		while (!(digitalRead (Pneumatics_sensor))) {
+			// wait until the pneumatic has finished
+			Serial.print(F("."));
+			delay(500);
+		}
+	    delay (1000);
+		// After goes high again..
+		// Serial.println(F("\nDone!"));
 	}
 }
 

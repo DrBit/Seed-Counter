@@ -160,32 +160,40 @@ int return_pressed_button () {
 // Simple YES/NO Question
 boolean YN_question () {
 	start_idle_timer (default_idle_time);
+	boolean answer_afirmative = false;
+	boolean answer_negative = false;
 	while (true) {
-		if (Serial.available () > 0) {
+		while (Serial.available () > 0) {
 			char C = Serial.read ();
 			if (C == 'y' || C == 'Y') {
 				end_idle_timer ();
-				return true;
+				answer_afirmative = true;
 			}else if (C == 'n' || C == 'N') {
 				end_idle_timer ();
-				return false;
+				answer_negative = true;
 			}
 		}
+		if (answer_afirmative) return true;
+		if (answer_negative) return false;
 		check_idle_timer (true);
 	}
 }
 
 // Simple YES/NO Question
 boolean YN_question (int timeout) {
+	boolean answer_afirmative = false;
+	boolean answer_negative = false;
 	while (timeout > 0) {
-		if (Serial.available () > 0) {
+		while (Serial.available () > 0) {
 			char C = Serial.read ();
 			if (C == 'y' || C == 'Y') {
-				return true;
+				answer_afirmative = true;
 			}else if (C == 'n' || C == 'N') {
-				return false;
+				answer_negative = true;
 			}
 		}
+		if (answer_afirmative) return true;
+		if (answer_negative) return false;
 		delay (1000);
 		timeout --;
 	}
@@ -197,11 +205,23 @@ int get_number(int buffer) {
 	buffer = buffer +1;
 	char PositionN[buffer];
 	int length = 0;
-	while (!Serial.available()) {}
-	while (Serial.available()) {
-		PositionN[length] = Serial.read();
-		length = (length+1) % buffer;
-		delay(30);
+	boolean char_received = false;
+	boolean end_char = false;
+	// Accept NL CR
+	while (!char_received || !end_char) {
+		if (Serial.available () >0) {
+			char c = Serial.read();
+			if ((c == 13) || (c == 10)) { 	// begining or end of command
+				end_char = true;
+				// Do nothing..
+			}else {
+				PositionN[length] = c;
+				length = (length+1) % buffer;
+				char_received = true;
+				end_char = false;
+			}
+			delay(30);
+		}
 	}
 	PositionN[length] = '\0';
 	
@@ -214,11 +234,6 @@ int get_number(int buffer) {
 	//Serial.println (num);
 	return (int) num;
 }
-
-
-
-  
-
 
 
 // ************************************************************

@@ -8,8 +8,8 @@
 // ***********************
 // Init the both axes at the same time to save time.
 #define max_insensor_stepsError 4000
-#define Xaxis_cycles_limit 100
-#define Yaxis_cycles_limit 100
+#define Xaxis_cycles_limit 20
+#define Yaxis_cycles_limit 10
 
 
 boolean XYaxes_init () {
@@ -19,9 +19,9 @@ boolean XYaxes_init () {
 	// few previous calculations for the different speeds profiles
 	int speed1 = motor_speed_XY;						// Main speed is always the slowest and safer
 	int speed2 = speed1 - (motor_speed_XY/5);
-	int speed3 = speed2 - (motor_speed_XY/5);
-	int speed4 = speed3 - (motor_speed_XY/5);
-	unsigned long vIncrement = 900;			// Amount f time in ms that motors will increase speed
+	int speed3 = speed2 - (motor_speed_XY/6);
+	int speed4 = speed3 - (motor_speed_XY/6);
+	unsigned long vIncrement = 40;			// Amount f time in ms that motors will increase speed
 
 	// IMPLEMENT THE FOLLOWING:
 
@@ -117,7 +117,7 @@ boolean XYaxes_init () {
 	}
 	// we can stop at maximum speed as we didnt init motors yet, so we dont care if we lose steps.
 	
-	delay (500);							// Enough for the motor to completely stop the inertia
+	delay (800);							// Enough for the motor to completely stop the inertia
 	
 	temp_counter = 0;						// Reset the temop counter for error checking next step
 	both_sensors = false;					// Reset sensors variable
@@ -130,7 +130,7 @@ boolean XYaxes_init () {
 	
 	while (!both_sensors) {					// While we are hitting the sensor 
 
-		// change mode to hi speed
+		// change mode to low speed
 		
 		if (Xaxis.sensor_check()) {
 			Xaxis.do_step();
@@ -148,21 +148,21 @@ boolean XYaxes_init () {
 			both_sensors = true;
 		}
             //Serial.print ("both_sensors = "); Serial.println (both_sensors);
-		delayMicroseconds(motor_speed_XY);		// here we go at minimum speed so we asure we wont lose any step and we will achieve maximum acuracy
+		delayMicroseconds(3*motor_speed_XY);		// here we go at minimum speed so we asure we wont lose any step and we will achieve maximum acuracy
 		
 		// Error checking, if we cannot reach a point where we dont hit the sensor meands that there is a problem
 		temp_counter++;
 		if (temp_counter > max_insensor_stepsError) {			// recheck the limit of revolutions
 			send_error_to_server (init_Y2_fail);				//still to implement an error message system
 			return false;
-                }
+        }
 		
 		if (temp_counter > max_insensor_stepsError) {			// recheck the limit of revolutions
 			send_error_to_server (init_X2_fail);				//still to implement an error message system
 			return false;
 		}
 	}
-	delay (500);										// Enough for the motor to completely stop the inertia
+	delay (800);										// Enough for the motor to completely stop the inertia
 
 	// we set init ponts for both sensors
 	Xaxis.set_init_position();
@@ -179,7 +179,7 @@ boolean XYaxes_init () {
 void calibrate_positionXY (int position_n) {
 	if (motors_initiated (XY)) {
 		if (position_n == 0) {		// If position_n is 0 means we have to select first a position
-			show_pos_list ();
+			Show_all_records();
 			Serial.println("\n Adjust positions");
 			Serial.println("Type in the position number you want to adjust and press enter (2cyfers max)");
 			position_n = get_number(2);		//2 is the number of digits we need the number
@@ -202,28 +202,45 @@ void calibrate_positionXY (int position_n) {
 			Serial.println ("Done!");
 		}
 		
-		boolean InMenuTemp = false;
-		while (InMenuTemp) {
-			Adjust_XY_pos();					// Manual mode, adjust position
-			if (Serial.available()) {			// If a key is pressed
-				Serial.flush();					// Remove all data from serial
-				Serial.print("Save changes into postion: ");
-				Serial.print(position_n);
-				Serial.println(" ? Y/N");
-				if (YN_question()) {
-					// record the position in memory
-					// WRITE
-					mposition.Xc = Xaxis.get_steps_cycles();
-					mposition.Xf = Xaxis.get_steps();
-					mposition.Yc = Yaxis.get_steps_cycles();
-					mposition.Yf = Yaxis.get_steps();
-					db.write(position_n, DB_REC mposition);
-					Serial.println("Position recorded!");
-				}else{
-					Serial.println("Position NOT recorded!");
-				}
-				InMenuTemp = false;			// Exit menu
-			}
+		Adjust_XY_pos();					// Manual mode, adjust position
+		Serial.print("Save changes into postion: ");
+		Serial.print(position_n);
+		Serial.println(" ? Y/N");
+		if (YN_question()) {
+			// record the position in memory
+			recordSetXYpositionToDB (position_n);
+			Serial.println("Position recorded!");
+			Serial.print ("Xc: "); Serial.print (get_cycle_Xpos_from_index(position_n));
+			Serial.print (" Xf: "); Serial.println (get_step_Xpos_from_index(position_n));
+			Serial.print ("Yc: "); Serial.print (get_cycle_Ypos_from_index(position_n));
+			Serial.print (" Yf: "); Serial.println (get_step_Ypos_from_index(position_n));
+		}else{
+			Serial.println("Position NOT recorded!");
+		}
+	}
+}
+
+void selectNgoToPosition () {
+	if (motors_initiated (XY)) {
+		Show_all_records();
+		Serial.println("Type in the position number you want to go to (2cyfers max)");
+		int position_n = get_number(2);		//2 is the number of digits we need the number
+
+		Serial.print("Selected position: ");
+		Serial.print(position_n);
+		Serial.println(" - Go to position? Y/N");
+		if (YN_question()) {
+			// Go to selected position
+			Serial.println ("Going to position: ");
+			Serial.print ("Xc: "); Serial.print (get_cycle_Xpos_from_index(position_n));
+			Serial.print (" Xf: "); Serial.println (get_step_Xpos_from_index(position_n));
+			Serial.print ("Yc: "); Serial.print (get_cycle_Ypos_from_index(position_n));
+			Serial.print (" Yf: "); Serial.println (get_step_Ypos_from_index(position_n));
+			Serial.print ("moving...   ");
+			manual_enabled = true;				// overwrite flag pause so we dont enter pause menu again
+			go_to_memory_position (position_n);		
+			manual_enabled = false;				// restore flag pause so we dont enter pause menu again
+			Serial.println ("Done!");
 		}
 	}
 }
@@ -236,8 +253,7 @@ void Adjust_XY_pos () {
 	int fast_speed = 50;
 
 	// Starting with Closing positions
-	boolean adjust_done = false;
-	while (!adjust_done){
+	while (true){
 
 		//look for X position
 		Serial.println (F("Move X axis until you reach your desired position"));
@@ -348,7 +364,44 @@ void Adjust_XY_pos () {
 
 		Serial.println (F("Are you happy with the position? [Y/N]"));
 		if (YN_question ()) {
-			adjust_done =true;
+			break;
+		}
+	}
+}
+
+
+
+
+			
+void calibrate_accel_profileX () {
+	if (motors_initiated (XY)) {
+		boolean calibrating = true;
+		while (calibrating) {
+			Serial.println (F("Type starting speed: "));
+			int apx1 = get_number(3);
+
+			Serial.println (F("Type ramp inclination: "));
+			int apx2 = get_number(3);
+
+			Serial.println (F("Type number of slopes per mode: "));
+			int apx3 = get_number(3);
+
+			Serial.println (F("Type number of steps per slope: "));
+			int apx4 = get_number(3);
+
+			Xaxis.set_accel_profile(apx1, apx2, apx3, apx4);
+
+			Serial.println (F("Testing:"));
+			go_to_memory_position (4);	
+			delay (500);
+			go_to_memory_position (1);	
+
+			Serial.println (F("Did it work? [Y/N]"));
+			if (YN_question ()) {
+				calibrating = false;
+			}else{
+				XYaxes_init ();
+			}
 		}
 	}
 }
@@ -409,30 +462,10 @@ void Adjust_XY_pos () {
 // advice: change names to Coarse & fine
 // READ
 
-int get_cycle_Xpos_from_index(int index) {
-	db.read(index, DB_REC mposition);
-	return mposition.Xc;
-}
-
-int get_step_Xpos_from_index(int index) {
-	db.read(index, DB_REC mposition);
-	return mposition.Xf;
-}
-
-int get_cycle_Ypos_from_index(int index) {
-	db.read(index, DB_REC mposition);
-	return mposition.Yc;
-}
-
-int get_step_Ypos_from_index(int index) {
-	db.read(index, DB_REC mposition);
-	return mposition.Yf;
-}
-
 void go_to_memory_position (int position_index_to_go) {
 	// Disable this function in case we are ending batch
 	if (!skip_function()) {
-		check_status (false);			// Check for any pause button
+		if (!debug_mode_enabled) check_status (false);			// Check for any pause button
 		//send_position_to_server (position_index_to_go);		// Inform server that we are going to a position
 		int Xcycles = get_cycle_Xpos_from_index(position_index_to_go);
 		int Xsteps = get_step_Xpos_from_index(position_index_to_go);
@@ -444,7 +477,7 @@ void go_to_memory_position (int position_index_to_go) {
 }
 
 void go_to_safe_position () {
-	int safe_pos = 2;
+	int safe_pos = 4;
 	int Xcycles = get_cycle_Xpos_from_index(safe_pos);
 	int Xsteps = get_step_Xpos_from_index(safe_pos);
 	int Ycycles = get_cycle_Ypos_from_index(safe_pos);
