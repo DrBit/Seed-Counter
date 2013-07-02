@@ -16,7 +16,7 @@ unsigned int fails_max_normal = 40;				// Max number of tries to pick a seed bef
 unsigned int fails_max_end = 20;				// Max number of fails before 100 seeds to reach the complet batch to create an error (since we are close to the end we dont need to go to 1000)
 unsigned int fails_max_init_tries = 10;   		// Number of times the counter will try to get a seed at INITIATION before giving an error
 unsigned int max_batch_count = 1100;			// Tipical number of seeds in a batch
-unsigned int count_error_turns =0;				// Used to detect the amount of consecutive fails to pick up a seed
+unsigned int count_error_turns = 0;				// Used to count the amount of consecutive fails when picking up a seed (initially 0)
 
 boolean first_time_drop = true;		// Used only to acomodate position after INIT. Once hase been used we won't used anymore.
 
@@ -78,6 +78,7 @@ boolean Seedcounter_init() {		// Init seed counter motors and sensors
 boolean pickup_seed() {
 	pump_enable ();
 	motor_select = 0;
+	count_error_turns = 0;  // restore missed seeds counter
 	boolean seed_detected = false;	
 	boolean temp_detection = false;		//Var for mark detection of a seed inside the switch
 	#if defined DEBUG_counter
@@ -86,8 +87,8 @@ boolean pickup_seed() {
 	Serial.print (F(" - "));
 	Serial.println (counter.get_steps());
 	#endif
-	int accel = 1500;			// Values of the motor acceleration
-	int speed = 8000;			// Values of the motor max speed
+	int accel = 4500;			// Values of the motor acceleration
+	int speed = 9500;			// Values of the motor max speed
 	#define case_error_checking 1 	// Values for handling the cases
 	#define case_vibrate 2
 	#define case_pick_seed_position 3
@@ -114,11 +115,13 @@ boolean pickup_seed() {
 				#endif
 				if (count_error_turns > fails_max_normal) {				// Checks if we did too many turns. Could mean a bottle neck or just out of seeds
 					send_error_to_server(counter_max_turns_normal);
+					count_error_turns = 0;  // restore missed seeds counter
 					if (check_if_end_of_batch ()) {
 						return true;	// Should it say return?
 					}
 				}else if ((count_error_turns > fails_max_end) && (counter_s > (max_batch_count - 200))) {
 					send_error_to_server(counter_max_turns_end);
+					count_error_turns = 0;  // restore missed seeds counter
 					if (check_if_end_of_batch ()) {
 						return true;	// Should it say return?
 					}
@@ -146,19 +149,19 @@ boolean pickup_seed() {
 						if (negative_acumulate_counter >= 1) {
 							// increase the power of vibration
 							// vibrate_solenoid(poin_number, power, duration
-							int power = 2 + (negative_acumulate_counter);
-							if (power >= 5) power = 5;
-							int duration = 90 -(negative_acumulate_counter*10);
-							if (duration <= 20) duration = 20;
+							int power = 4 + (negative_acumulate_counter);
+							if (power >= 6) power = 6;
+							int duration = 100 -(negative_acumulate_counter*10);
+							if (duration <= 40) duration = 40;
 							vibrate_solenoid(solenoid1,power,duration);		// We vibrate for a fixed amount of time each time
 							positive_acumulate_counter = limit_consecutive_seeds_detected - 1;	// Next detected seed will stop vibrating
 						}else{
 							// vibrate_solenoid(poin_number, power, duration)
-							vibrate_solenoid(solenoid1,3,80);		// We vibrate for a fixed amount of time each time
+							vibrate_solenoid(solenoid1,5,100);		// We vibrate for a fixed amount of time each time
 						}
 					} else {
 						// Fail to vibrate and reset negative counter
-						vibrate_solenoid(solenoid1,3,40);
+						vibrate_solenoid(solenoid1,4,50);
 						negative_acumulate_counter = 0;
 					}
 				}

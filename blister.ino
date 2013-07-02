@@ -47,17 +47,17 @@ void release_blister_servo () {
 	blister_servoL.write(servoL_open);                  // sets the servo position according to the scaled value 
 	blister_servoR.write(servoR_open);
 	
-	for (int l = 0; l<150; l++) {                   				
+	for (int l = 0; l<90; l++) {                   				
 		SoftwareServo::refresh();
 		delay(6); 
 	}
 
-	delay (300);
+	//delay (300);
 
 	blister_servoL.write(servoL_close);                  // sets the servo position according to the scaled value 
 	blister_servoR.write(servoR_close);
 	delay(5);                           // waits for the servo to get there 
-	for (int l = 0; l<150; l++) {
+	for (int l = 0; l<90; l++) {
 		SoftwareServo::refresh();
 		delay(6); 
 	}
@@ -70,13 +70,13 @@ void eject_blister () {
 		PSupply_ON ();
 
 		// Shold we check if we are at the right position?
-		for (int l = 0; l<100; l++) {
+		for (int l = 0; l<70; l++) {
 			ejection_servo.write(servoEjection_open);           // sets the servo position according to the scaled value 
 			delay(5);                           				// waits for the servo to get there 
 			SoftwareServo::refresh();
 		}
 
-		for (int l = 0; l<100; l++) {
+		for (int l = 0; l<70; l++) {
 			ejection_servo.write(servoEjection_close);          // sets the servo position according to the scaled value 
 			delay(5);                           				// waits for the servo to get there 
 			SoftwareServo::refresh();

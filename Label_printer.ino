@@ -71,12 +71,12 @@ void trigger_pneumatic_mechanism () {
 void check_penumatics_are_done () {
 	if (!skip_function()) {
 		// When pin goes low indicates that is in progress
-		while (!(digitalRead (Pneumatics_sensor))) {
+		//while (!(digitalRead (Pneumatics_sensor))) {
 			// wait until the pneumatic has finished
-			Serial.print(F("."));
-			delay(500);
-		}
-	    delay (1000);
+			//Serial.print(F("."));
+			//delay(500);
+		//}
+	    delay (3500);
 		// After goes high again..
 		// Serial.println(F("\nDone!"));
 	}

@@ -7,7 +7,7 @@
 
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "Testing on Proto4 V5.3.8"
+#define version_prog "Testing on Proto4 V5.3.9"
 #define lib_version 15
 
 /********************************************
@@ -274,9 +274,7 @@ void do_one_blister () {
 	if (!skip_function()) Serial.println(F("\n ************ "));
 	
 	get_and_release_blister ();
-	print_and_release_label ();
-
-	
+		
 	// 10 Seeds mode
 	if (blister_mode == seeds10) {
 	
@@ -347,6 +345,7 @@ void do_one_blister () {
 	}
 
 	// Starts before we go to the printing position because it takes time to start the mechanism
+	print_and_release_label ();
 	trigger_pneumatic_mechanism ();
 
 	if (!skip_function()) Serial.println(F("Goto print position"));
@@ -415,9 +414,9 @@ void setup_pins () {
 	counter.set_default_sensor_state (false);
     
 	// set_accel_profile(init_timing, int ramp_inclination, n_slopes_per_mode, n_steps_per_slope)
-	Xaxis.set_speed_in_slow_mode (350);
+	Xaxis.set_speed_in_slow_mode (390);
 	Xaxis.set_accel_profile(950, 4, 20, 450);
-	Yaxis.set_speed_in_slow_mode (1100);
+	Yaxis.set_speed_in_slow_mode (1000);
 	Yaxis.set_accel_profile(950, 13, 7, 15);
 	//Yaxis.set_speed_in_slow_mode (350);
 	//Yaxis.set_accel_profile(950, 14, 8, 15);

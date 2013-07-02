@@ -4,6 +4,12 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V5.3.9 - 07/06/2013
+**  * Fixed bugs and imrpoved vibration + label printing speed
+**  
+**  V5.3.8 - 07/06/2013
+**  * Fixed many bugs and imrpoved speed
+**
 **  V5.3.6 - 07/06/2013
 **  * Fixed bugs with serial debug (NL & CR bug in debug mode)
 **
@@ -393,7 +399,13 @@ also transfer to IU when calibrating:
 timings:
 ----------------------------------------------
 21-06-2013
-normal at the moment we put it to work (no finetuning) 1 blister - 1minute 47secs
+normal at the moment we put it to work (no finetuning) 1 blister (10 seeds)- 1minute 47secs
 pushing 1 seed per turn with the same speeds - 52 seconds
 ---------------------------------------------- 
+
+02-07-2013
+with great speed improvement 1 blister of 5 seeds in average of 34 seconds
+---------------------------------------------- 
+
+
 */
