@@ -215,6 +215,25 @@ void print_sensor_stats() {
 		Serial.print ("FALSE");
 	}
 	Serial.println ("]");
+	// Print Sensor F
+	Serial.print ("Sensor F [");
+	if (digitalRead (sensF)) {
+		Serial.print ("TRUE - ");
+	}else{
+		Serial.print ("FALSE - ");
+	}
+	Serial.print (analogRead (sensF));
+	Serial.println ("]");
+
+	// Print Sensor G
+	Serial.print ("Sensor G [");
+	if (digitalRead (sensG)) {
+		Serial.print ("TRUE - ");
+	}else{
+		Serial.print ("FALSE - ");
+	}
+	Serial.print (analogRead (sensG));
+	Serial.println ("]");
 	
 }
 

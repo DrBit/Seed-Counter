@@ -4,6 +4,15 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V5.3.11 - 26/09/2013
+**  * Added checkserver () in counting algorithm
+**
+**  V5.3.11 - 25/09/2013
+**  * Added function to activate pneumatics (printer)
+**
+**  V5.3.10 - 16/07/2013
+**  * Added Sensors testing G and F
+**
 **  V5.3.9 - 07/06/2013
 **  * Fixed bugs and imrpoved vibration + label printing speed
 **  

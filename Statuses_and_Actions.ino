@@ -212,6 +212,9 @@ boolean receive_server_data (){
 					case button_goto_handle_position: {
 						go_to_safe_position ();
 					break; }
+					case trigger_pneumatics: {
+						trigger_pneumatic_mechanism ();
+					break; }
 					////////////////////////////////////////
 					// answers for errors
 					case button_continue: {

@@ -103,6 +103,7 @@ boolean pickup_seed() {
 	#endif
 
 	while (!seed_detected && !skip_function()) {
+		// Skip function only reacts at ending batch or do a restart.. try more in deep
 		switch (counting_case) {
 			case case_error_checking:		// First some error checking.
 				#if defined DEBUG_counter
@@ -126,6 +127,10 @@ boolean pickup_seed() {
 						return true;	// Should it say return?
 					}
 				}
+				// Check if we have received a button like restart or pause or stop batch? isnt it?
+				check_status (false);
+				// Here we can not do a check stop cause we would go into an endless loop??
+				///////////////////////////
 				counting_case = case_pick_seed_position;	// Pick up a seed
 			break;
 
