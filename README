@@ -4,6 +4,12 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V5.3.14 - 4/12/2013
+**  * Added definitions of new sensor for the blister detector
+**
+**  V5.3.13 - 20/11/2013
+**  * Changed delay in start XY motors
+**
 **  V5.3.12 - 26/09/2013
 **  * Added checkserver () in counting algorithm
 **

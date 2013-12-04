@@ -90,17 +90,15 @@ boolean XYaxes_init () {
 		unsigned long now = millis();
 		
 		if ((now - start_time) < vIncrement) {
-			delayMicroseconds(speed1);
-			// Serial.print("s1");
+			delayMicroseconds(2400);
 		}else if ((now - start_time) < (2*vIncrement)) {
-			delayMicroseconds(speed2);
-			// Serial.print("s2");
+			delayMicroseconds(speed1);
 		}else if ((now - start_time) < (3*vIncrement)) {
+			delayMicroseconds(speed2);
+		}else if ((now - start_time) < (4*vIncrement)) {
 			delayMicroseconds(speed3);
-			// Serial.print("s3");
-		}else {
+		}else{
 			delayMicroseconds(speed4);
-			// Serial.print("s4");
 		}
 		
 		// Error checking, if we cannot reach a point where we hit the sensor means that there is a problem

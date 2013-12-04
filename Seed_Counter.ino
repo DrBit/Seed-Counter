@@ -7,7 +7,7 @@
 
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "Testing on Proto4 V5.3.12"
+#define version_prog "Testing on Proto4 V5.3.14"
 #define lib_version 15
 
 /********************************************
@@ -77,6 +77,16 @@ StopWatch MySW;
 #define sensG A11
 #define sensH A12
 #define sensI A13
+// NEW SENSOR FOR THE BLISTER 
+/* This sensor line is comming directly from the extra I/O from the shield and not from
+the control board. 2 Lines ara available
+pin Analog 1 and pin 11 (Wich is also a PWM)
+Both lines arrive at the board breakout fot he conveier. 1rs is analog , 2nd is pin 11
+*/
+#define sensJ A2  // 1rst in the connector
+#define sensK 11  // Last in the connector
+
+
 // Servos
 #define blister_pinL 7
 #define blister_pinR 8
@@ -134,7 +144,7 @@ long old_ypos=0;
 int motor_select=0;
 int situation=0;
 const int motor_speed_counter=1000;
-const int motor_speed_XY=1400;
+const int motor_speed_XY=1200;
 const int motor_speed_blisters=1500;
 //ethernet flag
 boolean connected_to_server = false;
