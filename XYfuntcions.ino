@@ -90,7 +90,7 @@ boolean XYaxes_init () {
 		unsigned long now = millis();
 		
 		if ((now - start_time) < vIncrement) {
-			delayMicroseconds(2400);
+			delayMicroseconds(3000);
 		}else if ((now - start_time) < (2*vIncrement)) {
 			delayMicroseconds(speed1);
 		}else if ((now - start_time) < (3*vIncrement)) {

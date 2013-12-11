@@ -151,6 +151,7 @@ boolean pickup_seed() {
 					}
 
 					if (positive_acumulate_counter < limit_consecutive_seeds_detected) {
+						// RETHINK!!!!!
 						if (negative_acumulate_counter >= 1) {
 							// increase the power of vibration
 							// vibrate_solenoid(poin_number, power, duration
@@ -163,6 +164,7 @@ boolean pickup_seed() {
 						}else{
 							// vibrate_solenoid(poin_number, power, duration)
 							vibrate_solenoid(solenoid1,5,100);		// We vibrate for a fixed amount of time each time
+							// was 100 instead of 80
 						}
 					} else {
 						// Fail to vibrate and reset negative counter

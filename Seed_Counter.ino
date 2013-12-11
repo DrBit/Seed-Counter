@@ -27,7 +27,7 @@
 // #define Xmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 // #define Ymotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 #define Sensor_printer		// Disable sensor printer
-#define Sensor_blister		// Disable sensor blisters
+// #define Sensor_blister		// Disable sensor blisters
 #define Server_com_debug		// Debug communications with the server
 #define Server_com_error_debug  // Debug errors of communication with the server
 // #define DEBUG_counter		// Debug counter.. print positions
@@ -79,12 +79,13 @@ StopWatch MySW;
 #define sensI A13
 // NEW SENSOR FOR THE BLISTER 
 /* This sensor line is comming directly from the extra I/O from the shield and not from
-the control board. 2 Lines ara available
-pin Analog 1 and pin 11 (Wich is also a PWM)
+the control board. 2 Lines are available
+pin Analog 2 and pin 11 (Wich is also a PWM)
 Both lines arrive at the board breakout fot he conveier. 1rs is analog , 2nd is pin 11
 */
 #define sensJ A2  // 1rst in the connector
-#define sensK 11  // Last in the connector
+#define sensJ_feedback 11  // Last in the connector
+// Feedback controls the led integrated in the same sensor board to give visual feedback when detecting the blister.
 
 
 // Servos
@@ -94,7 +95,8 @@ Both lines arrive at the board breakout fot he conveier. 1rs is analog , 2nd is 
 
 // Inputs
 #define emergency sensC  // Change in case connected at another input
-#define SensBlister sensG
+#define SensBlister sensJ
+#define SensBlister_feedback sensJ_feedback // Led connected to the board for feedback
 #define SensLabel sensH
 #define SensOutBlisters sensI
 #define Counter_wheel_sensor sensA
@@ -412,6 +414,8 @@ void setup_pins () {
 	pinMode (sensG, INPUT); 
 	pinMode (sensH, INPUT);
 	pinMode (sensI, INPUT);
+	pinMode (SensBlister, INPUT);
+	pinMode (SensBlister_feedback, OUTPUT);
 
 	// Set default directions for motors
 	Xaxis.set_default_direcction (default_directionX);

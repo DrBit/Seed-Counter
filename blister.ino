@@ -1,10 +1,10 @@
 
 
-// ************************************************************
-// ** INIT FUNCTIONS
-// ************************************************************
+////////////////////////////////////////////////////////////////////////////////////////
+// INIT FUNCTIONS //////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
 
-boolean blisters_init () {
+boolean blisters_init () {				// Init blister hooks and ejections
 	read_database_DB_servo ();
 	if (init_hooks_servos() && init_ejection_servos()) {
 		return true;
@@ -12,8 +12,7 @@ boolean blisters_init () {
 	return false;
 }
 
-boolean init_hooks_servos () {
-	// Init blister hooks
+boolean init_hooks_servos () {			// Init blister hooks	
 	for (int l = 0; l<100; l++) {
 		blister_servoL.write(servoL_close);                  // sets the servo position according to the scaled value 
 		blister_servoR.write(servoR_close);
@@ -24,8 +23,7 @@ boolean init_hooks_servos () {
 }
 
 
-boolean init_ejection_servos () {
-	// Init blister ejection
+boolean init_ejection_servos () {		// Init blister ejection
 	for (int l = 0; l<100; l++) {
 		ejection_servo.write(servoEjection_close);                  // sets the servo position according to the scaled value 
 		delay(5);                           // waits for the servo to get there 
@@ -36,15 +34,57 @@ boolean init_ejection_servos () {
 
 
 
-// ************************************************************
-// ** USEFUL FUNCTIONS
-// ************************************************************
+////////////////////////////////////////////////////////////////////////////////////////
+// MAIN FUNCTIONS //////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+
+void get_and_release_blister () {
+	check_status(false);
+	if (!skip_function()) {
+		Serial.println("Get blister");
+		release_blister_servo ();
+		
+		boolean released = check_blister_realeased ();
+		//boolean released = true;
+
+		block_loop = true;
+		while (!released) {
+			
+			check_server ();		// Here we can not do a check stop cause we would go into an endless loop.
+			if (!skip_function()) {			// In case we pressed restart or another high we will skip everything and continue to a safe position.
+				switch (server_answer) {
+
+					case button_continue:
+						Serial.println("Get blister");
+						release_blister_servo ();
+						released = check_blister_realeased ();
+						if (released) send_error_to_server (no_error);		// Reset error on the server
+						server_answer = 0;
+					break;
+					
+					case button_ignore: // do nothing so we wont detect any error and we will continue
+						released = false;
+						server_answer = 0;
+						send_error_to_server (no_error);		// Reset error on the server
+					break;
+
+					default: // Any other answer or 0
+						server_answer = 0;
+					break;
+				}
+			}else{	// We enter here in case we trigger a main function of a parent loop
+				send_error_to_server (no_error);		// Reset error on the server
+				released = true;
+			}
+		}
+		block_loop = false;
+	}
+}
 
 void release_blister_servo () {
 
-	go_to_memory_position (2);			// blister
-
-	blister_servoL.write(servoL_open);                  // sets the servo position according to the scaled value 
+	go_to_memory_position (2);				// blister
+	blister_servoL.write(servoL_open);      // sets the servo position according to the scaled value 
 	blister_servoR.write(servoR_open);
 	
 	for (int l = 0; l<90; l++) {                   				
@@ -52,11 +92,9 @@ void release_blister_servo () {
 		delay(6); 
 	}
 
-	//delay (300);
-
-	blister_servoL.write(servoL_close);                  // sets the servo position according to the scaled value 
+	blister_servoL.write(servoL_close);		// sets the servo position according to the scaled value 
 	blister_servoR.write(servoR_close);
-	delay(5);                           // waits for the servo to get there 
+	delay(5);								// waits for the servo to get there 
 	for (int l = 0; l<90; l++) {
 		SoftwareServo::refresh();
 		delay(6); 
@@ -65,11 +103,62 @@ void release_blister_servo () {
 	send_action_to_server (blister_release);
 }
 
-void eject_blister () {
+
+bool check_blister_realeased () {
+	boolean skip_sensor_blister = false;
+#if defined Sensor_blister
+	skip_sensor_blister = true;
+#endif
+	
+	// We will be using position P21 for checking the blister
+	// Postion P21 will be configured to be right where the blisters is pushed down to go
+	// beneath the counter structure.
+	// This way we ensure that even if the blister is bend it will be pushed downwards and detected by the sensor
+	// It also prevents infrared light from getting inside the sensor
+	
+	Serial.print(F("Blister released: "));
+	go_to_memory_position (21);
+	// shoudl we read this analogically to have a better precision? Test out
+	int sensor_state = analogRead (SensBlister); 
+	Serial.print(sensor_state);
+	if ((sensor_state >= 500) || skip_sensor_blister) {
+		print_ok();
+		for (int a=0; a<=255; a++) {		// Led on
+			analogWrite (sensJ_feedback,a);
+			delay (2);
+		}
+		return true;
+	}
+	print_fail ();
+
+	// Make a nice animation with the led to show that has failed
+	for (int b=0; b<=4; b++) {
+		for (int a=0; a<=255; a++) {
+			analogWrite (sensJ_feedback,a);
+			delay (1);
+		}
+		for (int a=255; a>=0; a--) {
+			analogWrite (sensJ_feedback,a);
+			delay (1);
+		}
+		delay (200);
+	}
+
+	send_error_to_server (blister_release_fail);
+	return false;
+}
+
+
+boolean eject_blister () {
+	boolean skip_sensor_blister = false;
+#if defined Sensor_blister
+	skip_sensor_blister = true;
+#endif
+
 	if (!skip_function()) {
 		PSupply_ON ();
 
-		// Shold we check if we are at the right position?
+		// Should we check if we are at the right position?
 		for (int l = 0; l<70; l++) {
 			ejection_servo.write(servoEjection_open);           // sets the servo position according to the scaled value 
 			delay(5);                           				// waits for the servo to get there 
@@ -82,59 +171,35 @@ void eject_blister () {
 			SoftwareServo::refresh();
 		}
 
-		send_action_to_server (blister_ejected);
+		// Check if it is ejected
+		int sensor_state = analogRead (SensBlister);
+		Serial.print(sensor_state);
+		go_to_memory_position (21);
+		if ((sensor_state <= 350) || skip_sensor_blister) {
+			print_ok();
+			for (int a=255; a>=0; a--) {		// Led oFF
+				analogWrite (sensJ_feedback,a);
+				delay (2);
+			}
+			send_action_to_server (blister_ejected);
+			return true;
+		}else{
+			// Not ejected....
+			for (int a=0; a<=255; a++) {		// Led on
+				analogWrite (sensJ_feedback,a);
+				delay (2);
+			}
+			send_error_to_server (blister_not_ejected);
+			Serial.print (F("Blister not ejected"));
+			while (true) {
+				// endloop
+			}
+			// *************************************** LOOOOOP
+		}
 	}
 }
-
-
-bool check_blister_realeased () {
-	boolean skip_sensor_blister = false;
-#if defined Sensor_blister
-	skip_sensor_blister = true;
-#endif
-	
-	
-	boolean p21_correct = false;
-	boolean p22_correct = false;
-	
-	Serial.print("Blister released: ");
-	
-	
-	// First we go right after the blister
-	// In this position we should detect the blister, so if we do, something whent wrong
-	go_to_memory_position (21);			// check blister (after begining, we shoud read OFF)
-	
-	boolean sensor_state = digitalRead (SensBlister); 
-	if (!sensor_state || skip_sensor_blister) {
-		p21_correct = true;
-	}else{
-		Serial.print(" - OFF state incorrect  ");
-		p21_correct = false;
-	}
-		
-	// Now we go right ON the blister at the begining.
-	// Here we should detect it, if we dont something whent wrong
-	go_to_memory_position (22);			// check blister (begining, we should read ON)
-
-	sensor_state = digitalRead (SensBlister); 
-	if (sensor_state || skip_sensor_blister) {
-		p22_correct = true;
-	}else{
-		Serial.print(" - ON state incorrect ");
-		p21_correct = false;
-	}
-	
-	if (p21_correct && p22_correct) {
-		print_ok();
-		return true;
-	}
-	
-	print_fail ();
-	send_error_to_server (blister_release_fail);
-	return false;
-}
-
-
+// Not used at the moment
+/*
 void check_out_of_blisters () {
 	boolean skip_sensor_blister = false;
 #if defined Sensor_blister
@@ -174,58 +239,16 @@ void check_out_of_blisters () {
 		}
 	}
 }
+*/
 
 
-void get_and_release_blister () {
-	check_status(false);
-	if (!skip_function()) {
-		Serial.println("Get blister");
-		release_blister_servo ();
-		
-		// boolean released = check_blister_realeased ();
-		boolean released = true;
 
-		block_loop = true;
-		while (!released) {
-			
-			check_server ();		// Here we can not do a check stop cause we would go into an endless loop.
-			if (!skip_function()) {			// In case we pressed restart or another high we will skip everything and continue to a safe position.
-				switch (server_answer) {
 
-					case button_continue:
 
-						Serial.println("Eject Blister");
-						go_to_eject_blister ();
-						eject_blister ();
-						
-						Serial.println("Get blister");
-						release_blister_servo ();
-						released = check_blister_realeased ();
-						if (released) send_error_to_server (no_error);		// Reset error on the server
-						server_answer = 0;
-					break;
-					
-					case button_ignore:
-						// do nothing so we wond detect any error and we will continue
-						released = false;
-						server_answer = 0;
-						send_error_to_server (no_error);		// Reset error on the server
-					break;
 
-					default:
-						// Any other answer or 0
-						server_answer = 0;
-					break;
-				}
-			}else{
-				// We enter here in case we trigger a main function of a parent loop
-				send_error_to_server (no_error);		// Reset error on the server
-				released = true;
-			}
-		}
-		block_loop = false;
-	}
-}
+////////////////////////////////////////////
+// CALIBRATION /////////////////////////////
+////////////////////////////////////////////
 
 
 void calibrate_blister_hooks () {
@@ -448,60 +471,3 @@ void calibrate_ejection_hooks () {
 		}
 	}
 }
-
-
-
-/*
-void pick_blister_mode() {
-
-	// This information will be provided by the server
-	// send_config_from_server (get_seeds_mode);
-	
-	boolean correct_mode = false;
-	while (!correct_mode) {
-		Serial.println ("* Select blister mode:");
-		Serial.println ("[1] - 10 seeds mode");
-		Serial.println ("[2] - 5  seeds mode");
-		
-		int button_pressed = return_pressed_button ();
-		if (button_pressed == 1) {
-			blister_mode = seeds10;
-			correct_mode = true;
-			Serial.println ("10 seeds mode delected.");
-		} else if (button_pressed == 2) {
-			blister_mode = seeds5;
-			correct_mode = true;
-			Serial.println ("5 seeds mode delected.");
-		}else{
-			Serial.print (" Mode ");
-			Serial.print (button_pressed);
-			Serial.println (" not avaialble, try again");
-		}
-	}	
-}
-
-//OLD not used anymore
-void release_blister () {			
-	send_action_to_server (blister_release);
-	Serial.println("go to Blister Position");
-	go_to_memory_position (2);			// blister
-	
-	
-	int steps_to_do = blisters_steps_limit / blisters.get_step_accuracy();
-	blisters.set_direction (!default_directionB);
-	for (int i = 0 ; i< steps_to_do; i++) {
-		blisters.do_step();
-		delayMicroseconds (motor_speed_blisters);
-	} 
-	
-	blisters.set_direction (default_directionB);
-	for (int i = 0 ; i< steps_to_do + 50; i++) {
-		blisters.do_step();
-		delayMicroseconds (motor_speed_blisters);
-	}
-
-	// Check if we are out of blisters
-	// check_out_of_blisters ();
-}
-
-*/

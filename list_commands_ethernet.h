@@ -67,6 +67,7 @@
 #define trigger_pneumatics 35 		// Trigger pneumatics
 #define blister_ejected 36			// Blister ejected
 #define seed_missed	37				// Seed has been missed
+#define blister_not_ejected 38		// Blister not ejected correctly or error in sensor
 
 //////////////////////////
 // LIST OF ERRORS

@@ -116,6 +116,7 @@ void debug_action11 () {
 			delay (100);
 		}
 	}
+	digitalWrite (sensJ_feedback, LOW);
 }
 
 void debug_action12 () {trigger_pneumatic_mechanism ();}
@@ -234,6 +235,19 @@ void print_sensor_stats() {
 	}
 	Serial.print (analogRead (sensG));
 	Serial.println ("]");
+
+	// Print Sensor J
+	Serial.print (F("Sensor J (blister) ["));
+	if (digitalRead (sensJ)) {
+		Serial.print ("TRUE - ");
+		digitalWrite (sensJ_feedback, HIGH);
+	}else{
+		Serial.print ("FALSE - ");
+		digitalWrite (sensJ_feedback, LOW);
+	}
+	Serial.print (analogRead (sensJ));
+	Serial.println ("]");
+
 	
 }
 
