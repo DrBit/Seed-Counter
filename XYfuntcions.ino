@@ -18,10 +18,12 @@ boolean XYaxes_init () {
 
 	// few previous calculations for the different speeds profiles
 	int speed1 = motor_speed_XY;						// Main speed is always the slowest and safer
-	int speed2 = speed1 - (motor_speed_XY/5);
+	int speed2 = speed1 - (motor_speed_XY/6);
 	int speed3 = speed2 - (motor_speed_XY/6);
-	int speed4 = speed3 - (motor_speed_XY/6);
-	unsigned long vIncrement = 40;			// Amount f time in ms that motors will increase speed
+	int speed4 = speed3 - (motor_speed_XY/7);
+	int speed5 = speed4 - (motor_speed_XY/8);
+	int speed6 = speed5 - (motor_speed_XY/9);
+	unsigned long vIncrement = 80;			// Amount f time in ms that motors will increase speed
 
 	// IMPLEMENT THE FOLLOWING:
 
@@ -89,16 +91,20 @@ boolean XYaxes_init () {
 		// Speed handeling
 		unsigned long now = millis();
 		
-		if ((now - start_time) < vIncrement) {
-			delayMicroseconds(3000);
-		}else if ((now - start_time) < (2*vIncrement)) {
-			delayMicroseconds(speed1);
+		if ((now - start_time) < 1*vIncrement) {
+			delayMicroseconds(2500);
 		}else if ((now - start_time) < (3*vIncrement)) {
-			delayMicroseconds(speed2);
+			delayMicroseconds(speed1);
 		}else if ((now - start_time) < (4*vIncrement)) {
+			delayMicroseconds(speed2);
+		}else if ((now - start_time) < (5*vIncrement)) {
 			delayMicroseconds(speed3);
-		}else{
+		}else if ((now - start_time) < (6*vIncrement)) {
 			delayMicroseconds(speed4);
+		}else if ((now - start_time) < (7*vIncrement)) {
+			delayMicroseconds(speed5);
+		}else {
+			delayMicroseconds(speed6);
 		}
 		
 		// Error checking, if we cannot reach a point where we hit the sensor means that there is a problem

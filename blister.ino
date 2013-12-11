@@ -125,7 +125,7 @@ bool check_blister_realeased () {
 		print_ok();
 		for (int a=0; a<=255; a++) {		// Led on
 			analogWrite (sensJ_feedback,a);
-			delay (2);
+			delayMicroseconds (50);
 		}
 		return true;
 	}
@@ -135,13 +135,13 @@ bool check_blister_realeased () {
 	for (int b=0; b<=4; b++) {
 		for (int a=0; a<=255; a++) {
 			analogWrite (sensJ_feedback,a);
-			delay (1);
+			delayMicroseconds (50);
 		}
 		for (int a=255; a>=0; a--) {
 			analogWrite (sensJ_feedback,a);
-			delay (1);
+			delayMicroseconds (50);
 		}
-		delay (200);
+		delay (50);
 	}
 
 	send_error_to_server (blister_release_fail);
@@ -175,19 +175,26 @@ boolean eject_blister () {
 		int sensor_state = analogRead (SensBlister);
 		Serial.print(sensor_state);
 		go_to_memory_position (21);
-		if ((sensor_state <= 350) || skip_sensor_blister) {
+		if ((sensor_state <= 450) || skip_sensor_blister) {
 			print_ok();
 			for (int a=255; a>=0; a--) {		// Led oFF
 				analogWrite (sensJ_feedback,a);
-				delay (2);
+				delayMicroseconds (50);
 			}
 			send_action_to_server (blister_ejected);
 			return true;
 		}else{
 			// Not ejected....
-			for (int a=0; a<=255; a++) {		// Led on
-				analogWrite (sensJ_feedback,a);
-				delay (2);
+			for (int b=0; b<=4; b++) {
+				for (int a=255; a>=0; a--) {
+					analogWrite (sensJ_feedback,a);
+					delayMicroseconds (50);
+				}
+				for (int a=0; a<=255; a++) {
+					analogWrite (sensJ_feedback,a);
+					delayMicroseconds (50);
+				}
+				delay (50);
 			}
 			send_error_to_server (blister_not_ejected);
 			Serial.print (F("Blister not ejected"));

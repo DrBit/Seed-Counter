@@ -7,7 +7,7 @@
 
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "Testing on Proto4 V5.3.14"
+#define version_prog "Testing on Proto4 V5.3.16"
 #define lib_version 15
 
 /********************************************
@@ -146,7 +146,7 @@ long old_ypos=0;
 int motor_select=0;
 int situation=0;
 const int motor_speed_counter=1000;
-const int motor_speed_XY=1200;
+const int motor_speed_XY=1600;
 const int motor_speed_blisters=1500;
 //ethernet flag
 boolean connected_to_server = false;

@@ -155,7 +155,7 @@ boolean receive_server_data (){
 	
 	// wait 3 seconds for incoming data before a time out
 	// 100ms * 10 = 1s so... 100*20 = 2000 (time to wait 2 seconds)
-	int times_to_try = 60;
+	int times_to_try = 250;
 	#if defined bypass_server
 	times_to_try = 1;
 	#endif

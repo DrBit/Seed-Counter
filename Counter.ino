@@ -20,7 +20,7 @@ unsigned int count_error_turns = 0;				// Used to count the amount of consecutiv
 
 boolean first_time_drop = true;		// Used only to acomodate position after INIT. Once hase been used we won't used anymore.
 
-unsigned int positive_acumulate_counter = 0;
+//unsigned int positive_acumulate_counter = 0;
 unsigned int negative_acumulate_counter = 0;
 unsigned int limit_consecutive_seeds_detected = 4;
 
@@ -136,41 +136,42 @@ boolean pickup_seed() {
 
 			case case_vibrate:
 				// here we can also implement de laser sensor so we have complete control over the seeds position
-				if (false) {
-					// If laser atttached
-
+				if (temp_detection) {		// We have detected a seed
+					negative_acumulate_counter  = 0;
+					seed_detected = true;	// Doing so we will go out of the while and continue main program
 				}else{
-					// If laser not atached
-					if (temp_detection) {
-						positive_acumulate_counter ++;
-						negative_acumulate_counter  = 0;
-						seed_detected = true;
-					}else{
-						positive_acumulate_counter = 0;
-						negative_acumulate_counter ++;
-					}
+					negative_acumulate_counter ++;
+				}
 
-					if (positive_acumulate_counter < limit_consecutive_seeds_detected) {
-						// RETHINK!!!!!
-						if (negative_acumulate_counter >= 1) {
-							// increase the power of vibration
-							// vibrate_solenoid(poin_number, power, duration
-							int power = 4 + (negative_acumulate_counter);
-							if (power >= 6) power = 6;
-							int duration = 100 -(negative_acumulate_counter*10);
-							if (duration <= 40) duration = 40;
-							vibrate_solenoid(solenoid1,power,duration);		// We vibrate for a fixed amount of time each time
-							positive_acumulate_counter = limit_consecutive_seeds_detected - 1;	// Next detected seed will stop vibrating
+				switch (negative_acumulate_counter) {
+					case 0:	
+						vibrate_solenoid(solenoid1,4,60);
+					break;
+					case 1:	
+						vibrate_solenoid(solenoid1,5,30);
+						delay (40);
+						vibrate_solenoid(solenoid1,5,30);
+					break;
+					case 2:	
+						vibrate_solenoid(solenoid1,5,35);
+						delay (45);
+						vibrate_solenoid(solenoid1,5,35);
+						delay (45);
+						vibrate_solenoid(solenoid1,5,35);
+					break;
+					case 3:	
+						vibrate_solenoid(solenoid1,6,40);
+						delay (50);
+						vibrate_solenoid(solenoid1,6,40);
+					break;
+					default:
+						if ((negative_acumulate_counter % 2) != 0) {	// 1rst time is 4 so we do nothing, then we alternate each time
 						}else{
-							// vibrate_solenoid(poin_number, power, duration)
-							vibrate_solenoid(solenoid1,5,100);		// We vibrate for a fixed amount of time each time
-							// was 100 instead of 80
+							vibrate_solenoid(solenoid1,6,120);
+							delay (65);
+							vibrate_solenoid(solenoid1,6,120);
 						}
-					} else {
-						// Fail to vibrate and reset negative counter
-						vibrate_solenoid(solenoid1,4,50);
-						negative_acumulate_counter = 0;
-					}
+					break;
 				}
 
 				#if defined DEBUG_counter
