@@ -4,6 +4,9 @@
 *********************************************
 **  REVISIONS from:
 **
+**  V5.3.17 - 15/12/2013
+**  * Added user actions when blister not ejected correctly
+**
 **  V5.3.16 - 11/12/2013
 **  * Changed vibration system
 **  * Changed init system of XY axis (not there yet...)

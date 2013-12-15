@@ -64,7 +64,7 @@ void trigger_pneumatic_mechanism () {
 		digitalWrite (extraoutput, HIGH);
 		delay (400);
 		digitalWrite (extraoutput, LOW);
-		Serial.print(F("In progress"));
+		Serial.println(F("In progress"));
 	}
 }
 

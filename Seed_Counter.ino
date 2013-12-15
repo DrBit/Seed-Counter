@@ -7,7 +7,7 @@
 
 #include "list_commands_ethernet.h"		// Check in the same directory
 
-#define version_prog "Testing on Proto4 V5.3.16"
+#define version_prog "Testing on Proto4 V5.3.17"
 #define lib_version 15
 
 /********************************************
@@ -27,7 +27,7 @@
 // #define Xmotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 // #define Ymotor_debug		// Eneable start of the motors without sensors conected for testing pourpuses only!!!!
 #define Sensor_printer		// Disable sensor printer
-// #define Sensor_blister		// Disable sensor blisters
+boolean Sensor_blister = false;	// Disable sensor blisters (when true)
 #define Server_com_debug		// Debug communications with the server
 #define Server_com_error_debug  // Debug errors of communication with the server
 // #define DEBUG_counter		// Debug counter.. print positions
@@ -372,6 +372,12 @@ void do_one_blister () {
 
 	//eject blister
 	eject_blister();
+	// Blister not ejected...
+
+	// Options try again
+	// manually remove
+	// ignore
+	// disable sensor
 	
 	Serial.print (F("Counted seeds: "));
 	Serial.println (counter_s);

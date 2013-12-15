@@ -106,9 +106,9 @@ void release_blister_servo () {
 
 bool check_blister_realeased () {
 	boolean skip_sensor_blister = false;
-#if defined Sensor_blister
-	skip_sensor_blister = true;
-#endif
+	if (Sensor_blister) {
+		skip_sensor_blister = true;
+	}
 	
 	// We will be using position P21 for checking the blister
 	// Postion P21 will be configured to be right where the blisters is pushed down to go
@@ -116,8 +116,8 @@ bool check_blister_realeased () {
 	// This way we ensure that even if the blister is bend it will be pushed downwards and detected by the sensor
 	// It also prevents infrared light from getting inside the sensor
 	
-	Serial.print(F("Blister released: "));
 	go_to_memory_position (21);
+	Serial.print(F("Blister released: "));
 	// shoudl we read this analogically to have a better precision? Test out
 	int sensor_state = analogRead (SensBlister); 
 	Serial.print(sensor_state);
@@ -151,58 +151,99 @@ bool check_blister_realeased () {
 
 boolean eject_blister () {
 	boolean skip_sensor_blister = false;
-#if defined Sensor_blister
-	skip_sensor_blister = true;
-#endif
+	if (Sensor_blister) {
+		skip_sensor_blister = true;
+	}
 
 	if (!skip_function()) {
 		PSupply_ON ();
 
-		// Should we check if we are at the right position?
-		for (int l = 0; l<70; l++) {
-			ejection_servo.write(servoEjection_open);           // sets the servo position according to the scaled value 
-			delay(5);                           				// waits for the servo to get there 
-			SoftwareServo::refresh();
-		}
+		block_loop = true;
+		boolean var_blister_ejected = false;
+		while (!var_blister_ejected) {
 
-		for (int l = 0; l<70; l++) {
-			ejection_servo.write(servoEjection_close);          // sets the servo position according to the scaled value 
-			delay(5);                           				// waits for the servo to get there 
-			SoftwareServo::refresh();
-		}
-
-		// Check if it is ejected
-		int sensor_state = analogRead (SensBlister);
-		Serial.print(sensor_state);
-		go_to_memory_position (21);
-		if ((sensor_state <= 450) || skip_sensor_blister) {
-			print_ok();
-			for (int a=255; a>=0; a--) {		// Led oFF
-				analogWrite (sensJ_feedback,a);
-				delayMicroseconds (50);
+			// Should we check if we are at the right position?
+			for (int l = 0; l<70; l++) {
+				ejection_servo.write(servoEjection_open);           // sets the servo position according to the scaled value 
+				delay(5);                           				// waits for the servo to get there 
+				SoftwareServo::refresh();
 			}
-			send_action_to_server (blister_ejected);
-			return true;
-		}else{
-			// Not ejected....
-			for (int b=0; b<=4; b++) {
-				for (int a=255; a>=0; a--) {
+
+			for (int l = 0; l<70; l++) {
+				ejection_servo.write(servoEjection_close);          // sets the servo position according to the scaled value 
+				delay(5);                           				// waits for the servo to get there 
+				SoftwareServo::refresh();
+			}
+
+			// Check if it is ejected
+			go_to_memory_position (21);		// Goes to check position
+			int sensor_state = analogRead (SensBlister);
+			Serial.print (F("Blister sensor state: "));
+			Serial.print (sensor_state);
+			if ((sensor_state <= 450) || skip_sensor_blister) {
+				print_ok();
+				for (int a=255; a>=0; a--) {		// Led oFF
 					analogWrite (sensJ_feedback,a);
 					delayMicroseconds (50);
 				}
-				for (int a=0; a<=255; a++) {
-					analogWrite (sensJ_feedback,a);
-					delayMicroseconds (50);
+				send_action_to_server (blister_ejected);
+				var_blister_ejected = true;
+			}else{
+				// Not ejected....
+				print_fail();
+				for (int b=0; b<=4; b++) {
+					for (int a=255; a>=0; a--) {
+						analogWrite (sensJ_feedback,a);
+						delayMicroseconds (50);
+					}
+					for (int a=0; a<=255; a++) {
+						analogWrite (sensJ_feedback,a);
+						delayMicroseconds (50);
+					}
+					delay (50);
 				}
-				delay (50);
+				send_error_to_server (blister_not_ejected);
+				Serial.println (F("Blister not ejected"));
+				#if defined serial_answers
+				Serial.println (F("type 1 to try again, 2 to ignore, 3 to disable sensor"));
+				#endif
+				// what to do next...
+				boolean quit_loop = false;
+				while (!quit_loop) {
+					check_server ();		// Here we can not do a check stop cause we would go into an endless loop.
+					if (!skip_function()) {			// In case we pressed restart or another high we will skip everything and continue to a safe position.
+						switch (server_answer) {
+
+							case button_continue:		// goes to print position and tries again
+								go_to_memory_position (3);			// Print position
+								quit_loop = true;
+							break;
+							
+							case button_ignore: 	// do nothing so we wont detect any error and we will continue
+								// Set variables to fake a positive
+								var_blister_ejected =true;
+								quit_loop = true;
+							break;
+
+							case button_finish:		// button finish disables the sensor
+								Sensor_blister = true;		// Disables checking sensor blister
+								var_blister_ejected =true;
+								quit_loop = true;
+							break;
+
+							default: // Any other answer or 0
+							break;
+						}
+						server_answer = 0;
+					}else{	// We enter here in case we trigger a main function of a parent loop
+						send_error_to_server (no_error);		// Reset error on the server
+						var_blister_ejected =true;
+						quit_loop = true;
+					}
+				}
 			}
-			send_error_to_server (blister_not_ejected);
-			Serial.print (F("Blister not ejected"));
-			while (true) {
-				// endloop
-			}
-			// *************************************** LOOOOOP
 		}
+		block_loop = false;
 	}
 }
 // Not used at the moment
